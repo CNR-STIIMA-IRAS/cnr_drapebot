@@ -35,7 +35,7 @@ namespace controller_ns
 
 				for(const hardware_interface::JointHandle& jnt_handle : joints_handle_ )
 				{
-					jnt_handle.setCommand();
+					//jnt_handle.setCommand( 0.0);
 					//do something	
 				} 
 
