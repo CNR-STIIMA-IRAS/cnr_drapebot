@@ -1,0 +1,9 @@
+<library path="lib/libdeformation_ctrl">
+  <class name="cnr/control/DeformationCtrl"
+         type="cnr::control::DeformationCtrl"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      The deformation_controller controller
+    </description>
+  </class>
+</library>

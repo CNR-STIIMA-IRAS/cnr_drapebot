@@ -1,0 +1,26 @@
+controller_list:
+  - name: fake_robot1_controller
+    type: $(arg fake_execution_type)
+    joints:
+      - kr210_1_linear_axis_joint
+      - kr210_1_joint_1
+      - kr210_1_joint_2
+      - kr210_1_joint_3
+      - kr210_1_joint_4
+      - kr210_1_joint_5
+      - kr210_1_joint_6
+  - name: fake_robot2_controller
+    type: $(arg fake_execution_type)
+    joints:
+      - kr210_2_linear_axis_joint
+      - kr210_2_joint_1
+      - kr210_2_joint_2
+      - kr210_2_joint_3
+      - kr210_2_joint_4
+      - kr210_2_joint_5
+      - kr210_2_joint_6
+initial:  # Define initial robot poses per group
+#  - group: robot1
+#    pose: home
+
+  []
