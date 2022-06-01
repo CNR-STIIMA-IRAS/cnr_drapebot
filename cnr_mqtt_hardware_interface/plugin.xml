@@ -1,0 +1,7 @@
+<library path="lib/libcnr_mqtt_hardware_interface">
+  <class name="cnr/control/MQTTRobotHW" type="cnr_hardware_interface::MQTTRobotHW" base_class_type="cnr_hardware_interface::RobotHW">
+    <description>
+      cnr_hardware_interface::MQTTRobotHw
+    </description>
+  </class>
+</library>

@@ -1,0 +1,33 @@
+control_configurations:    
+
+  - name: topics
+    components:
+    - {hardware_interface: "topics_hw",   controller: "js_pub", description: ""}
+    
+  - name: mqtt_watch
+    depends: [topics]
+    components:
+    - {hardware_interface: "robot2_mqtt_hw",   controller: "js_pub_r2", description: ""}
+    
+  - name: olp_ctrl
+    depends: [mqtt_watch]
+    hidden: true
+    components:
+      - { hardware_interface: "robot2_mqtt_hw", controller : "p_j_r2"}
+      
+  - name: def_ctrl
+    depends: [olp_ctrl]
+    hidden: true
+    components:
+      - { hardware_interface: "robot2_deformation_hw", controller : "deformation_ctrl_r2"}
+
+  - name: planner
+    depends: [def_ctrl]
+    components:
+    - {hardware_interface: "robot2_plan_hw", controller: "microint_r2"}
+    
+    
+    
+configuration_dispatches:
+  - { name: mqtt_watch,  at: 1.0 }
+  - { name: planner,  at: 2.0 }
