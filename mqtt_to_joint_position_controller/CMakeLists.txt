@@ -8,10 +8,11 @@ project(mqtt_to_joint_position_controller)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  position_controllers
-  roscpp
-  pluginlib
-  controller_interface
+	  position_controllers
+	  roscpp
+	  pluginlib
+	  controller_interface
+	  drapebot_mqtt_client
 )
 
 ## System dependencies are found with CMake's conventions
@@ -106,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES mqtt_to_joint_position_controller
-  CATKIN_DEPENDS position_controllers roscpp controller_interface
+  CATKIN_DEPENDS position_controllers roscpp controller_interface drapebot_mqtt_client
 #  DEPENDS system_lib
 )
 
@@ -128,7 +129,7 @@ add_library(${PROJECT_NAME} src/mqtt_to_joint_position_controller.cpp
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context

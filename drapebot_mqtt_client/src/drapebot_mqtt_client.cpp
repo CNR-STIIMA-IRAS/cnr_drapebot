@@ -33,6 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ros/ros.h>
 #include <jsoncpp/json/json.h>
 
 #include <drapebot_mqtt_client/drapebot_mqtt_client.h>
@@ -40,49 +41,49 @@
 
 namespace drapebot
 {
-  mqtt_client::mqtt_client(const char *id, const char *host, int port, int keepalive) : mosquittopp(id)
+	MQTTClient::MQTTClient(const char *id, const char *host, int port, int keepalive) : mosquittopp(id)
 	{
 			connect(host, port, keepalive);
 	}
 
-	mqtt_client::~mqtt_client()
+	MQTTClient::~MQTTClient()
 	{
+
 	}
 
-	void mqtt_client::on_connect(int rc)
+	void MQTTClient::on_connect(int rc)
 	{
-			if (!rc)
-			{
-				ROS_INFO_STREAM( "Connected - code " << rc );
-			}
+		if (!rc)
+		{
+			ROS_INFO_STREAM( "Connected - code " << rc );
+		}
 	}
 
-	void mqtt_client::on_subscribe(int mid, int qos_count, const int *granted_qos)
+	void MQTTClient::on_subscribe(int mid, int qos_count, const int *granted_qos)
 	{
 	//         std::cout << "Subscription succeeded." << std::endl;
 	}
 
-	void mqtt_client::on_message(const struct mosquitto_message *message)
+	void MQTTClient::on_message(const struct mosquitto_message *message)
 	{
 		
 		message_struct* buf = new message_struct;
 		memcpy(buf, message->payload, message->payloadlen);
 		
-		ROS_INFO_STREAM_THROTTLE(2.0,"feedback J1: "<< buf->J1);
-		ROS_INFO_STREAM_THROTTLE(2.0,"feedback J2: "<< buf->J2);
-		ROS_INFO_STREAM_THROTTLE(2.0,"feedback J3: "<< buf->J3);
-		ROS_INFO_STREAM_THROTTLE(2.0,"feedback J4: "<< buf->J4);
-		ROS_INFO_STREAM_THROTTLE(2.0,"feedback J5: "<< buf->J5);
-		ROS_INFO_STREAM_THROTTLE(2.0,"feedback J6: "<< buf->J6);
-		ROS_INFO_STREAM_THROTTLE(2.0,"feedback E0: "<< buf->E0);
-		
-		J1 = buf->J1;
-		J2 = buf->J2;
-		J3 = buf->J3;
-		J4 = buf->J4;
-		J5 = buf->J5;
-		J6 = buf->J6;
-		E0 = buf->E0;
+		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J1: "<< buf->joints_values_[1]);
+		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J2: "<< buf->joints_values_[2]);
+		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J3: "<< buf->joints_values_[3]);
+		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J4: "<< buf->joints_values_[4]);
+		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J5: "<< buf->joints_values_[5]);
+		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J6: "<< buf->joints_values_[6]);
+		ROS_INFO_STREAM_THROTTLE(2.0, "feedback E0: "<< buf->joints_values_[0]);
+
+		if ( message->payloadlen/sizeof(double) == 7 )
+			memcpy(&msg_, buf, sizeof(msg_)/sizeof(double));
+		else
+			ROS_WARN("The message received from MQTT has wrong length");
+
+		delete buf;
 			
 	}
 

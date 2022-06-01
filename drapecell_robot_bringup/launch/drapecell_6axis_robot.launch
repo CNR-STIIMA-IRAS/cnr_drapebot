@@ -32,6 +32,7 @@
   <group ns="egm">
     <!-- Load configurations for 'ros_control' controllers on the parameter server -->
     <rosparam file="$(find drapecell_robot_bringup)/config/drapecell_controllers.yaml" command="load"/>
+    <rosparam file="$(find mqtt_to_joint_position_controller)/config/mqtt_config.yaml" command="load"/>
 
     <!-- Two 'ros_control' controller spawners (stopped for the controller that command motions) -->
     <node pkg="controller_manager" type="spawner" name="started" args="egm_state_controller joint_state_controller"/>

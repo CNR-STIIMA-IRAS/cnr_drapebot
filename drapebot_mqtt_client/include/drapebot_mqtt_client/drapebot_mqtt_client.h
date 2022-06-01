@@ -44,37 +44,22 @@ namespace drapebot
 {
   struct message_struct 
   {
-
-    double J1;
-    double J2;
-    double J3;
-    double J4;
-    double J5;
-    double J6;
-    double E0;
-    
+    double joints_values_[7];    
   } mqtt_msg;   
 
 
-  class mqtt_client : public mosqpp::mosquittopp
+  class MQTTClient : public mosqpp::mosquittopp
   {
   public:
-      mqtt_client (const char *id, const char *host, int port, int keepalive = 60);
-      ~mqtt_client();
+      MQTTClient (const char *id, const char *host, int port, int keepalive = 60);
+      ~MQTTClient();
 
       void on_connect(int rc);
       void on_message(const struct mosquitto_message *message);
       void on_subscribe(int mid, int qos_count, const int *granted_qos);
 
-      double J1;
-      double J2;
-      double J3;
-      double J4;
-      double J5;
-      double J6;
-      double E0;
-      
+      message_struct msg_;      
   };
 
 }
-
+#endif

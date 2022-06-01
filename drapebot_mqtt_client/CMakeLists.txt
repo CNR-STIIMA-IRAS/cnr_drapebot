@@ -7,7 +7,8 @@ project(drapebot_mqtt_client)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS 
+            roscpp)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -101,7 +102,7 @@ find_package(catkin REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES drapebot_mqtt_client
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS roscpp
 #  DEPENDS system_lib
 )
 
@@ -112,8 +113,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories( include
-# ${catkin_INCLUDE_DIRS}
-C:\Program Files\mosquitto\devel
+ ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -144,7 +144,8 @@ add_library(${PROJECT_NAME}
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
-  C:\Program Files\mosquitto
+  mosquittopp
+  jsoncpp
 )
 
 #############
