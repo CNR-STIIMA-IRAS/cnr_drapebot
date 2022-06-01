@@ -25,9 +25,9 @@ mqtt_hw:
   kin_update_period: 0.1
 
   initial_position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  
   use_delta_target_pos: false
   delta_pos_from_start: false
-  
   
   #--- MQTT ---
   
