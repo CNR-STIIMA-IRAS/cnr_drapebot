@@ -93,6 +93,7 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+
 # Chutzpah Test files
 _Chutzpah*
 
@@ -115,6 +116,9 @@ ipch/
 
 # Visual Studio Trace Files
 *.e2e
+
+# VScode
+*.vscode
 
 # TFS 2012 Local Workspace
 $tf/
