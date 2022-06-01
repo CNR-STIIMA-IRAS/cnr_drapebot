@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 	  pluginlib
 	  controller_interface
 	  drapebot_mqtt_client
+	  velocity_controllers
 )
 
 ## System dependencies are found with CMake's conventions
@@ -123,8 +124,7 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME} src/mqtt_to_joint_position_controller.cpp
-)
+add_library(${PROJECT_NAME} src/mqtt_to_joint_position_controller.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

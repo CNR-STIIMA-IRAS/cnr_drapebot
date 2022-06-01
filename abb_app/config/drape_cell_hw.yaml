@@ -32,7 +32,7 @@ mqtt_hw:
   #--- MQTT ---
   
   client_id: "MQTT_HW"
-  host: 169.254.57.188    # drapebot
+  host: 192.168.254.7    # drapebot
   #host: localhost
   port: 1883
   

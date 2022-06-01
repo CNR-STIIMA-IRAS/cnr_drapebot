@@ -17,9 +17,14 @@ namespace drapebot_controller
   {
     delete mqtt_client_;  
   }
+  bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& /*root_nh*/, ros::NodeHandle& controller_nh)
+  {
+    return this->init(hw,controller_nh);    
+  }
 
   bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& n)
   {
+    ctrl_.init(hw,n); 
       // get joint name from the parameter server
       std::string my_joint;
 
@@ -31,7 +36,7 @@ namespace drapebot_controller
         return false;
       }
 
-      if (joints_names.size() <= 6)
+      if (joints_names.size() != 6)
       {
         ROS_ERROR("The number of axis expected is 6");
         return false;
@@ -49,7 +54,7 @@ namespace drapebot_controller
       if (!n.getParam("client_id",cid))
       {
         cid = "Client_ID";
-        ROS_WARN("Using defalut client ID: Client_ID");
+        ROS_WARN_STREAM("client id not found under " + n.getNamespace() + "/client_id . Using defalut client ID: " + cid);
       }
 
       int n_id = cid.length();
@@ -57,10 +62,10 @@ namespace drapebot_controller
       strcpy(client_id, cid.c_str());
       
       std::string host_str;
-      if (!n.getParam("host",host_str))
+      if (!n.getParam("broker_address",host_str))
       {
         host_str = "localhost";
-        ROS_WARN("Using defalut host: localhost");
+        ROS_WARN_STREAM("broker_address not found under " + n.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
       }
 
       int n_host = host_str.length();
@@ -71,13 +76,13 @@ namespace drapebot_controller
       if (!n.getParam("port",port))
       {
         port = 1883;
-        ROS_WARN("Using defalut port: 1883");
+        ROS_WARN_STREAM("port not found under " + n.getNamespace() + "/port. Using defalut broker address: "+ std::to_string( port));      
       }
       
-      if (!n.getParam("command_mqtt_topic",mqtt_command_topic_))
+      if (!n.getParam("mqtt_command_topic",mqtt_command_topic_))
       {
         mqtt_command_topic_ = "mqtt_command_topic";
-        ROS_WARN("Using topic out : mqtt_command_topic");
+        ROS_WARN_STREAM("mqtt_command_topic not found under " + n.getNamespace() + "/mqtt_command_topic . Using defalut broker address: "+ mqtt_command_topic_);      
       }
       
       mosquitto_lib_init();
@@ -88,16 +93,10 @@ namespace drapebot_controller
       
       mosqpp::lib_init();
       
-      if (!n.getParam("feedback_mqtt_topic",mqtt_feedback_topic_))
+      if (!n.getParam("mqtt_feedback_topic",mqtt_feedback_topic_))
       {
         mqtt_feedback_topic_ = "mqtt_feedback_topic";
-        ROS_WARN("Using topic out: mqtt_feedback_topic");
-      }
-      
-      if (!n.getParam("out_feedback_mqtt_topic",mqtt_out_feedback_topic_))
-      {
-        mqtt_out_feedback_topic_ = "out_mqtt_feedback_topic";
-        ROS_WARN("Using topic out: out_mqtt_feedback_topic");
+        ROS_WARN_STREAM("mqtt_feedback_topic not found under " + n.getNamespace() + "/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic_);  
       }
       
       size_t feedback_topic_size = mqtt_feedback_topic_.size();
@@ -110,23 +109,21 @@ namespace drapebot_controller
       
       return true;
   }
+  
 
   void MQTTToPositionController::update(const ros::Time& time, const ros::Duration& period)
   {
     mqtt_client_->loop();
-
+    
     // Read the new MQTT message and send the command to the robot
     std::vector<double> jnt_setpoint(sizeof(mqtt_client_->msg_)/sizeof(double));
 
-    for (size_t idx=0; idx<sizeof(mqtt_client_->msg_)/sizeof(double); idx++)
-      jnt_setpoint.at(idx) = mqtt_client_->msg_.joints_values_[idx];  
- 
-    for( size_t idx=0; idx<joints_handle_.size(); idx++)
-      joints_handle_.at(idx).setCommand(jnt_setpoint.at(idx+1));
- 
+    ctrl_.commands_buffer_.writeFromNonRT(jnt_setpoint);
+    ctrl_.update(time,period);
+    
     // Write a feedback
     
-    // Json::Value root;
+    // Json::Value root
     // Json::FastWriter writer;
   
     // root["J0"]["current_value"] = m_client->J1;
@@ -169,12 +166,20 @@ namespace drapebot_controller
 
   void MQTTToPositionController::starting(const ros::Time& time)
   { 
-
+    ctrl_.starting(time);
   }
 
   void MQTTToPositionController::stopping(const ros::Time& time) 
   {
-
+    ctrl_.stopping(time);
+  }
+  void MQTTToPositionController::waiting(const ros::Time& time)
+  {
+    ctrl_.waiting(time);
+  }
+  void MQTTToPositionController::aborting(const ros::Time& time) 
+  {
+    ctrl_.aborting(time);
   }
 }
 

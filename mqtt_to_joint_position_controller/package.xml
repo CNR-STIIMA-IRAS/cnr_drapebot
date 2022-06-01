@@ -52,6 +52,7 @@
   <build_depend>position_controllers</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>pluginlib</build_depend>
+  <build_depend>velocity_controllers</build_depend>
   <build_export_depend>position_controllers</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>pluginlib</build_export_depend>
