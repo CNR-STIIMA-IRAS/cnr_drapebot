@@ -123,6 +123,10 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+if(WIN32)
+  include_directories("C:\\Program Files\\mosquitto\\devel\\")
+endif()
+
 ## Declare a C++ library
 add_library(${PROJECT_NAME} src/mqtt_to_joint_position_controller.cpp)
 

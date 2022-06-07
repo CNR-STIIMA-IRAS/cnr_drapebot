@@ -1,5 +1,4 @@
 #include <string>
-#include <jsoncpp/json/json.h>
 
 #include <pluginlib/class_list_macros.hpp>
 #include <mqtt_to_joint_position_controller/mqtt_to_joint_position_controller.h>
@@ -25,89 +24,89 @@ namespace drapebot_controller
   bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& n)
   {
     ctrl_.init(hw,n); 
-      // get joint name from the parameter server
-      std::string my_joint;
+    // get joint name from the parameter server
+    std::string my_joint;
 
-      std::string jnt_namespace = "/egm/joint_group_mqtt_to_position_controller/joints";
-      std::vector<std::string> joints_names; 
-      if (!n.getParam(jnt_namespace, joints_names))
-      {
-        ROS_ERROR("Could not find the namespace.");
-        return false;
-      }
+    std::string jnt_namespace = "/egm/joint_group_mqtt_to_position_controller/joints";
+    std::vector<std::string> joints_names; 
+    if (!n.getParam(jnt_namespace, joints_names))
+    {
+      ROS_ERROR("Could not find the namespace.");
+      return false;
+    }
 
-      if (joints_names.size() != 6)
-      {
-        ROS_ERROR("The number of axis expected is 6");
-        return false;
-      }
+    if (joints_names.size() != 6)
+    {
+      ROS_ERROR("The number of axis expected is 6");
+      return false;
+    }
 
-      for (const std::string& jnt_name : joints_names)
-        // get the joint object to use in the realtime loop
-        joints_handle_.push_back( hw->getHandle(jnt_name) );  // throws on failure
+    // for (const std::string& jnt_name : joints_names)
+    //   // get the joint object to use in the realtime loop
+    //   joints_handle_.push_back( hw->getHandle(jnt_name) );  // throws on failure
 
-      j_pos_feedback_.resize( sizeof(mqtt_client_->msg_)/sizeof(double) ); 
+    j_pos_feedback_.resize( sizeof(mqtt_client_->msg_)/sizeof(double) ); 
 
-      // ---- MQTT params ----
+    // ---- MQTT params ----
 
-      std::string cid;
-      if (!n.getParam("client_id",cid))
-      {
-        cid = "Client_ID";
-        ROS_WARN_STREAM("client id not found under " + n.getNamespace() + "/client_id . Using defalut client ID: " + cid);
-      }
+    std::string cid;
+    if (!n.getParam("client_id",cid))
+    {
+      cid = "Client_ID";
+      ROS_WARN_STREAM("client id not found under " + n.getNamespace() + "/client_id . Using defalut client ID: " + cid);
+    }
 
-      int n_id = cid.length();
-      char client_id[n_id + 1];
-      strcpy(client_id, cid.c_str());
-      
-      std::string host_str;
-      if (!n.getParam("broker_address",host_str))
-      {
-        host_str = "localhost";
-        ROS_WARN_STREAM("broker_address not found under " + n.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
-      }
+    int n_id = cid.length();
+    char client_id[n_id + 1];
+    strcpy(client_id, cid.c_str());
+    
+    std::string host_str;
+    if (!n.getParam("broker_address",host_str))
+    {
+      host_str = "localhost";
+      ROS_WARN_STREAM("broker_address not found under " + n.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
+    }
 
-      int n_host = host_str.length();
-      char host[n_host + 1];
-      strcpy(host, host_str.c_str());
-      
-      int port;
-      if (!n.getParam("port",port))
-      {
-        port = 1883;
-        ROS_WARN_STREAM("port not found under " + n.getNamespace() + "/port. Using defalut broker address: "+ std::to_string( port));      
-      }
-      
-      if (!n.getParam("mqtt_command_topic",mqtt_command_topic_))
-      {
-        mqtt_command_topic_ = "mqtt_command_topic";
-        ROS_WARN_STREAM("mqtt_command_topic not found under " + n.getNamespace() + "/mqtt_command_topic . Using defalut broker address: "+ mqtt_command_topic_);      
-      }
-      
-      mosquitto_lib_init();
-      
-      ROS_WARN_STREAM("Connencting mqtt: "<< client_id << ": " <<host);
-      mqtt_client_ = new drapebot::MQTTClient(client_id, host, port);
-      ROS_INFO_STREAM("Connencted to: "<< client_id << ": " <<host);
-      
-      mosqpp::lib_init();
-      
-      if (!n.getParam("mqtt_feedback_topic",mqtt_feedback_topic_))
-      {
-        mqtt_feedback_topic_ = "mqtt_feedback_topic";
-        ROS_WARN_STREAM("mqtt_feedback_topic not found under " + n.getNamespace() + "/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic_);  
-      }
-      
-      size_t feedback_topic_size = mqtt_feedback_topic_.size();
-      char topic[feedback_topic_size + 1];
-      strcpy(topic, mqtt_feedback_topic_.c_str());
-      mqtt_client_->subscribe(NULL, topic);
+    int n_host = host_str.length();
+    char host[n_host + 1];
+    strcpy(host, host_str.c_str());
+    
+    int port;
+    if (!n.getParam("port",port))
+    {
+      port = 1883;
+      ROS_WARN_STREAM("port not found under " + n.getNamespace() + "/port. Using defalut broker address: "+ std::to_string( port));      
+    }
+    
+    if (!n.getParam("mqtt_command_topic",mqtt_command_topic_))
+    {
+      mqtt_command_topic_ = "mqtt_command_topic";
+      ROS_WARN_STREAM("mqtt_command_topic not found under " + n.getNamespace() + "/mqtt_command_topic . Using defalut broker address: "+ mqtt_command_topic_);      
+    }
+    
+    mosquitto_lib_init();
+    
+    ROS_WARN_STREAM("Connencting mqtt: "<< client_id << ": " <<host);
+    mqtt_client_ = new drapebot::MQTTClient(client_id, host, port);
+    ROS_INFO_STREAM("Connencted to: "<< client_id << ": " <<host);
+    
+    mosqpp::lib_init();
+    
+    if (!n.getParam("mqtt_feedback_topic",mqtt_feedback_topic_))
+    {
+      mqtt_feedback_topic_ = "mqtt_feedback_topic";
+      ROS_WARN_STREAM("mqtt_feedback_topic not found under " + n.getNamespace() + "/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic_);  
+    }
+    
+    size_t feedback_topic_size = mqtt_feedback_topic_.size();
+    char topic[feedback_topic_size + 1];
+    strcpy(topic, mqtt_feedback_topic_.c_str());
+    mqtt_client_->subscribe(NULL, topic);
 
-      for(size_t idx=0; idx<sizeof(mqtt_client_->msg_)/sizeof(double); idx++)
-        mqtt_client_->msg_.joints_values_[idx] = j_pos_feedback_[idx];
-      
-      return true;
+    for(size_t idx=0; idx<sizeof(mqtt_client_->msg_)/sizeof(double); idx++)
+      mqtt_client_->msg_.joints_values_[idx] = j_pos_feedback_[idx];
+    
+    return true;
   }
   
 

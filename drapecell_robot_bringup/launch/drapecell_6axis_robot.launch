@@ -36,7 +36,7 @@
 
     <!-- Two 'ros_control' controller spawners (stopped for the controller that command motions) -->
     <node pkg="controller_manager" type="spawner" name="started" args="egm_state_controller joint_state_controller"/>
-    <node pkg="controller_manager" type="spawner" name="stopped_pos_ctrl" args="--stopped joint_group_mqtt_to_position_controller"/>
+    <node pkg="controller_manager" type="spawner" name="stopped_pos_ctrl" args="--stopped joint_group_position_controller"/>
     <node pkg="controller_manager" type="spawner" name="stopped_vel_ctrl" args="--stopped joint_group_velocity_controller"/>
 	
   </group>
