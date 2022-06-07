@@ -34,7 +34,6 @@
  */
 
 #include <ros/ros.h>
-#include <jsoncpp/json/json.h>
 
 #include <drapebot_mqtt_client/drapebot_mqtt_client.h>
 

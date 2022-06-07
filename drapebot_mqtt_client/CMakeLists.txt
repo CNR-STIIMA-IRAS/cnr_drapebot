@@ -116,8 +116,12 @@ include_directories( include
  ${catkin_INCLUDE_DIRS}
 )
 
+if(WIN32)
+  include_directories("C:\\Program Files\\mosquitto\\devel\\")
+endif()
+
 ## Declare a C++ library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} STATIC
   src/drapebot_mqtt_client.cpp
 )
 
@@ -141,11 +145,15 @@ add_library(${PROJECT_NAME}
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+if(WIN32)
+    link_directories("C:\\Program Files\\mosquitto\\")
+endif()
+
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} 
   ${catkin_LIBRARIES}
+  mosquitto
   mosquittopp
-  jsoncpp
 )
 
 #############

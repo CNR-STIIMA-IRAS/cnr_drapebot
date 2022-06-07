@@ -25,11 +25,11 @@ namespace drapebot_controller
         void aborting(const ros::Time& time) final;
 
     private:
-        std::vector<hardware_interface::JointHandle> joints_handle_;
+        //std::vector<hardware_interface::JointHandle> joints_handle_;
 
         drapebot::MQTTClient* mqtt_client_;
 
-        std::vector<double> j_pos_feedback_;
+        std::vector<double> j_pos_feedback_; // to be removed
 
         std::string mqtt_command_topic_;
         std::string mqtt_feedback_topic_;

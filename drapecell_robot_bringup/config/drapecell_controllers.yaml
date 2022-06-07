@@ -8,8 +8,18 @@ egm_state_controller:
 
 # These settings must match:
 # - Joint names extracted from the ABB robot controller.
-joint_group_mqtt_to_position_controller:
-  type: position_controllers/MQTTToPositionController
+#joint_group_mqtt_to_position_controller:
+#  type: position_controllers/MQTTToPositionController
+#  joints:
+#    - joint_1
+#    - joint_2
+#    - joint_3
+#    - joint_4
+#    - joint_5
+#    - joint_6
+
+joint_group_position_controller:
+  type: position_controllers/JointGroupPositionController
   joints:
     - joint_1
     - joint_2
