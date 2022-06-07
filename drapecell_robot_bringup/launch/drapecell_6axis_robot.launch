@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="robot_ip" doc="The robot controller's IP address"/>
+  <arg name="robot_ip" default="192.168.125.5" doc="The robot controller's IP address"/>
 
   <!-- Enable DEBUG output for all ABB nodes -->
   <arg name="debug" default="false"/>
