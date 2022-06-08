@@ -80,6 +80,8 @@ public:
     double J6;
     double E0;
     
+    bool first_message_received;
+    
 };
 
 
@@ -140,6 +142,8 @@ protected:
   std::string m_mqtt_command_topic;
   std::string m_mqtt_feedback_topic;
   std::string m_mqtt_out_feedback_topic;
+  
+  bool first_cycle;
   
   mqtt_client* m_client;
 

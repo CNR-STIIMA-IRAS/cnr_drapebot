@@ -39,13 +39,15 @@
 #define __DRAPEBOT_MQTT_CLIENT__
 
 #include <mosquittopp.h>
+#include <mutex>
 
 namespace drapebot
 {
   struct message_struct 
   {
-    double joints_values_[7];    
-  } mqtt_msg;   
+    double joints_values_[6];
+    double linear_axis_value_;    
+  };   
 
 
   class MQTTClient : public mosqpp::mosquittopp
@@ -53,12 +55,20 @@ namespace drapebot
   public:
       MQTTClient (const char *id, const char *host, int port, int keepalive = 60);
       ~MQTTClient();
-
+      
       void on_connect(int rc);
       void on_message(const struct mosquitto_message *message);
       void on_subscribe(int mid, int qos_count, const int *granted_qos);
-
+      
+      bool is_new_message_available();
+      bool is_data_valid();
+      
       message_struct msg_;      
+  private:
+      std::mutex mtx_;
+      bool new_msg_available_ = false;
+      bool data_valid_ = false;
+
   };
 
 }

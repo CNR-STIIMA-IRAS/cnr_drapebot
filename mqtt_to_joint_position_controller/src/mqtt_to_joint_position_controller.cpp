@@ -16,36 +16,14 @@ namespace drapebot_controller
   {
     delete mqtt_client_;  
   }
-  bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& /*root_nh*/, ros::NodeHandle& controller_nh)
-  {
-    return this->init(hw,controller_nh);    
-  }
+//   bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& /*root_nh*/, ros::NodeHandle& controller_nh)
+//   {
+//     return this->init(hw,controller_nh);    
+//   }
 
   bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& n)
   {
     ctrl_.init(hw,n); 
-    // get joint name from the parameter server
-    std::string my_joint;
-
-    std::string jnt_namespace = "/egm/joint_group_mqtt_to_position_controller/joints";
-    std::vector<std::string> joints_names; 
-    if (!n.getParam(jnt_namespace, joints_names))
-    {
-      ROS_ERROR("Could not find the namespace.");
-      return false;
-    }
-
-    if (joints_names.size() != 6)
-    {
-      ROS_ERROR("The number of axis expected is 6");
-      return false;
-    }
-
-    // for (const std::string& jnt_name : joints_names)
-    //   // get the joint object to use in the realtime loop
-    //   joints_handle_.push_back( hw->getHandle(jnt_name) );  // throws on failure
-
-    j_pos_feedback_.resize( sizeof(mqtt_client_->msg_)/sizeof(double) ); 
 
     // ---- MQTT params ----
 
@@ -88,23 +66,32 @@ namespace drapebot_controller
     
     ROS_WARN_STREAM("Connencting mqtt: "<< client_id << ": " <<host);
     mqtt_client_ = new drapebot::MQTTClient(client_id, host, port);
-    ROS_INFO_STREAM("Connencted to: "<< client_id << ": " <<host);
+    ROS_ERROR_STREAM("Connencted to: "<< client_id << ": " <<host);
     
     mosqpp::lib_init();
     
-    if (!n.getParam("mqtt_feedback_topic",mqtt_feedback_topic_))
-    {
-      mqtt_feedback_topic_ = "mqtt_feedback_topic";
-      ROS_WARN_STREAM("mqtt_feedback_topic not found under " + n.getNamespace() + "/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic_);  
-    }
-    
-    size_t feedback_topic_size = mqtt_feedback_topic_.size();
-    char topic[feedback_topic_size + 1];
-    strcpy(topic, mqtt_feedback_topic_.c_str());
-    mqtt_client_->subscribe(NULL, topic);
+    char topic_command[mqtt_command_topic_.size() + 1];
+    strcpy(topic_command, mqtt_command_topic_.c_str());
+    mqtt_client_->subscribe(NULL, topic_command);
+    ROS_FATAL_STREAM("subscribing: "<< topic_command);
 
-    for(size_t idx=0; idx<sizeof(mqtt_client_->msg_)/sizeof(double); idx++)
-      mqtt_client_->msg_.joints_values_[idx] = j_pos_feedback_[idx];
+    
+    j_pos_command_.resize(sizeof(mqtt_client_->msg_.joints_values_)/sizeof(double));
+    j_pos_command_  = *ctrl_.commands_buffer_.readFromNonRT();
+    
+    ROS_FATAL_STREAM("mqtt_command_topic : "<< mqtt_command_topic_);
+    
+    drapebot::message_struct tmp_j_pos_feedback;
+    
+    tmp_j_pos_feedback.linear_axis_value_ = 0;
+    
+    void* payload_ = malloc( sizeof(tmp_j_pos_feedback) );
+    
+    memcpy(payload_, &tmp_j_pos_feedback, sizeof(tmp_j_pos_feedback));  
+    
+    first_cycle_ = true;
+    
+    ROS_WARN_STREAM("Controller MQTTToPositionController Initialized ! ");
     
     return true;
   }
@@ -114,53 +101,35 @@ namespace drapebot_controller
   {
     mqtt_client_->loop();
     
+    if (first_cycle_)
+    {
+      first_cycle_ = false;
+      j_pos_command_  = *ctrl_.commands_buffer_.readFromNonRT();
+    }
+      
     // Read the new MQTT message and send the command to the robot
-    std::vector<double> jnt_setpoint(sizeof(mqtt_client_->msg_)/sizeof(double));
-
-    ctrl_.commands_buffer_.writeFromNonRT(jnt_setpoint);
-    ctrl_.update(time,period);
+      
+    if (mqtt_client_->is_new_message_available() && mqtt_client_->is_data_valid())
+    {
+      for (size_t i=0; i<sizeof(mqtt_client_->msg_.joints_values_)/sizeof(double); i++)
+      {
+        j_pos_command_[i] =  mqtt_client_->msg_.joints_values_[i];
+      }
+        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[0]: new msg mqtt "<< j_pos_command_[0]);
+        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[1]: new msg mqtt "<< j_pos_command_[1]);
+        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[2]: new msg mqtt "<< j_pos_command_[2]);
+        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[3]: new msg mqtt "<< j_pos_command_[3]);
+        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[4]: new msg mqtt "<< j_pos_command_[4]);
+        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[5]: new msg mqtt "<< j_pos_command_[5]);
+    }
+    else
+      ROS_WARN_THROTTLE(10.0,"no new msg available");
     
     // Write a feedback
     
-    // Json::Value root
-    // Json::FastWriter writer;
-  
-    // root["J0"]["current_value"] = m_client->J1;
-    // root["J1"]["current_value"] = m_client->J2;
-    // root["J2"]["current_value"] = m_client->J3;
-    // root["J3"]["current_value"] = m_client->J4;
-    // root["J4"]["current_value"] = m_client->J5;
-    // root["J5"]["current_value"] = m_client->J6;
-    // root["J6"]["current_value"] = m_client->E0;
+    ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
+    ctrl_.update(time,period);
     
-    // root["J0"]["command_value"] = m_cmd_pos.at(1);
-    // root["J1"]["command_value"] = m_cmd_pos.at(2);
-    // root["J2"]["command_value"] = m_cmd_pos.at(3);
-    // root["J3"]["command_value"] = m_cmd_pos.at(4);
-    // root["J4"]["command_value"] = m_cmd_pos.at(5);
-    // root["J5"]["command_value"] = m_cmd_pos.at(6);
-    // root["J6"]["command_value"] = m_cmd_pos.at(0);
-    
-    // root["J0"]["reference_value"] = m_nom_traj.at(1);
-    // root["J1"]["reference_value"] = m_nom_traj.at(2);
-    // root["J2"]["reference_value"] = m_nom_traj.at(3);
-    // root["J3"]["reference_value"] = m_nom_traj.at(4);
-    // root["J4"]["reference_value"] = m_nom_traj.at(5);
-    // root["J5"]["reference_value"] = m_nom_traj.at(6);
-    // root["J6"]["reference_value"] = m_nom_traj.at(0);
-  
-    // Json::StreamWriterBuilder builder;
-    // const std::string json_file = Json::writeString(builder, root);
-      
-    // int n = m_mqtt_out_feedback_topic.length();
-    // char topic[n+ 1];
-    // strcpy(topic, m_mqtt_out_feedback_topic.c_str());
-    
-    // int len = json_file.length();
-    // char pl[len+1];
-    // strcpy(pl, json_file.c_str());
-    // m_client->publish(NULL, topic, sizeof(pl), pl);
-  
   }
 
   void MQTTToPositionController::starting(const ros::Time& time)

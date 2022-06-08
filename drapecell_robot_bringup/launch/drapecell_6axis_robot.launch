@@ -32,12 +32,14 @@
   <group ns="egm">
     <!-- Load configurations for 'ros_control' controllers on the parameter server -->
     <rosparam file="$(find drapecell_robot_bringup)/config/drapecell_controllers.yaml" command="load"/>
-    <rosparam file="$(find mqtt_to_joint_position_controller)/config/mqtt_config.yaml" command="load"/>
+<!--     <rosparam file="$(find mqtt_to_joint_position_controller)/config/mqtt_config.yaml" command="load"/> -->
 
     <!-- Two 'ros_control' controller spawners (stopped for the controller that command motions) -->
-    <node pkg="controller_manager" type="spawner" name="started" args="egm_state_controller joint_state_controller"/>
-    <node pkg="controller_manager" type="spawner" name="stopped_pos_ctrl" args="--stopped joint_group_position_controller"/>
-    <node pkg="controller_manager" type="spawner" name="stopped_vel_ctrl" args="--stopped joint_group_velocity_controller"/>
+<!--     <node pkg="controller_manager" type="spawner" name="started" args="egm_state_controller joint_state_controller"/> -->
+    <node pkg="controller_manager" type="spawner" name="started" args="egm_to_mqtt_ctrl egm_state_controller  joint_state_controller"/>
+    <node pkg="controller_manager" type="spawner" name="stopped_mqtt_to_pos_ctrl" args="--stopped mqtt_to_pos_ctrl"/>
+    <node pkg="controller_manager" type="spawner" name="stopped_pos_ctrl" args="--stopped j_pos_ctrl"/>
+    <node pkg="controller_manager" type="spawner" name="stopped_vel_ctrl" args="--stopped j_vel_ctrl"/>
 	
   </group>
 

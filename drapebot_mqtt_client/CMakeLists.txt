@@ -121,7 +121,7 @@ if(WIN32)
 endif()
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} 
   src/drapebot_mqtt_client.cpp
 )
 

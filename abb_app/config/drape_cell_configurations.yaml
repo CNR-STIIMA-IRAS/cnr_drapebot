@@ -35,6 +35,6 @@ control_configurations:
     
     
 configuration_dispatches:
-  - { name: mqtt_watch,  at: 1.0 }
-  - { name: planner,  at: 2.0 }
+  - { name: mqtt_watch,  at: .5 }
+  - { name: planner,  at: 1.0 }
   #- { name: planner_impedance,  at: 2.0 }

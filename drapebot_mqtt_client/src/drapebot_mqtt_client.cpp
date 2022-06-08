@@ -34,7 +34,7 @@
  */
 
 #include <ros/ros.h>
-
+#include <stdio.h>
 #include <drapebot_mqtt_client/drapebot_mqtt_client.h>
 
 
@@ -43,6 +43,7 @@ namespace drapebot
 	MQTTClient::MQTTClient(const char *id, const char *host, int port, int keepalive) : mosquittopp(id)
 	{
 			connect(host, port, keepalive);
+      memset(&msg_,0,sizeof(message_struct));
 	}
 
 	MQTTClient::~MQTTClient()
@@ -65,26 +66,55 @@ namespace drapebot
 
 	void MQTTClient::on_message(const struct mosquitto_message *message)
 	{
-		
+		new_msg_available_ = true;
+    
 		message_struct* buf = new message_struct;
-		memcpy(buf, message->payload, message->payloadlen);
-		
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J1: "<< buf->joints_values_[1]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J2: "<< buf->joints_values_[2]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J3: "<< buf->joints_values_[3]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J4: "<< buf->joints_values_[4]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J5: "<< buf->joints_values_[5]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J6: "<< buf->joints_values_[6]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback E0: "<< buf->joints_values_[0]);
-
-		if ( message->payloadlen/sizeof(double) == 7 )
-			memcpy(&msg_, buf, sizeof(msg_)/sizeof(double));
+    
+    if ( message->payloadlen/sizeof(double) == 7 )
+    {
+      memcpy(buf, message->payload, message->payloadlen);
+      
+			memcpy(&msg_, buf, sizeof(msg_));
+      
+//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J1: "<< msg_.joints_values_[0]);
+//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J2: "<< msg_.joints_values_[1]);
+//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J3: "<< msg_.joints_values_[2]);
+//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J4: "<< msg_.joints_values_[3]);
+//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J5: "<< msg_.joints_values_[4]);
+//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J6: "<< msg_.joints_values_[5]);
+//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received E0: "<< msg_.linear_axis_value_);
+      
+      data_valid_ = true;
+    }
 		else
+    {
 			ROS_WARN("The message received from MQTT has wrong length");
+      data_valid_ = false;
+    }
 
 		delete buf;
+    
+    return;
 			
 	}
+	
+	bool MQTTClient::is_new_message_available()
+  {
+//     mtx_.lock();
+    if (new_msg_available_)
+    {
+      new_msg_available_ = false;
+      return true;
+    }
+//     mtx_.unlock();
+    return false;
+  }
+  
+	bool MQTTClient::is_data_valid()
+  {
+    return data_valid_;
+  }
+
 
 }
 

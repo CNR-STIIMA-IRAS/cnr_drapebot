@@ -1,0 +1,9 @@
+<library path="lib/libegm_to_mqtt_state_ctrl">
+
+  <class name="position_controllers/EgmToMQTTCtrl" type="drapebot_controller::EgmToMQTTCtrl" base_class_type="controller_interface::ControllerBase">
+    <description>
+      The MQTTToPositionController tracks position commands for a set of joints. It expects a MQTTToPositionController type of hardware interface.
+    </description>
+  </class>
+
+</library>
