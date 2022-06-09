@@ -115,17 +115,16 @@ namespace drapebot_controller
       {
         j_pos_command_[i] =  mqtt_client_->msg_.joints_values_[i];
       }
-        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[0]: new msg mqtt "<< j_pos_command_[0]);
-        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[1]: new msg mqtt "<< j_pos_command_[1]);
-        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[2]: new msg mqtt "<< j_pos_command_[2]);
-        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[3]: new msg mqtt "<< j_pos_command_[3]);
-        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[4]: new msg mqtt "<< j_pos_command_[4]);
-        ROS_FATAL_STREAM_THROTTLE(5.0,"joint command[5]: new msg mqtt "<< j_pos_command_[5]);
     }
     else
       ROS_WARN_THROTTLE(10.0,"no new msg available");
     
-    // Write a feedback
+    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_0 : "<< j_pos_command_[0]);
+    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_1 : "<< j_pos_command_[1]);
+    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_2 : "<< j_pos_command_[2]);
+    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_3 : "<< j_pos_command_[3]);
+    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_4 : "<< j_pos_command_[4]);
+    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_5 : "<< j_pos_command_[5]);
     
     ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
     ctrl_.update(time,period);

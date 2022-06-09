@@ -102,6 +102,9 @@ int main(int argc, char **argv)
     if(client.new_trajectory_available)
     {
       execute_trajectory.sendGoal ( client.trajectory_msg );
+      
+      ROS_WARN_STREAM("goal trajectory sent:\n"<<client.trajectory_msg);
+      
       std::vector<double> first_point;
       for (auto p : client.trajectory_msg.trajectory.points[0].positions)
         ROS_INFO_STREAM(p);

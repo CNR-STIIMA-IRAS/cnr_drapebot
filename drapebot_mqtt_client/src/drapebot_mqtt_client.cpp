@@ -67,6 +67,8 @@ namespace drapebot
 	void MQTTClient::on_message(const struct mosquitto_message *message)
 	{
 		new_msg_available_ = true;
+
+    ROS_WARN_STREAM_THROTTLE(5.0," MSG received: ");
     
 		message_struct* buf = new message_struct;
     
@@ -76,13 +78,13 @@ namespace drapebot
       
 			memcpy(&msg_, buf, sizeof(msg_));
       
-//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J1: "<< msg_.joints_values_[0]);
-//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J2: "<< msg_.joints_values_[1]);
-//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J3: "<< msg_.joints_values_[2]);
-//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J4: "<< msg_.joints_values_[3]);
-//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J5: "<< msg_.joints_values_[4]);
-//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J6: "<< msg_.joints_values_[5]);
-//       ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received E0: "<< msg_.linear_axis_value_);
+      ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J1: "<< msg_.joints_values_[0]);
+      ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J2: "<< msg_.joints_values_[1]);
+      ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J3: "<< msg_.joints_values_[2]);
+      ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J4: "<< msg_.joints_values_[3]);
+      ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J5: "<< msg_.joints_values_[4]);
+      ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received J6: "<< msg_.joints_values_[5]);
+      ROS_WARN_STREAM_THROTTLE(5.0,"cmd msg received E0: "<< msg_.linear_axis_value_);
       
       data_valid_ = true;
     }

@@ -71,17 +71,16 @@ void mqtt_client::on_subscribe(int mid, int qos_count, const int *granted_qos)
 
 void mqtt_client::on_message(const struct mosquitto_message *message)
 {
-  
   message_struct* buf = new message_struct;
   memcpy(buf, message->payload, message->payloadlen);
   
-  ROS_INFO_STREAM_THROTTLE(2.0,"feedback J1: "<< buf->J1);
-  ROS_INFO_STREAM_THROTTLE(2.0,"feedback J2: "<< buf->J2);
-  ROS_INFO_STREAM_THROTTLE(2.0,"feedback J3: "<< buf->J3);
-  ROS_INFO_STREAM_THROTTLE(2.0,"feedback J4: "<< buf->J4);
-  ROS_INFO_STREAM_THROTTLE(2.0,"feedback J5: "<< buf->J5);
-  ROS_INFO_STREAM_THROTTLE(2.0,"feedback J6: "<< buf->J6);
-  ROS_INFO_STREAM_THROTTLE(2.0,"feedback E0: "<< buf->E0);
+  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J1: "<< buf->J1);
+  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J2: "<< buf->J2);
+  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J3: "<< buf->J3);
+  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J4: "<< buf->J4);
+  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J5: "<< buf->J5);
+  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J6: "<< buf->J6);
+  ROS_INFO_STREAM_THROTTLE(5.0,"feedback E0: "<< buf->E0);
   
   J1 = buf->J1;
   J2 = buf->J2;
@@ -91,9 +90,11 @@ void mqtt_client::on_message(const struct mosquitto_message *message)
   J6 = buf->J6;
   E0 = buf->E0;
   first_message_received = true;
+}
 
-  
-  
+bool mqtt_client::get_first_message_status()
+{
+  return first_message_received ;
 }
 
 
@@ -386,15 +387,52 @@ bool MQTTRobotHW::doInit()
   m_client->subscribe(NULL, topic);
   ROS_FATAL_STREAM("[cnr_mqtt_hardware_interface] Subscribed to : "<<topic);
     
-  m_client->J1 = m_pos[1];
-  m_client->J2 = m_pos[2];
-  m_client->J3 = m_pos[3];
-  m_client->J4 = m_pos[4];
-  m_client->J5 = m_pos[5];
-  m_client->J6 = m_pos[6];
-  m_client->E0 = m_pos[0];
+//   m_client->J1 = m_pos[1];
+//   m_client->J2 = m_pos[2];
+//   m_client->J3 = m_pos[3];
+//   m_client->J4 = m_pos[4];
+//   m_client->J5 = m_pos[5];
+//   m_client->J6 = m_pos[6];
+//   m_client->E0 = m_pos[0];
   
-  first_cycle = true;
+  
+  while ( !m_client->get_first_message_status() )
+  {
+    ROS_WARN_STREAM_THROTTLE(2.0,"waiting for first feedback message");
+    m_client->loop();
+  }
+  
+  m_cmd_pos[0] = m_client->E0; 
+  m_cmd_pos[1] = m_client->J1; 
+  m_cmd_pos[2] = m_client->J2; 
+  m_cmd_pos[3] = m_client->J3; 
+  m_cmd_pos[4] = m_client->J4; 
+  m_cmd_pos[5] = m_client->J5; 
+  m_cmd_pos[6] = m_client->J6; 
+  
+  m_pos[0] = m_client->E0; 
+  m_pos[1] = m_client->J1; 
+  m_pos[2] = m_client->J2; 
+  m_pos[3] = m_client->J3; 
+  m_pos[4] = m_client->J4; 
+  m_pos[5] = m_client->J5; 
+  m_pos[6] = m_client->J6; 
+  
+  
+  CNR_INFO(this->m_logger, "Message received!");
+  
+  ROS_FATAL_STREAM( "INITIAL POSITION J1: " <<m_cmd_pos[1]);
+  ROS_FATAL_STREAM( "INITIAL POSITION J2: " <<m_cmd_pos[2]);
+  ROS_FATAL_STREAM( "INITIAL POSITION J3: " <<m_cmd_pos[3]);
+  ROS_FATAL_STREAM( "INITIAL POSITION J4: " <<m_cmd_pos[4]);
+  ROS_FATAL_STREAM( "INITIAL POSITION J5: " <<m_cmd_pos[5]);
+  ROS_FATAL_STREAM( "INITIAL POSITION J6: " <<m_cmd_pos[6]);
+  ROS_FATAL_STREAM( "INITIAL POSITION E0: " <<m_cmd_pos[0]);
+  
+  
+//   cmd_pos_pub_ = this->template add_publisher<sensor_msgs::JointState>("/cmd_joint_pos_",5);
+//   fdb_pos_pub_ = this->template add_publisher<geometry_msgs::WrenchStamped>("/fb_joint_pos",5);
+
   
   CNR_RETURN_TRUE(m_logger);
 }
@@ -402,21 +440,6 @@ bool MQTTRobotHW::doInit()
 bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period)
 {
   CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
-  
-//   if ( !m_client->first_message_received )
-  if ( first_cycle )
-  {
-    m_cmd_pos[0] = m_client->E0; 
-    m_cmd_pos[1] = m_client->J1; 
-    m_cmd_pos[2] = m_client->J2; 
-    m_cmd_pos[3] = m_client->J3; 
-    m_cmd_pos[4] = m_client->J4; 
-    m_cmd_pos[5] = m_client->J5; 
-    m_cmd_pos[6] = m_client->J6; 
-    first_cycle = false;
-  }
-  
-  
   
   if(m_p_jh_active)
   {
@@ -430,13 +453,13 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   m_pos[5] =m_client->J5;
   m_pos[6] =m_client->J6;
   
-  ROS_WARN_STREAM_THROTTLE(2.0,"joint 1: "<<m_pos[1] );
-  ROS_WARN_STREAM_THROTTLE(2.0,"joint 2: "<<m_pos[2] );
-  ROS_WARN_STREAM_THROTTLE(2.0,"joint 3: "<<m_pos[3] );
-  ROS_WARN_STREAM_THROTTLE(2.0,"joint 4: "<<m_pos[4] );
-  ROS_WARN_STREAM_THROTTLE(2.0,"joint 5: "<<m_pos[5] );
-  ROS_WARN_STREAM_THROTTLE(2.0,"joint 6: "<<m_pos[6] );
-  ROS_WARN_STREAM_THROTTLE(2.0,"asse: "   <<m_pos[0] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 1: "<<m_pos[1] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 2: "<<m_pos[2] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 3: "<<m_pos[3] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 4: "<<m_pos[4] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 5: "<<m_pos[5] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 6: "<<m_pos[6] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"robot state linax  : "<<m_pos[0] );
   
   }
 
@@ -484,6 +507,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     if(use_delta_target_pos_)
     {
+      ROS_INFO_STREAM_THROTTLE(10.0,"using relative cmd position");
       m.J1 = m_delta_pos[1];    
       m.J2 = m_delta_pos[2];    
       m.J3 = m_delta_pos[3];    
@@ -494,6 +518,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     }
     else
     {
+      ROS_INFO_STREAM_THROTTLE(10.0,"using absolute cmd position");
       m.J1 = m_cmd_pos[1];    
       m.J2 = m_cmd_pos[2];    
       m.J3 = m_cmd_pos[3];    
@@ -503,13 +528,13 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
       m.E0 = m_cmd_pos[0];
     }
     
-    ROS_INFO_STREAM_THROTTLE(2.0,"command J1: "<< m.J1);
-    ROS_INFO_STREAM_THROTTLE(2.0,"command J2: "<< m.J2);
-    ROS_INFO_STREAM_THROTTLE(2.0,"command J3: "<< m.J3);
-    ROS_INFO_STREAM_THROTTLE(2.0,"command J4: "<< m.J4);
-    ROS_INFO_STREAM_THROTTLE(2.0,"command J5: "<< m.J5);
-    ROS_INFO_STREAM_THROTTLE(2.0,"command J6: "<< m.J6);
-    ROS_INFO_STREAM_THROTTLE(2.0,"command E0: "<< m.E0);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"command J1: "<< m.J1);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"command J2: "<< m.J2);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"command J3: "<< m.J3);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"command J4: "<< m.J4);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"command J5: "<< m.J5);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"command J6: "<< m.J6);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"command E0: "<< m.E0);
     
     size_t message_size_ = sizeof(m);
     
@@ -521,34 +546,41 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     char topic[n+ 1];
     strcpy(topic, m_mqtt_command_topic.c_str());
     m_client->publish(NULL, topic, message_size_, payload_);
-    ROS_WARN_STREAM_THROTTLE(1.0,"[cnr_mqtt_hardware_interface] publishing command on : "<<topic);
+    ROS_INFO_STREAM_THROTTLE(10.0,"[cnr_mqtt_hardware_interface] publishing command on : "<<topic);
     
   }
     
   // TODO:: messagio Json  -- Debug
-//   {
-//     Json::Value root;
-//     Json::FastWriter writer;
-//     
-//     root["J0"] = m_cmd_pos.at(1);
-//     root["J1"] = m_cmd_pos.at(2);
-//     root["J2"] = m_cmd_pos.at(3);
-//     root["J3"] = m_cmd_pos.at(4);
-//     root["J4"] = m_cmd_pos.at(5);
-//     root["J5"] = m_cmd_pos.at(6);
-//     root["E0"] = m_cmd_pos.at(0);
-//     
-//     Json::StreamWriterBuilder builder;
-//     const std::string json_file = Json::writeString(builder, root);
-//     
+  {
+    Json::Value root;
+    Json::FastWriter writer;
+    
+    root["J0"] = m_cmd_pos.at(1);
+    root["J1"] = m_cmd_pos.at(2);
+    root["J2"] = m_cmd_pos.at(3);
+    root["J3"] = m_cmd_pos.at(4);
+    root["J4"] = m_cmd_pos.at(5);
+    root["J5"] = m_cmd_pos.at(6);
+    root["E0"] = m_cmd_pos.at(0);
+    
+    Json::StreamWriterBuilder builder;
+    const std::string json_file = Json::writeString(builder, root);
+    
 //     char topic[m_mqtt_command_topic.length()+ 1];
 //     strcpy(topic, m_mqtt_command_topic.c_str());
-//     
-//     char pl[json_file.length()+1];
-//     strcpy(pl, json_file.c_str());
-//     
-//     m_client->publish(NULL, topic, sizeof(pl), pl);
-//   }
+    
+    char topic[] = "mqtt_command";
+    
+    char pl[json_file.length()+1];
+    strcpy(pl, json_file.c_str());
+    
+    m_client->publish(NULL, topic, sizeof(pl), pl);
+  }
+  
+  
+  sensor_msgs::JointState js_fb;
+//   this->publish(cmd_pose_pub_,ps);
+  
   
   
   CNR_RETURN_TRUE_THROTTLE_DEFAULT(m_logger);
@@ -673,6 +705,12 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   strcpy(pl, json_file.c_str());
   m_client->publish(NULL, topic, sizeof(pl), pl);
   ROS_FATAL_STREAM_THROTTLE(2.0,"[cnr_mqtt_hardware_interface] publishing in loop on : "<<topic);
+  
+
+//   geometry_msgs::PoseStamped ps;
+//   ps.header.stamp = ros::Time::now();
+//   ps.pose = cp;  
+//   this->publish(fdb_pose_pub_,ps);
   
   CNR_RETURN_TRUE(m_logger);
 }

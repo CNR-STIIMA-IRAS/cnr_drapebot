@@ -139,6 +139,7 @@ bool DeformationCtrl::doUpdate(const ros::Time& time, const ros::Duration& perio
       Eigen::Vector3d x = this->chainState().toolPose().translation();
       q_sp_ = this->getPosition();
       dq_sp_ = this->getVelocity();
+      ROS_FATAL_STREAM("\n\ninitial cmd j_pos deformation_ctrl: " << q_sp_.transpose());
       T_base_targetpose_ = chain_bt_->getTransformation(q_sp_);
       pose_sp_.pose = tf2::toMsg (T_base_targetpose_);
       first_cycle_ = false;
@@ -151,10 +152,10 @@ bool DeformationCtrl::doUpdate(const ros::Time& time, const ros::Duration& perio
     
     q_=q_sp_;
     
-    CNR_WARN_THROTTLE(this->logger(),2.0,q_sp_.transpose());
+    CNR_WARN_THROTTLE(this->logger(),2.0,"[DeformationCtrl:: command position] \n"<<q_sp_);
     
     this->setCommandPosition( q_sp_ );
-    this->setCommandVelocity( dq_);
+//     this->setCommandVelocity( dq_);
     
     CNR_RETURN_TRUE_THROTTLE_DEFAULT(this->logger());
     

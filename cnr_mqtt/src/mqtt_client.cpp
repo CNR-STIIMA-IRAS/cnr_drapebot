@@ -44,7 +44,9 @@ void mqtt_client::on_message(const struct mosquitto_message *message)
   
   reader.parse(buf,root);
 
-  std::cout << buf << std::endl;
+//   std::cout << buf << std::endl;
+  
+  ROS_INFO_STREAM("Json Trajectory from MotionPlanner: \n" << buf);
   
   trajectory_msg = transform_trajectory(root);
   
@@ -55,7 +57,7 @@ control_msgs::FollowJointTrajectoryGoal mqtt_client::transform_trajectory(Json::
 {
   control_msgs::FollowJointTrajectoryGoal ag;
   
-  ROS_INFO_STREAM(std::to_string(n_joints_));
+//   ROS_INFO_STREAM("joint number: "<<std::to_string(n_joints_));
   
   ag.trajectory.points.resize(traj.size());
   
@@ -66,11 +68,14 @@ control_msgs::FollowJointTrajectoryGoal mqtt_client::transform_trajectory(Json::
     ag.trajectory.joint_names.push_back(n);
     ROS_INFO_STREAM(ag.trajectory.joint_names.back());
   }
-  
+    
   for (int i=0; i<traj.size();i++)
   {
+    
     std::string P = "P"+  std::to_string((i+1));
-    ros::Duration time_from_start(traj[P]["time"].asDouble());
+    
+    ros::Duration time_from_start( std::stod( traj[P]["time"].asString() ));
+    
     ag.trajectory.points[i].time_from_start = time_from_start;
     
     ag.trajectory.points[i].positions.resize(n_joints_);
@@ -82,7 +87,11 @@ control_msgs::FollowJointTrajectoryGoal mqtt_client::transform_trajectory(Json::
       std::string jn = "J";
       jn+= std::to_string(jj);
       ROS_INFO_STREAM(jn);
-      ag.trajectory.points[i].positions[jj] = traj[P][jn]["value"].asDouble();
+
+      double j = std::stod( traj[P][jn]["value"].asString() );
+      
+      ag.trajectory.points[i].positions[jj] = j;
+      
       ag.trajectory.points[i].velocities[jj]=0;
       ag.trajectory.points[i].accelerations[jj]=0;
     }

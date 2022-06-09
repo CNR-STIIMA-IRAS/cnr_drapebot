@@ -71,6 +71,7 @@ public:
     void on_connect(int rc);
     void on_message(const struct mosquitto_message *message);
     void on_subscribe(int mid, int qos_count, const int *granted_qos);
+    bool get_first_message_status();
 
     double J1;
     double J2;
@@ -79,6 +80,8 @@ public:
     double J5;
     double J6;
     double E0;
+    
+private:
     
     bool first_message_received;
     
@@ -146,6 +149,9 @@ protected:
   bool first_cycle;
   
   mqtt_client* m_client;
+  
+  size_t cmd_pos_pub_;
+  size_t fdb_pos_pub_;
 
 
   friend void setParam(MQTTRobotHW* hw, const std::string& ns);

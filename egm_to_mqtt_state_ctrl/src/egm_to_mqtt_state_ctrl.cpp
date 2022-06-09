@@ -131,20 +131,20 @@ namespace drapebot_controller
     
     
     drapebot::message_struct tmp_j_pos_feedback;
-
+    
     for (unsigned i=0; i<num_hw_joints_; i++)
       tmp_j_pos_feedback.joints_values_[i] = joint_state_[i].getPosition();
     
     tmp_j_pos_feedback.linear_axis_value_ = 0;
     
     
-    ROS_FATAL_STREAM_THROTTLE(2.0,"Joint_1 : " << tmp_j_pos_feedback.joints_values_[0]);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"Joint_2 : " << tmp_j_pos_feedback.joints_values_[1]);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"Joint_3 : " << tmp_j_pos_feedback.joints_values_[2]);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"Joint_4 : " << tmp_j_pos_feedback.joints_values_[3]);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"Joint_5 : " << tmp_j_pos_feedback.joints_values_[4]);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"Joint_6 : " << tmp_j_pos_feedback.joints_values_[5]);  
-    ROS_FATAL_STREAM_THROTTLE(2.0,"linax : " << tmp_j_pos_feedback.linear_axis_value_);
+    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_1 : " << tmp_j_pos_feedback.joints_values_[0]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_2 : " << tmp_j_pos_feedback.joints_values_[1]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_3 : " << tmp_j_pos_feedback.joints_values_[2]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_4 : " << tmp_j_pos_feedback.joints_values_[3]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_5 : " << tmp_j_pos_feedback.joints_values_[4]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_6 : " << tmp_j_pos_feedback.joints_values_[5]);  
+    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state linax   : " << tmp_j_pos_feedback.linear_axis_value_);
     
     
     void* payload_ = malloc( sizeof(tmp_j_pos_feedback) );
