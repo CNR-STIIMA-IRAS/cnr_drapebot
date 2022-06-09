@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <pluginlib/class_list_macros.hpp>
 
+#include <jsoncpp/json/json.h>
+
 #include "joint_state_controller/joint_state_controller.h"
 
 namespace drapebot_controller
@@ -152,6 +154,29 @@ namespace drapebot_controller
     char topic_feedback[mqtt_feedback_topic_.length()+ 1];
     strcpy(topic_feedback, mqtt_feedback_topic_.c_str());
     mqtt_client_->publish(NULL, topic_feedback, sizeof(tmp_j_pos_feedback), payload_); 
+    
+    { 
+      Json::Value root;
+      Json::FastWriter writer;
+      
+      root["J0"] = tmp_j_pos_feedback.joints_values_[0];
+      root["J1"] = tmp_j_pos_feedback.joints_values_[1];
+      root["J2"] = tmp_j_pos_feedback.joints_values_[2];
+      root["J3"] = tmp_j_pos_feedback.joints_values_[3];
+      root["J4"] = tmp_j_pos_feedback.joints_values_[4];
+      root["J5"] = tmp_j_pos_feedback.joints_values_[5];
+      root["E0"] = tmp_j_pos_feedback.linear_axis_value_;
+      
+      Json::StreamWriterBuilder builder;
+      const std::string json_file = Json::writeString(builder, root);
+      
+      char topic[] = "mqtt_feedback";
+      
+      char pl[json_file.length()+1];
+      strcpy(pl, json_file.c_str());
+      
+      mqtt_client_->publish(NULL, topic, sizeof(pl), pl);
+    }
     
   }
 

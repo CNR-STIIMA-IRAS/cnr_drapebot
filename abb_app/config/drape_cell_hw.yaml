@@ -52,14 +52,14 @@ mqtt_hw:
   js_pub:
     type: cnr/control/JointStatePublisher
     controlled_joints: all
-    kin_update_period : 0.1
+    kin_update_period : 0.004
 
 
   p_j:
     type: cnr/control/OpenLoopPositionController
     setpoint_topic_name: /joint_pos_target
     controlled_joints: all
-    kin_update_period : 0.1
+    kin_update_period : 0.004
     
     
   cart_impedance_controller:
@@ -170,12 +170,17 @@ plan_hw:
   - "abb_moveit_lab/follow_joint_trajectory/result"
   - "abb_moveit_lab/follow_joint_trajectory/status"
 
-  microint:
+  microint_thor:
     type: "cnr/control/FollowJointTrajectoryPosVelEffController"
     controlled_joints: all
     interpolator: "thor/ThorPrefilter"
     regulator: "regulator/fake_regulator"
     spline_order: 1
+    
+    
+  microint:
+    type: "cnr/control/ScaledFJTPosController"
+    controlled_joints: all
 
 
   

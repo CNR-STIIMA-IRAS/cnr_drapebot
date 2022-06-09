@@ -49,6 +49,13 @@ PLUGINLIB_EXPORT_CLASS(cnr_hardware_interface::MQTTRobotHW, cnr_hardware_interfa
 mqtt_client::mqtt_client(const char *id, const char *host, int port, int keepalive) : mosquittopp(id)
 { 
   first_message_received = false;
+  J1 = 0;
+  J2 = 0;
+  J3 = 0;
+  J4 = 0;
+  J5 = 0;
+  J6 = 0;
+  E0 = 0;
   connect(host, port, keepalive);
 }
 
@@ -445,13 +452,13 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   {
 //     m_pos = m_cmd_pos;  // TODO:: for fake ctrl
     
-  m_pos[0] =m_client->E0;
-  m_pos[1] =m_client->J1;
-  m_pos[2] =m_client->J2;
-  m_pos[3] =m_client->J3;
-  m_pos[4] =m_client->J4;
-  m_pos[5] =m_client->J5;
-  m_pos[6] =m_client->J6;
+  m_pos[0] = m_client->E0;
+  m_pos[1] = m_client->J1;
+  m_pos[2] = m_client->J2;
+  m_pos[3] = m_client->J3;
+  m_pos[4] = m_client->J4;
+  m_pos[5] = m_client->J5;
+  m_pos[6] = m_client->J6;
   
   ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 1: "<<m_pos[1] );
   ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 2: "<<m_pos[2] );
