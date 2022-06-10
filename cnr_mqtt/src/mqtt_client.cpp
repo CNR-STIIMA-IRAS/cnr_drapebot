@@ -61,7 +61,8 @@ control_msgs::FollowJointTrajectoryGoal mqtt_client::transform_trajectory(Json::
   
   ag.trajectory.points.resize(traj.size());
   
-  ag.trajectory.header.frame_id = joint_names_[0];
+//   ag.trajectory.header.frame_id = joint_names_[0];
+  ag.trajectory.header.frame_id = "fake_linear_axis";
   
   for(auto n : joint_names_)
   {

@@ -18,11 +18,11 @@ namespace drapebot_controller
 
         virtual bool init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& n) final;
 //         virtual bool init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh) final;
-        void update(const ros::Time& time, const ros::Duration& period) final;
-        void starting(const ros::Time& time) final;
-        void stopping(const ros::Time& time) final;
-        void waiting(const ros::Time& time) final;
-        void aborting(const ros::Time& time) final;
+        void update   (const ros::Time& time, const ros::Duration& period) final;
+        void starting (const ros::Time& time) final;
+        void stopping (const ros::Time& time) final;
+        void waiting  (const ros::Time& time) final;
+        void aborting (const ros::Time& time) final;
 
     private:
 

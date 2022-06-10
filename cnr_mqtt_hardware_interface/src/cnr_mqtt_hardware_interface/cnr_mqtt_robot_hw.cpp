@@ -387,6 +387,16 @@ bool MQTTRobotHW::doInit()
     m_mqtt_out_feedback_topic="out_mqtt_feedback_topic";
     CNR_TRACE(m_logger,"using topic out : out_mqtt_feedback_topic");
   }
+   
+  if (!m_robothw_nh.getParam("use_real_robot",USE_REAL_ROBOT))
+  {
+    USE_REAL_ROBOT = false;
+    CNR_WARN(this->m_logger, "\n\n USING SIMULATED ROBOT !!. SET PARAM >> use_real_robot: true << in the config to use the real robot");
+    CNR_TRACE(m_logger,"using topic out : out_mqtt_feedback_topic");
+  }
+  
+  std::string v = USE_REAL_ROBOT ? "ACHTUNG ! ! ! \n USING REAL ROBOT ! \n be careful, be nice please" : "using fake robot." ;
+  ROS_FATAL_STREAM("\n\n ################# \n "<< v <<" \n################# \n\n");
   
   int n = m_mqtt_feedback_topic.length();
   char topic[n+ 1];
@@ -403,10 +413,14 @@ bool MQTTRobotHW::doInit()
 //   m_client->E0 = m_pos[0];
   
   
-  while ( !m_client->get_first_message_status() )
+  if(USE_REAL_ROBOT)
   {
-    ROS_WARN_STREAM_THROTTLE(2.0,"waiting for first feedback message");
-    m_client->loop();
+    while ( !m_client->get_first_message_status() )
+    {
+      ROS_WARN_STREAM_THROTTLE(2.0,"waiting for first feedback message");
+      m_client->loop();
+      ros::Duration(0.005).sleep();
+    }
   }
   
   m_cmd_pos[0] = m_client->E0; 
@@ -436,9 +450,8 @@ bool MQTTRobotHW::doInit()
   ROS_FATAL_STREAM( "INITIAL POSITION J6: " <<m_cmd_pos[6]);
   ROS_FATAL_STREAM( "INITIAL POSITION E0: " <<m_cmd_pos[0]);
   
-  
-//   cmd_pos_pub_ = this->template add_publisher<sensor_msgs::JointState>("/cmd_joint_pos_",5);
-//   fdb_pos_pub_ = this->template add_publisher<geometry_msgs::WrenchStamped>("/fb_joint_pos",5);
+  cmd_pos_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("cmd_joint_pos",5);
+  fb_pos_pub_  = m_robothw_nh.advertise<sensor_msgs::JointState>("fb_joint_pos",5);
 
   
   CNR_RETURN_TRUE(m_logger);
@@ -450,15 +463,20 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   
   if(m_p_jh_active)
   {
-//     m_pos = m_cmd_pos;  // TODO:: for fake ctrl
-    
-  m_pos[0] = m_client->E0;
-  m_pos[1] = m_client->J1;
-  m_pos[2] = m_client->J2;
-  m_pos[3] = m_client->J3;
-  m_pos[4] = m_client->J4;
-  m_pos[5] = m_client->J5;
-  m_pos[6] = m_client->J6;
+//     if(USE_REAL_ROBOT)
+//     {
+//       m_pos[0] = m_client->E0;
+//       m_pos[1] = m_client->J1;
+//       m_pos[2] = m_client->J2;
+//       m_pos[3] = m_client->J3;
+//       m_pos[4] = m_client->J4;
+//       m_pos[5] = m_client->J5;
+//       m_pos[6] = m_client->J6;
+//     }
+//     else
+//     {
+//       m_pos = m_cmd_pos;  
+//     }
   
   ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 1: "<<m_pos[1] );
   ROS_WARN_STREAM_THROTTLE(5.0,"robot state joint 2: "<<m_pos[2] );
@@ -497,7 +515,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
 //     std::fill(m_eff.begin(), m_eff.end(), 0.0);
 //   }
   
-  // TODO:: messagio byte  --  Adriano
+  // ----------- BYTE MQTT MSG -------------------
   {
     m_robothw_nh.getParam("initial_traj_pos", m_start_pos);
     
@@ -555,9 +573,31 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     m_client->publish(NULL, topic, message_size_, payload_);
     ROS_INFO_STREAM_THROTTLE(10.0,"[cnr_mqtt_hardware_interface] publishing command on : "<<topic);
     
+//     sensor_msgs::JointState js;
+//     
+//     js.name.push_back("J1");
+//     js.name.push_back("J2");
+//     js.name.push_back("J3");
+//     js.name.push_back("J4");
+//     js.name.push_back("J5");
+//     js.name.push_back("J6");
+//     js.name.push_back("E0");
+// 
+//     js.position.push_back(m.J1);
+//     js.position.push_back(m.J2);
+//     js.position.push_back(m.J3);
+//     js.position.push_back(m.J4);
+//     js.position.push_back(m.J5);
+//     js.position.push_back(m.J6);
+//     js.position.push_back(m.E0);
+//     
+//     js.header.stamp = ros::Time::now();
+//     
+//     cmd_pos_pub_.publish(js);
+    
   }
     
-  // TODO:: messagio Json  -- Debug
+  // ----------- JSON MQTT MSG -------------------
   {
     Json::Value root;
     Json::FastWriter writer;
@@ -573,21 +613,12 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     Json::StreamWriterBuilder builder;
     const std::string json_file = Json::writeString(builder, root);
     
-//     char topic[m_mqtt_command_topic.length()+ 1];
-//     strcpy(topic, m_mqtt_command_topic.c_str());
-    
     char topic[] = "mqtt_command";
-    
     char pl[json_file.length()+1];
     strcpy(pl, json_file.c_str());
     
     m_client->publish(NULL, topic, sizeof(pl), pl);
   }
-  
-  
-  sensor_msgs::JointState js_fb;
-//   this->publish(cmd_pose_pub_,ps);
-  
   
   
   CNR_RETURN_TRUE_THROTTLE_DEFAULT(m_logger);
@@ -661,28 +692,39 @@ bool MQTTRobotHW::doPrepareSwitch(const std::list< hardware_interface::Controlle
 
 bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*period*/)
 {
-  m_client->loop();
-
-  //TODO:: uncomment to add subscription to real feedback
-//     m_pos.at(0) = m_client->J1;
-//     m_pos.at(1) = m_client->J2;
-//     m_pos.at(2) = m_client->J3;
-//     m_pos.at(3) = m_client->J4;
-//     m_pos.at(4) = m_client->J5;
-//     m_pos.at(5) = m_client->J6;
-//     m_pos.at(6) = m_client->E0;
-  
+  m_client->loop();  
   
   Json::Value root;
   Json::FastWriter writer;
   
-  root["J0"]["current_value"] = m_client->E0;
-  root["J1"]["current_value"] = m_client->J1;
-  root["J2"]["current_value"] = m_client->J2;
-  root["J3"]["current_value"] = m_client->J3;
-  root["J4"]["current_value"] = m_client->J4;
-  root["J5"]["current_value"] = m_client->J5;
-  root["J6"]["current_value"] = m_client->J6;
+  if (USE_REAL_ROBOT)
+  {
+    m_pos.at(0) = m_client->E0;
+    m_pos.at(1) = m_client->J1;
+    m_pos.at(2) = m_client->J2;
+    m_pos.at(3) = m_client->J3;
+    m_pos.at(4) = m_client->J4;
+    m_pos.at(5) = m_client->J5;
+    m_pos.at(6) = m_client->J6;
+  }
+  else
+  {
+    m_pos.at(0) = m_cmd_pos.at(0);
+    m_pos.at(1) = m_cmd_pos.at(1);
+    m_pos.at(2) = m_cmd_pos.at(2);
+    m_pos.at(3) = m_cmd_pos.at(3);
+    m_pos.at(4) = m_cmd_pos.at(4);
+    m_pos.at(5) = m_cmd_pos.at(5);
+    m_pos.at(6) = m_cmd_pos.at(6);
+  }
+
+  root["J0"]["current_value"] = m_pos.at(0);
+  root["J1"]["current_value"] = m_pos.at(1);
+  root["J2"]["current_value"] = m_pos.at(2);
+  root["J3"]["current_value"] = m_pos.at(3);
+  root["J4"]["current_value"] = m_pos.at(4);
+  root["J5"]["current_value"] = m_pos.at(5);
+  root["J6"]["current_value"] = m_pos.at(6);
   
   root["J0"]["command_value"] = m_cmd_pos.at(0);
   root["J1"]["command_value"] = m_cmd_pos.at(1);
@@ -713,11 +755,27 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   m_client->publish(NULL, topic, sizeof(pl), pl);
   ROS_FATAL_STREAM_THROTTLE(2.0,"[cnr_mqtt_hardware_interface] publishing in loop on : "<<topic);
   
-
-//   geometry_msgs::PoseStamped ps;
-//   ps.header.stamp = ros::Time::now();
-//   ps.pose = cp;  
-//   this->publish(fdb_pose_pub_,ps);
+//   sensor_msgs::JointState js;
+//   
+//   js.name.push_back("J1");
+//   js.name.push_back("J2");
+//   js.name.push_back("J3");
+//   js.name.push_back("J4");
+//   js.name.push_back("J5");
+//   js.name.push_back("J6");
+//   js.name.push_back("E0");
+// 
+//   js.position.push_back(m_pos.at(1));
+//   js.position.push_back(m_pos.at(2));
+//   js.position.push_back(m_pos.at(3));
+//   js.position.push_back(m_pos.at(4));
+//   js.position.push_back(m_pos.at(5));
+//   js.position.push_back(m_pos.at(6));
+//   js.position.push_back(m_pos.at(0));
+//   
+//   js.header.stamp = ros::Time::now();
+//   
+//   fb_pos_pub_.publish(js);
   
   CNR_RETURN_TRUE(m_logger);
 }

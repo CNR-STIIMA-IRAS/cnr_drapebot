@@ -135,7 +135,7 @@ Visualization Manager:
         Interactive Marker Size: 0
         Joint Violation Color: 255; 0; 255
         Planning Group: robot_1
-        Query Goal State: true
+        Query Goal State: false
         Query Start State: false
         Show Workspace: false
         Start State Alpha: 1
@@ -233,9 +233,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.38500022888183594
+      Pitch: 0.33000028133392334
       Target Frame: base_link
-      Yaw: 0.2467651665210724
+      Yaw: 0.5167649388313293
     Saved: ~
 Window Geometry:
   ConfigurationManager:

@@ -150,9 +150,10 @@ protected:
   
   mqtt_client* m_client;
   
-  size_t cmd_pos_pub_;
-  size_t fdb_pos_pub_;
-
+  ros::Publisher cmd_pos_pub_;
+  ros::Publisher fb_pos_pub_;
+  
+  bool USE_REAL_ROBOT;
 
   friend void setParam(MQTTRobotHW* hw, const std::string& ns);
 };

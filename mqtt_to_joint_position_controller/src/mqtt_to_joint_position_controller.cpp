@@ -70,12 +70,6 @@ namespace drapebot_controller
     
     mosqpp::lib_init();
     
-    char topic_command[mqtt_command_topic_.size() + 1];
-    strcpy(topic_command, mqtt_command_topic_.c_str());
-    mqtt_client_->subscribe(NULL, topic_command);
-    ROS_FATAL_STREAM("subscribing: "<< topic_command);
-
-    
     j_pos_command_.resize(sizeof(mqtt_client_->msg_.joints_values_)/sizeof(double));
     j_pos_command_  = *ctrl_.commands_buffer_.readFromNonRT();
     
@@ -130,16 +124,27 @@ namespace drapebot_controller
     ctrl_.update(time,period);
     
   }
-
+    
+  
+  
   void MQTTToPositionController::starting(const ros::Time& time)
   { 
     ctrl_.starting(time);
+    char topic_command[mqtt_command_topic_.size() + 1];
+    strcpy(topic_command, mqtt_command_topic_.c_str());
+    mqtt_client_->subscribe(NULL, topic_command);
+    ROS_FATAL_STREAM("subscribing: "<< topic_command);
   }
 
   void MQTTToPositionController::stopping(const ros::Time& time) 
   {
     ctrl_.stopping(time);
+    char topic_command[mqtt_command_topic_.size() + 1];
+    strcpy(topic_command, mqtt_command_topic_.c_str());
+    mqtt_client_->unsubscribe(NULL, topic_command);
+    ROS_FATAL_STREAM("UNSUBSCRIBINg: "<< topic_command);
   }
+  
   void MQTTToPositionController::waiting(const ros::Time& time)
   {
     ctrl_.waiting(time);
