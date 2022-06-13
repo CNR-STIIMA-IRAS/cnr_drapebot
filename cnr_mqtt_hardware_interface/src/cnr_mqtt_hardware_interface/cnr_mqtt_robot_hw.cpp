@@ -573,27 +573,27 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     m_client->publish(NULL, topic, message_size_, payload_);
     ROS_INFO_STREAM_THROTTLE(10.0,"[cnr_mqtt_hardware_interface] publishing command on : "<<topic);
     
-//     sensor_msgs::JointState js;
-//     
-//     js.name.push_back("J1");
-//     js.name.push_back("J2");
-//     js.name.push_back("J3");
-//     js.name.push_back("J4");
-//     js.name.push_back("J5");
-//     js.name.push_back("J6");
-//     js.name.push_back("E0");
-// 
-//     js.position.push_back(m.J1);
-//     js.position.push_back(m.J2);
-//     js.position.push_back(m.J3);
-//     js.position.push_back(m.J4);
-//     js.position.push_back(m.J5);
-//     js.position.push_back(m.J6);
-//     js.position.push_back(m.E0);
-//     
-//     js.header.stamp = ros::Time::now();
-//     
-//     cmd_pos_pub_.publish(js);
+    sensor_msgs::JointState js;
+    
+    js.name.push_back("J1");
+    js.name.push_back("J2");
+    js.name.push_back("J3");
+    js.name.push_back("J4");
+    js.name.push_back("J5");
+    js.name.push_back("J6");
+    js.name.push_back("E0");
+
+    js.position.push_back(m.J1);
+    js.position.push_back(m.J2);
+    js.position.push_back(m.J3);
+    js.position.push_back(m.J4);
+    js.position.push_back(m.J5);
+    js.position.push_back(m.J6);
+    js.position.push_back(m.E0);
+    
+    js.header.stamp = ros::Time::now();
+    
+    cmd_pos_pub_.publish(js);
     
   }
     
@@ -755,27 +755,27 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   m_client->publish(NULL, topic, sizeof(pl), pl);
   ROS_FATAL_STREAM_THROTTLE(2.0,"[cnr_mqtt_hardware_interface] publishing in loop on : "<<topic);
   
-//   sensor_msgs::JointState js;
-//   
-//   js.name.push_back("J1");
-//   js.name.push_back("J2");
-//   js.name.push_back("J3");
-//   js.name.push_back("J4");
-//   js.name.push_back("J5");
-//   js.name.push_back("J6");
-//   js.name.push_back("E0");
-// 
-//   js.position.push_back(m_pos.at(1));
-//   js.position.push_back(m_pos.at(2));
-//   js.position.push_back(m_pos.at(3));
-//   js.position.push_back(m_pos.at(4));
-//   js.position.push_back(m_pos.at(5));
-//   js.position.push_back(m_pos.at(6));
-//   js.position.push_back(m_pos.at(0));
-//   
-//   js.header.stamp = ros::Time::now();
-//   
-//   fb_pos_pub_.publish(js);
+  sensor_msgs::JointState js;
+  
+  js.name.push_back("J1");
+  js.name.push_back("J2");
+  js.name.push_back("J3");
+  js.name.push_back("J4");
+  js.name.push_back("J5");
+  js.name.push_back("J6");
+  js.name.push_back("E0");
+
+  js.position.push_back(m_pos.at(1));
+  js.position.push_back(m_pos.at(2));
+  js.position.push_back(m_pos.at(3));
+  js.position.push_back(m_pos.at(4));
+  js.position.push_back(m_pos.at(5));
+  js.position.push_back(m_pos.at(6));
+  js.position.push_back(m_pos.at(0));
+  
+  js.header.stamp = ros::Time::now();
+  
+  fb_pos_pub_.publish(js);
   
   CNR_RETURN_TRUE(m_logger);
 }

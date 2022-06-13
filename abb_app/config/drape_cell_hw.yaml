@@ -172,7 +172,7 @@ plan_hw:
   - "abb_moveit_lab/follow_joint_trajectory/result"
   - "abb_moveit_lab/follow_joint_trajectory/status"
 
-  microint_thor:
+  microint____:
     type: "cnr/control/FollowJointTrajectoryPosVelEffController"
     controlled_joints: all
     interpolator: "thor/ThorPrefilter"

@@ -43,8 +43,6 @@ void mqtt_client::on_message(const struct mosquitto_message *message)
   Json::Value root;
   
   reader.parse(buf,root);
-
-//   std::cout << buf << std::endl;
   
   ROS_INFO_STREAM("Json Trajectory from MotionPlanner: \n" << buf);
   
