@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <DUT Name="Joints" Id="{59fa50c4-af77-4166-9d14-7025078b844d}">
+    <Declaration><![CDATA[TYPE Joints :
+STRUCT
+	joint1 : LREAL := 0;
+	joint2 : LREAL := 0;
+	joint3 : LREAL := 0;
+	joint4 : LREAL := 0;
+	joint5 : LREAL := 0;
+	joint6 : LREAL := 0;
+	external_axis1 : LREAL := 0;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

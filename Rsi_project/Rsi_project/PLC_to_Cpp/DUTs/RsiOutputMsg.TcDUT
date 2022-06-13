@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <DUT Name="RsiOutputMsg" Id="{20115c1a-4348-4758-8e33-b747d6b06072}">
+    <Declaration><![CDATA[TYPE RsiOutputMsg :
+STRUCT
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <DUT Name="Cartesian" Id="{1ff101a0-3377-42b6-8b21-a35cb1edf20f}">
+    <Declaration><![CDATA[TYPE Cartesian :
+STRUCT
+	x : LREAL :=0;
+	y : LREAL :=0;
+	z : LREAL :=0;
+	rot1 : LREAL :=0;
+	rot2 : LREAL :=0;
+	rot3 : LREAL :=0;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

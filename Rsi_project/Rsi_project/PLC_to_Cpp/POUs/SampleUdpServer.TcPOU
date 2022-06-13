@@ -1,0 +1,287 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <POU Name="SampleUdpServer" Id="{3ae72b49-e3e4-4c81-acff-885883c038e5}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'c++_compatible'}
+FUNCTION_BLOCK SampleUdpServer IMPLEMENTS ITcIoUdpProtocolRecv
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+    {attribute 'TcInitSymbol'}
+    oid:              OTCID; 
+    ipUdp:            ITcIoUdpProtocol;
+    nUdpPort:         UINT := 10000;
+    nReceivedPakets:  UINT;
+    hrInit :          HRESULT;
+    hrSend :          HRESULT;
+	
+	fbRsi : FB_Rsi(	sObjName:='CRsi:fbRsi',
+					eObjState:=TCOM_STATE.TCOM_STATE_OP);
+	output_msg : STRING(1024);
+	
+	robot_state AT %Q* : RobotState;
+	joints_command AT %I* : Joints;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF ipUdp <> 0 THEN
+    ipUdp.CheckReceived();
+END_IF]]></ST>
+    </Implementation>
+    <Method Name="FB_exit" Id="{ac1c05f5-f628-406c-84da-9e75f1736e4f}">
+      <Declaration><![CDATA[{attribute 'conditionalshow'}
+METHOD FB_exit : BOOL
+VAR_INPUT
+	bInCopyCode : BOOL; // if TRUE, the exit method is called for exiting an instance that is copied afterwards (online change).
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT bInCopyCode AND ipUdp <> 0) THEN //Shutdown
+     ipUdp.UnregisterReceiver(nUdpPort);
+    FW_SafeRelease(ADR(ipUdp));
+     FB_exit := TRUE;
+ELSE
+     FB_exit := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{c1ebcbc4-8971-4f86-af50-a8802b0fbdf8}">
+      <Declaration><![CDATA[{attribute 'conditionalshow'}
+METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+END_VAR
+
+VAR
+    ipSrv: ITComObjectServer;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT bInCopyCode THEN
+	IF ipUdp = 0 AND oid <> 0 THEN
+		hrInit := FW_ObjMgr_GetObjectInstance(	oid:=oid,  
+												iid:=TC_GLOBAL_IID_LIST.IID_ITcIoUdpProtocol, 
+												pipUnk:=ADR(ipUdp) );
+        IF SUCCEEDED(hrInit) THEN 
+            IF SUCCEEDED(ipUdp.RegisterReceiver(nUdpPort, THIS^)) THEN //open port
+                FB_init := TRUE;
+            ELSE 
+                FB_init := FALSE; 
+                FW_SafeRelease(ADR(ipUdp));
+            END_IF
+        END_IF
+    ELSIF oid = 0 THEN 
+        FB_init := FALSE; 
+        hrInit := ERR_INVALID_PARAM;                 
+    END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_reinit" Id="{91088676-56d7-4f53-aa1e-6bcd654a3a59}">
+      <Declaration><![CDATA[{attribute 'conditionalshow'}
+METHOD FB_reinit : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (ipUdp <> 0) THEN 
+ ipUdp.RegisterReceiver(nUdpPort, THIS^);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReceiveData" Id="{bc96d5ad-432b-40f7-b519-677fe1feaf27}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'ReceiveData'}
+{attribute 'c++_compatible'}
+{attribute 'signature_flag' := '33554688'}
+{attribute 'pack_mode' := '4'}
+{attribute 'show'}
+{attribute 'minimal_input_size' := '4'}
+METHOD ReceiveData : HRESULT
+VAR_INPUT
+	ipAddr	: UDINT;
+	udpDestPort	: UINT;
+	udpSrcPort	: UINT;
+	nData	: UDINT;
+	pData	: PVOID;
+	pVlan	: POINTER TO ETYPE_VLAN_HEADER := 0;
+END_VAR
+
+VAR
+	msg_length : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nReceivedPakets := nReceivedPakets+1;
+IF ipUdp <> 0 THEN
+	
+	IF fbRsi.ip <> 0 THEN
+	
+	
+	//	fbRsi.ip.read_incoming_msg(msg);
+	//	fbRsi.set_string(msg);
+		fbRsi.ip.read_incoming_msg(nData, pData);
+		robot_state.joints_position.joint1 := fbRsi.ip.get_axis_1();
+		robot_state.joints_position.joint2 := fbRsi.ip.get_axis_2();
+		robot_state.joints_position.joint3 := fbRsi.ip.get_axis_3();
+		robot_state.joints_position.joint4 := fbRsi.ip.get_axis_4();
+		robot_state.joints_position.joint5 := fbRsi.ip.get_axis_5();
+		robot_state.joints_position.joint6 := fbRsi.ip.get_axis_6();
+		robot_state.joints_position.external_axis1 := fbRsi.ip.get_external_axis_1();
+	
+		robot_state.joints_setpoint.joint1 := fbRsi.ip.get_axis_1_setpoint();
+		robot_state.joints_setpoint.joint2 := fbRsi.ip.get_axis_2_setpoint();
+		robot_state.joints_setpoint.joint3 := fbRsi.ip.get_axis_3_setpoint();
+		robot_state.joints_setpoint.joint4 := fbRsi.ip.get_axis_4_setpoint();
+		robot_state.joints_setpoint.joint5 := fbRsi.ip.get_axis_5_setpoint();
+		robot_state.joints_setpoint.joint6 := fbRsi.ip.get_axis_6_setpoint();
+		robot_state.joints_setpoint.external_axis1 := fbRsi.ip.get_external_axis_1_setpoint();
+		
+		robot_state.cartesian_position.x := fbRsi.ip.get_cartesian_x();
+		robot_state.cartesian_position.y := fbRsi.ip.get_cartesian_y();
+		robot_state.cartesian_position.z := fbRsi.ip.get_cartesian_z();
+		robot_state.cartesian_position.rot1 := fbRsi.ip.get_cartesian_rot1();
+		robot_state.cartesian_position.rot2 := fbRsi.ip.get_cartesian_rot2();
+		robot_state.cartesian_position.rot3 := fbRsi.ip.get_cartesian_rot3();
+		
+		robot_state.cartesian_setpoint.x := fbRsi.ip.get_cartesian_x_setpoint();
+		robot_state.cartesian_setpoint.y := fbRsi.ip.get_cartesian_y_setpoint();
+		robot_state.cartesian_setpoint.z := fbRsi.ip.get_cartesian_z_setpoint();
+		robot_state.cartesian_setpoint.rot1 := fbRsi.ip.get_cartesian_rot1_setpoint();
+		robot_state.cartesian_setpoint.rot2 := fbRsi.ip.get_cartesian_rot2_setpoint();
+		robot_state.cartesian_setpoint.rot3 := fbRsi.ip.get_cartesian_rot3_setpoint();
+		
+		msg_length:= fbRsi.ip.write_msg(SIZEOF(output_msg),
+										ADR(output_msg), 
+										joints_command.joint1, 
+										joints_command.joint2, 
+										joints_command.joint3, 
+										joints_command.joint4, 
+										joints_command.joint5, 
+										joints_command.joint6,
+										joints_command.external_axis1);
+	
+	
+		hrSend := ipUdp.SendData(	ipAddr, 
+									udpSrcPort, 
+									udpDestPort, 
+									msg_length, 
+									ADR(output_msg), 
+									TRUE, 
+									0); // send data back
+
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TcAddRef" Id="{599e4cb9-d135-4707-8676-8fbad6af3084}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'TcAddRef'}
+{attribute 'c++_compatible'}
+{attribute 'signature_flag' := '33554688'}
+{attribute 'pack_mode' := '4'}
+{attribute 'show'}
+{attribute 'minimal_input_size' := '4'}
+METHOD TcAddRef : UDINT
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TcQueryInterface" Id="{7f1dfafe-3686-4ce5-8e4b-97ab36c4cd20}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'TcQueryInterface'}
+{attribute 'c++_compatible'}
+{attribute 'signature_flag' := '33554688'}
+{attribute 'pack_mode' := '4'}
+{attribute 'show'}
+{attribute 'minimal_input_size' := '4'}
+METHOD TcQueryInterface : HRESULT
+VAR_INPUT
+	iid	: REFERENCE TO IID;
+	pipItf	: POINTER TO PVOID;
+END_VAR
+
+VAR
+    ipUdpRecv : ITcIoUdpProtocolRecv;
+    ipUnknown : ITcUnknown;    
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF GuidsEqual(ADR(iid), ADR(TC_GLOBAL_IID_LIST.IID_ITcIoUdpProtocolRecv)) THEN
+    ipUdpRecv := THIS^; // cast to interface pointer
+    pipItf^ := ITCUNKNOWN_TO_PVOID(ipUdpRecv);
+    TcAddRef();
+    TcQueryInterface := S_OK;
+ELSIF GuidsEqual(ADR(iid), ADR(TC_GLOBAL_IID_LIST.IID_ITcUnknown)) THEN
+    ipUnknown := THIS^; // cast to interface pointer
+    pipItf^ := ITCUNKNOWN_TO_PVOID(ipUnknown);
+    TcAddRef();
+    TcQueryInterface := S_OK;
+ELSE
+    TcQueryInterface := E_HRESULTAdsErr.NOINTERFACE ; //Call super if this fb extends some other
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TcRelease" Id="{a19ff08f-b1eb-4c49-864d-c1e5a2f28d52}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'TcRelease'}
+{attribute 'c++_compatible'}
+{attribute 'signature_flag' := '33554688'}
+{attribute 'pack_mode' := '4'}
+{attribute 'show'}
+{attribute 'minimal_input_size' := '4'}
+METHOD TcRelease : UDINT
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="SampleUdpServer">
+      <LineId Id="24" Count="1" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="SampleUdpServer.FB_exit">
+      <LineId Id="7" Count="5" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="SampleUdpServer.FB_init">
+      <LineId Id="26" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="14" Count="11" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="SampleUdpServer.FB_reinit">
+      <LineId Id="6" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="SampleUdpServer.ReceiveData">
+      <LineId Id="23" Count="1" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="56" Count="11" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="68" Count="6" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="75" Count="21" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="41" Count="5" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+    <LineIds Name="SampleUdpServer.TcAddRef">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="SampleUdpServer.TcQueryInterface">
+      <LineId Id="19" Count="11" />
+      <LineId Id="13" Count="0" />
+    </LineIds>
+    <LineIds Name="SampleUdpServer.TcRelease">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

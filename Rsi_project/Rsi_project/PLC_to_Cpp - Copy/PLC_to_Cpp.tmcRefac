@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedType>
+      <Type guid="9aec10c6-d536-4312-af47-d0d5fc99f934">READWRITERSI</Type>
+      <From>MAIN</From>
+      <To>MAIN</To>
+    </RenamedType>
+  </Renames>
+</Refactors>

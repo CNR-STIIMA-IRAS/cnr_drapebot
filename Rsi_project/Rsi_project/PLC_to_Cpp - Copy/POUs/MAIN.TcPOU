@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <POU Name="MAIN" Id="{9aec10c6-d536-4312-af47-d0d5fc99f934}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	msg : STRING(1024) := '<Rob TYPE="KUKA">\n<AIPos A1="1" A2="0.2" A3="0.3" A4="0.4" A5="0.5" A6="0.6"/>\n<ASPos A1="1.1" A2="1.2" A3="1.3" A4="1.4" A5="1.5" A6="1.6"/>\n<RIst X="100" Y="200" Z="300" A="1" B="2" C="3" />\n<RSol X="101" Y="201" Z="301" A="11" B="21" C="31" />\n<IPOC>123456789</IPOC>\n</Rob>';
+
+	fbRsi : FB_Rsi(	sObjName:='CRsi:fbRsi',
+					eObjState:=TCOM_STATE.TCOM_STATE_OP);
+							
+	joint1 : LREAL;
+	joint2 : LREAL;
+	joint3 : LREAL;
+	joint4 : LREAL;
+	joint5 : LREAL;
+	joint6 : LREAL;
+	
+	joint1_setpoint : LREAL;
+	joint2_setpoint : LREAL;
+	joint3_setpoint : LREAL;
+	joint4_setpoint : LREAL;
+	joint5_setpoint : LREAL;
+	joint6_setpoint : LREAL;
+	
+	x :LREAL;
+	y: LREAL;
+	z: LREAL;
+	rot1: LREAL;
+	rot2: LREAL;
+	rot3: LREAL;
+	
+	x_setpoint :LREAL;
+	y_setpoint :LREAL;
+	z_setpoint :LREAL;
+	rot1_setpoint: LREAL;
+	rot2_setpoint: LREAL;
+	rot3_setpoint: LREAL;
+	
+	output_msg : STRING(1024);
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+IF fbRsi.ip <> 0 THEN
+
+	fbRsi.ip.read_incoming_msg(SIZEOF(msg),ADR(msg));
+	joint1 := fbRsi.ip.get_axis_1();
+	joint2 := fbRsi.ip.get_axis_2();
+	joint3 := fbRsi.ip.get_axis_3();
+	joint4 := fbRsi.ip.get_axis_4();
+	joint5 := fbRsi.ip.get_axis_5();
+	joint6 := fbRsi.ip.get_axis_6();
+
+	joint1_setpoint := fbRsi.ip.get_axis_1_setpoint();
+	joint2_setpoint := fbRsi.ip.get_axis_2_setpoint();
+	joint3_setpoint := fbRsi.ip.get_axis_3_setpoint();
+	joint4_setpoint := fbRsi.ip.get_axis_4_setpoint();
+	joint5_setpoint := fbRsi.ip.get_axis_5_setpoint();
+	joint6_setpoint := fbRsi.ip.get_axis_6_setpoint();
+	
+	x := fbRsi.ip.get_cartesian_x();
+	y := fbRsi.ip.get_cartesian_y();
+	z := fbRsi.ip.get_cartesian_z();
+	rot1 := fbRsi.ip.get_cartesian_rot1();
+	rot2 := fbRsi.ip.get_cartesian_rot2();
+	rot3 := fbRsi.ip.get_cartesian_rot3();
+	
+	x_setpoint := fbRsi.ip.get_cartesian_x_setpoint();
+	y_setpoint := fbRsi.ip.get_cartesian_y_setpoint();
+	z_setpoint := fbRsi.ip.get_cartesian_z_setpoint();
+	rot1_setpoint := fbRsi.ip.get_cartesian_rot1_setpoint();
+	rot2_setpoint := fbRsi.ip.get_cartesian_rot2_setpoint();
+	rot3_setpoint := fbRsi.ip.get_cartesian_rot3_setpoint();
+	
+	fbRsi.ip.write_msg(SIZEOF(output_msg),ADR(output_msg), -1,-2,-3,-4,-5,-6);
+
+END_IF
+
+(*
+ADSLOGSTR(	msgCtrlMask:=ADSLOG_MSGTYPE_ERROR,
+			msgFmtStr:='%s',
+			strArg:=output_msg);
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="51" Count="1" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="54" Count="5" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="116" Count="6" />
+      <LineId Id="124" Count="5" />
+      <LineId Id="131" Count="4" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="182" Count="1" />
+      <LineId Id="185" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <POU Name="MQTTClient_Joints" Id="{26b748d7-bdd3-4427-9f74-6269d7b7a776}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'c++_compatible'}
+FUNCTION_BLOCK MQTTClient_Joints EXTENDS FB_IotMqttClient
+VAR_INPUT
+	{attribute 'TcEncoding':='UTF-8'}
+	 sTopicRcv   : STRING(255);
+	 {attribute 'TcEncoding':='UTF-8'}
+	 sPayloadRcv : Joints;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="OnMqttMessage" Id="{594d468b-88aa-4315-81a5-841b8bbbf48b}">
+      <Declaration><![CDATA[{attribute 'c++_compatible'}
+{attribute 'pack_mode' := '4'}
+{attribute 'show'}
+{attribute 'minimal_input_size' := '4'}
+METHOD OnMqttMessage : HRESULT
+VAR_IN_OUT CONSTANT
+    topic    : STRING;
+END_VAR
+VAR_INPUT
+    payload  : PVOID;
+    length   : UDINT;
+    qos      : TcIotMqttQos;
+    repeated : BOOL;
+END_VAR
+VAR
+    nPayloadRcvLen : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[STRNCPY( ADR(sTopicRcv), ADR(topic), SIZEOF(sTopicRcv) );
+nPayloadRcvLen := MIN(length, DINT_TO_UDINT(SIZEOF(sPayloadRcv)));
+MEMCPY( ADR(sPayloadRcv), payload, nPayloadRcvLen );
+
+OnMqttMessage := S_OK;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="MQTTClient_Joints">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="MQTTClient_Joints.OnMqttMessage">
+      <LineId Id="21" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
