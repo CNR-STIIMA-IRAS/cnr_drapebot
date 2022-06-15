@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <POU Name="MQTT_Subscriber" Id="{10df84a5-feb1-4676-a487-b177312612f8}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MQTT_Subscriber
+VAR
+	
+	received_msg_size : UDINT;
+	sTopicSub : STRING;
+	eQoSSub : TcIotMqttQos;
+	bConnectSub : BOOL;
+	MQTT_client : MQTTClient_Joints;	
+	isConnected : BOOL;
+	isSub : BOOL;
+	
+	joints_command AT %Q* : Joints;
+	incoming_msg AT %I* : Joints;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[sTopicSub := 'robot1/command'; 
+eQoSSub := 1;
+bConnectSub := TRUE;
+isConnected := MQTT_client.bConnected;
+MQTT_client.sHostName := '169.254.252.101';
+
+//SUBSCRIBE
+MQTT_client.Execute(bConnectSub);
+isSub := MQTT_client.Subscribe(	sTopic := sTopicSub, 
+								eQoS := eQoSSub);
+incoming_msg := MQTT_client.sPayloadRcv;
+
+joints_command := incoming_msg;]]></ST>
+    </Implementation>
+    <LineIds Name="MQTT_Subscriber">
+      <LineId Id="23" Count="0" />
+      <LineId Id="25" Count="1" />
+      <LineId Id="30" Count="5" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="36" Count="1" />
+      <LineId Id="67" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

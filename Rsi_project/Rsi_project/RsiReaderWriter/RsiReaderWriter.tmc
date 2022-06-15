@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcModuleClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2009/05/TcModuleClass">
+  <Vendor>
+    <Name>C++ Module Vendor</Name>
+  </Vendor>
+  <DataTypes ><DataType><Name GUID="{fc0258ce-5fc8-476c-9617-5a58d8bf5c9c}">IRsi</Name><BaseType GUID="{00000001-0000-0000-e000-000000000064}">ITcUnknown</BaseType><Method><Name>get_axis_1</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_2</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_3</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_4</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_5</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_6</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_external_axis_1</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>read_incoming_msg</Name><ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType><Parameter><Name>nStr</Name><Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type></Parameter><Parameter><Name>pStr</Name><Type GUID="{18071995-0000-0000-0000-000000000003}" PointerTo="1">SINT</Type></Parameter></Method><Method><Name>get_axis_1_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_2_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_3_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_4_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_5_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_axis_6_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_x_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_y_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_z_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_rot1_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_rot2_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_rot3_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_x</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_y</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_z</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_rot1</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_rot2</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>get_cartesian_rot3</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Method><Name>write_msg</Name><ReturnType GUID="{18071995-0000-0000-0000-000000000005}">UINT</ReturnType><Parameter><Name>max_length_msg</Name><Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type></Parameter><Parameter><Name>msg</Name><Type GUID="{18071995-0000-0000-0000-000000000003}" PointerTo="1">SINT</Type></Parameter><Parameter><Name>ax1</Name><Type GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</Type></Parameter><Parameter><Name>ax2</Name><Type GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</Type></Parameter><Parameter><Name>ax3</Name><Type GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</Type></Parameter><Parameter><Name>ax4</Name><Type GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</Type></Parameter><Parameter><Name>ax5</Name><Type GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</Type></Parameter><Parameter><Name>ax6</Name><Type GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</Type></Parameter><Parameter><Name>external_axis1</Name><Type GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</Type></Parameter></Method><Method><Name>get_external_axis_1_setpoint</Name><ReturnType GUID="{18071995-0000-0000-0000-00000000000e}">LREAL</ReturnType></Method><Hides><Hide GUID="{3cd28e6c-de30-4914-9c9e-21a218a81fd2}" /><Hide GUID="{574d32aa-4c0b-4449-97c7-79e61eab214b}" /><Hide GUID="{25678f09-c8f9-422c-83e9-0434102c5cf4}" /><Hide GUID="{ffc3df50-906b-4ec8-b321-cab4f2208fac}" /><Hide GUID="{c773f0ab-a37b-4d56-8b75-205a951186c0}" /><Hide GUID="{d1c75ee2-7aa8-45e0-9690-9a8af3489ebf}" /><Hide GUID="{9ae3b0aa-e536-415f-8bd5-8e31ee618a71}" /></Hides></DataType></DataTypes>
+  <Groups>
+    <Group SortOrder="701">
+      <Name>C++</Name>
+      <DisplayName>C++ Modules</DisplayName>
+    </Group>
+  </Groups>
+  <Modules>
+    <Module GUID="{eb745b26-c68e-4ee7-9e8f-1d06260b78a8}" Group="C++">
+      <Name>Rsi</Name>
+      <CLSID ClassFactory="RsiReaderWriter" RealTimeInstantiable="true">{eb745b26-c68e-4ee7-9e8f-1d06260b78a8}</CLSID>
+      <Licenses>
+        <License>
+          <LicenseId>{304D006A-8299-4560-AB79-438534B50288}</LicenseId>
+          <Comment>TC3 C++</Comment>
+        </License>
+      </Licenses>
+      <InitSequence>PSO</InitSequence>
+      <Contexts />
+      <Interfaces>
+        <Interface DisableCodeGeneration="true">
+          <Type GUID="{00000012-0000-0000-E000-000000000064}">ITComObject</Type>
+        </Interface>
+        <Interface DisableCodeGeneration="true">
+          <Type GUID="{03000012-0000-0000-E000-000000000064}">ITcADI</Type>
+        </Interface>
+        <Interface DisableCodeGeneration="true">
+          <Type GUID="{03000018-0000-0000-E000-000000000064}">ITcWatchSource</Type>
+        </Interface><Interface><Type GUID="{fc0258ce-5fc8-476c-9617-5a58d8bf5c9c}">IRsi</Type></Interface>
+      </Interfaces>
+      <Parameters>
+        <Parameter HideParameter="true">
+          <Name>TraceLevelMax</Name>
+          <Comment>Controls the amount of log messages.</Comment>
+          <BaseType GUID="{8007ae3b-86bb-40f2-b385-ef87fcc239a4}">TcTraceLevel</BaseType>
+          <PTCID>#x03002103</PTCID>
+          <ContextId>1</ContextId>
+        </Parameter>
+      </Parameters>
+      <DataAreas />
+      <InterfacePointers />
+      <DataPointers />
+      <Deployment>
+        <FileEntry TargetPlatform="TwinCAT RT (x86)">
+          <SourceFile>%SOLUTIONDEPLOYMENTPATH%TwinCAT RT (x86)\%CLASSFACTORYNAME%.sys</SourceFile>
+          <DestinationFile>%TC_DRIVERAUTOINSTALLPATH%%CLASSFACTORYNAME%.sys</DestinationFile>
+        </FileEntry>
+        <FileEntry TargetPlatform="TwinCAT RT (x86)">
+          <SourceFile>%SOLUTIONDEPLOYMENTPATH%TwinCAT RT (x86)\%CLASSFACTORYNAME%.pdb</SourceFile>
+          <DestinationFile>%TC_DRIVERAUTOINSTALLPATH%%CLASSFACTORYNAME%.pdb</DestinationFile>
+        </FileEntry>
+        <FileEntry TargetPlatform="TwinCAT RT (x64)">
+          <SourceFile>%SOLUTIONDEPLOYMENTPATH%TwinCAT RT (x64)\%CLASSFACTORYNAME%.sys</SourceFile>
+          <DestinationFile>%TC_DRIVERAUTOINSTALLPATH%%CLASSFACTORYNAME%.sys</DestinationFile>
+        </FileEntry>
+        <FileEntry TargetPlatform="TwinCAT RT (x64)">
+          <SourceFile>%SOLUTIONDEPLOYMENTPATH%TwinCAT RT (x64)\%CLASSFACTORYNAME%.pdb</SourceFile>
+          <DestinationFile>%TC_DRIVERAUTOINSTALLPATH%%CLASSFACTORYNAME%.pdb</DestinationFile>
+        </FileEntry>
+      </Deployment>
+    </Module>
+  </Modules>
+</TcModuleClass>

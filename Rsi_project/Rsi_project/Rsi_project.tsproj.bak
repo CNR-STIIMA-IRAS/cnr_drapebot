@@ -1,0 +1,1760 @@
+<?xml version="1.0"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.25">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{A1AB4742-81A3-8EE4-2263-1321EC7CF796}" AutoDeleteType="true">Joints</Name>
+			<BitSize>448</BitSize>
+			<SubItem>
+				<Name>joint1</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>0</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>joint2</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>64</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>joint3</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>128</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>joint4</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>192</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>joint5</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>256</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>joint6</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>320</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>external_axis1</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>384</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{E774B091-CE26-B330-A5D8-0C2918E5D4D7}" AutoDeleteType="true">Cartesian</Name>
+			<BitSize>384</BitSize>
+			<SubItem>
+				<Name>x</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>0</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>y</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>64</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>z</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>128</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>rot1</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>192</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>rot2</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>256</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+			<SubItem>
+				<Name>rot3</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>320</BitOffs>
+				<Default>
+					<Value>0</Value>
+				</Default>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{EC69315C-BF51-84FB-040C-3B67CE0C64C5}" AutoDeleteType="true">RobotState</Name>
+			<BitSize>1664</BitSize>
+			<SubItem>
+				<Name>joints_position</Name>
+				<Type GUID="{A1AB4742-81A3-8EE4-2263-1321EC7CF796}">Joints</Type>
+				<BitSize>448</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>cartesian_position</Name>
+				<Type GUID="{E774B091-CE26-B330-A5D8-0C2918E5D4D7}">Cartesian</Type>
+				<BitSize>384</BitSize>
+				<BitOffs>448</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>joints_setpoint</Name>
+				<Type GUID="{A1AB4742-81A3-8EE4-2263-1321EC7CF796}">Joints</Type>
+				<BitSize>448</BitSize>
+				<BitOffs>832</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>cartesian_setpoint</Name>
+				<Type GUID="{E774B091-CE26-B330-A5D8-0C2918E5D4D7}">Cartesian</Type>
+				<BitSize>384</BitSize>
+				<BitOffs>1280</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{FC0258CE-5FC8-476C-9617-5A58D8BF5C9C}">IRsi</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>get_axis_1</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_2</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_3</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_4</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_5</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_6</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_external_axis_1</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>read_incoming_msg</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>nStr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pStr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000003}" PointerTo="1">SINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>get_axis_1_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_2_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_3_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_4_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_5_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_axis_6_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_x_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_y_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_z_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_rot1_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_rot2_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_rot3_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_x</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_y</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_z</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_rot1</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_rot2</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>get_cartesian_rot3</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>write_msg</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000005}">UINT</ReturnType>
+				<ReturnBitSize>16</ReturnBitSize>
+				<Parameter>
+					<Name>max_length_msg</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>msg</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000003}" PointerTo="1">SINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ax1</Name>
+					<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+					<BitSize>64</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ax2</Name>
+					<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+					<BitSize>64</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ax3</Name>
+					<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+					<BitSize>64</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ax4</Name>
+					<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+					<BitSize>64</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ax5</Name>
+					<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+					<BitSize>64</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ax6</Name>
+					<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+					<BitSize>64</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>external_axis1</Name>
+					<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+					<BitSize>64</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>get_external_axis_1_setpoint</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</ReturnType>
+				<ReturnBitSize>64</ReturnBitSize>
+			</Method>
+			<Hides>
+				<Hide GUID="{3CD28E6C-DE30-4914-9C9E-21A218A81FD2}"/>
+				<Hide GUID="{574D32AA-4C0B-4449-97C7-79E61EAB214B}"/>
+				<Hide GUID="{25678F09-C8F9-422C-83E9-0434102C5CF4}"/>
+				<Hide GUID="{FFC3DF50-906B-4EC8-B321-CAB4F2208FAC}"/>
+				<Hide GUID="{C773F0AB-A37B-4D56-8B75-205A951186C0}"/>
+				<Hide GUID="{D1C75EE2-7AA8-45E0-9690-9A8AF3489EBF}"/>
+				<Hide GUID="{9AE3B0AA-E536-415F-8BD5-8E31EE618A71}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010035-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoEthProtocol</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>CheckFrame</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nVLanTag</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nTimeStamp</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>LinkStatusChanged</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>bLinkError</Name>
+					<Type GUID="{9060AE9D-214D-4685-A4C0-CD1082626764}">BOOL32</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" TcBaseType="true">ETYPE_VLAN_HEADER</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+		</DataType>
+		<DataType>
+			<Name GUID="{CC07E0A0-FC03-45CD-BFD9-D46B7C731E7C}" TcBaseType="true">ETHERNET_ADDRESS</Name>
+			<BitSize>48</BitSize>
+			<SubItem>
+				<Name>b</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<ArrayInfo>
+					<LBound>0</LBound>
+					<Elements>6</Elements>
+				</ArrayInfo>
+				<BitSize>48</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{F45D8924-F151-4141-9296-7C8BB697BD07}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010096-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoArpPingRecv</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>ArpReply</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>macAddr</Name>
+					<Type GUID="{CC07E0A0-FC03-45CD-BFD9-D46B7C731E7C}">ETHERNET_ADDRESS</Type>
+					<BitSize>48</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>PingReply</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{0301009E-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoArpPing</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>PingRequest</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" Optional="0">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}" Optional="0">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>ArpRequest</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>macAddr</Name>
+					<Type GUID="{CC07E0A0-FC03-45CD-BFD9-D46B7C731E7C}" PointerTo="1" Optional="0">ETHERNET_ADDRESS</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>RegisterReceiver</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipRecv</Name>
+					<Type GUID="{03010096-0000-0000-E000-000000000064}">ITcIoArpPingRecv</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>UnregisterReceiver</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipRecv</Name>
+					<Type GUID="{03010096-0000-0000-E000-000000000064}">ITcIoArpPingRecv</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>CheckReceived</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{0301009D-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoIpStackControl</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>DeleteArpCache</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>GetIpData</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>pIpAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" PointerTo="1">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pIpSubnetMask</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" PointerTo="1">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pIpGateway</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" PointerTo="1">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010095-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoUdpProtocolRecv</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>ReceiveData</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>udpDestPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>udpSrcPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010097-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoUdpProtocol</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>SendData</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipDestAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>udpDestPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>udpSrcPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>bCalcUdpCheckSum</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000030}" Optional="0">BOOL</Type>
+					<BitSize>8</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>CheckReceived</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>RegisterReceiver</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>udpPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ipRecv</Name>
+					<Type GUID="{03010095-0000-0000-E000-000000000064}">ITcIoUdpProtocolRecv</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>UnregisterReceiver</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>udpPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{7CECC506-F55F-4594-B611-972D650865D2}" TcBaseType="true">TCPIP_EVENT</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_NONE]]></Text>
+				<Enum>0</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_ERROR]]></Text>
+				<Enum>1</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_RESET]]></Text>
+				<Enum>2</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_TIMEOUT]]></Text>
+				<Enum>3</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_CONN_ESTABLISHED]]></Text>
+				<Enum>4</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_CONN_INCOMING]]></Text>
+				<Enum>5</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_CONN_CLOSED]]></Text>
+				<Enum>6</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_CONN_IDLE]]></Text>
+				<Enum>7</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_DATA_RECEIVED]]></Text>
+				<Enum>8</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_DATA_SENT]]></Text>
+				<Enum>9</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_KEEP_ALIVE]]></Text>
+				<Enum>10</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_LINKCONNECT]]></Text>
+				<Enum>11</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_LINKDISCONNECT]]></Text>
+				<Enum>12</Enum>
+			</EnumInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010099-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoTcpProtocolRecv</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>ReceiveData</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>ReceiveEvent</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>tcpEvent</Name>
+					<Type GUID="{7CECC506-F55F-4594-B611-972D650865D2}">TCPIP_EVENT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010098-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoTcpProtocol</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>AllocSocket</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipRecv</Name>
+					<Type GUID="{03010099-0000-0000-E000-000000000064}">ITcIoTcpProtocolRecv</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" ReferenceTo="true">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>FreeSocket</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>Connect</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ipRemoteAddress</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>tcpPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>IsConnected</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>Close</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>Listen</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>tcpPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>Accept</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>SendData</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nSendData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" ReferenceTo="true">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>CheckReceived</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>GetRemoteIpAddr</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>remoteIpAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" ReferenceTo="true">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>GetFreeSendDataSize</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" ReferenceTo="true">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00000000003E}" TcBaseType="true" HideSubItems="true">IPADDR</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>4</Elements>
+			</ArrayInfo>
+			<Format>
+				<Printf>%d.%d.%d.%d</Printf>
+				<Parameter>[3]</Parameter>
+				<Parameter>[2]</Parameter>
+				<Parameter>[1]</Parameter>
+				<Parameter>[0]</Parameter>
+			</Format>
+		</DataType>
+		<DataType>
+			<Name GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Name>
+			<BitSize>128</BitSize>
+			<SubItem>
+				<Name>nSendCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nSendFailCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nRecvCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nRecvFailCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{38621CD5-4239-4327-97F7-35F1414B7265}">IpStackDiagnosis</Name>
+			<BitSize>768</BitSize>
+			<SubItem>
+				<Name>ip</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>arpRequest</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>arpReply</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>pingRequest</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>384</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>pingReply</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>512</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nLinkStatusChangedCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>640</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nAllocFailCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>672</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nArpTimeoutFrames</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>704</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDroppedFrames</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>736</BitOffs>
+			</SubItem>
+		</DataType>
+	</DataTypes>
+	<ImageDatas>
+		<ImageData Id="1000">424de6000000000000007600000028000000100000000e000000010004000000000070000000000000000000000000000000000000000000000000008000008000000080800080000000800080008080000080808000c0c0c0000000ff0000ff000000ffff00ff000000ff00ff00ffff0000ffffff00ffffffffffffffffff788833338887ffff78883bb38887ffffffff3bb3ffffffffffff8778fffffffffffffffffffffffffffffffff999ffff78f78fffffffffff78f78ffff999ffff78f7888fffffffff78f78f78f999ffff78f78f78ffffffff78f7888ff999ffffffffffffffffff</ImageData>
+	</ImageDatas>
+	<Project ProjectGUID="{F8658B45-2945-4323-8C3C-65231EEA1A80}" TargetNetId="172.18.238.197.1.1" Target64Bit="true" ShowHideConfigurations="#x106">
+		<System>
+			<Settings MaxCpus="4" NonWinCpus="1">
+				<Cpu CpuId="3"/>
+				<Debugger Priority="61"/>
+			</Settings>
+			<Tasks>
+				<Task Id="3" Priority="1" CycleTime="100000" AmsPort="350" AdtTasks="true">
+					<Name>Task 1</Name>
+				</Task>
+				<Task Id="4" Priority="2" CycleTime="100000" AmsPort="351" AdtTasks="true">
+					<Name>Task 2</Name>
+				</Task>
+			</Tasks>
+			<Modules>
+				<AddClassFactory>RsiReaderWriter</AddClassFactory>
+			</Modules>
+		</System>
+		<Plc>
+			<Project GUID="{6CF8ECEE-9E6D-4A95-A1B7-A51218ED4CAD}" Name="PLC_to_Cpp" PrjFilePath="PLC_to_Cpp\PLC_to_Cpp.plcproj" TmcFilePath="PLC_to_Cpp\PLC_to_Cpp.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC_to_Cpp\PLC_to_Cpp.tmc">
+					<Name>PLC_to_Cpp Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Vars VarGrpType="1">
+						<Name>Task_1 Inputs</Name>
+						<Var>
+							<Name>MAIN.udp1.joints_command</Name>
+							<Type GUID="{A1AB4742-81A3-8EE4-2263-1321EC7CF796}">Joints</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" AreaNo="1">
+						<Name>Task_1 Outputs</Name>
+						<Var>
+							<Name>MAIN.udp1.robot_state</Name>
+							<Type GUID="{EC69315C-BF51-84FB-040C-3B67CE0C64C5}">RobotState</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
+						<Name>Task_2 Inputs</Name>
+						<Var>
+							<Name>MQTT_Subscriber.incoming_msg</Name>
+							<Type GUID="{A1AB4742-81A3-8EE4-2263-1321EC7CF796}">Joints</Type>
+						</Var>
+						<Var>
+							<Name>MQTT_Publisher.robot_state</Name>
+							<Type GUID="{EC69315C-BF51-84FB-040C-3B67CE0C64C5}">RobotState</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" ContextId="1" AreaNo="17">
+						<Name>Task_2 Outputs</Name>
+						<Var>
+							<Name>MQTT_Subscriber.joints_command</Name>
+							<Type GUID="{A1AB4742-81A3-8EE4-2263-1321EC7CF796}">Joints</Type>
+						</Var>
+						<Var>
+							<Name>MQTT_Publisher.robot_state_msg</Name>
+							<Type GUID="{EC69315C-BF51-84FB-040C-3B67CE0C64C5}">RobotState</Type>
+						</Var>
+						<Var>
+							<Name>MQTT_Publisher.joints_command_fake</Name>
+							<Comment><![CDATA[ Only for test putpose]]></Comment>
+							<Type GUID="{A1AB4742-81A3-8EE4-2263-1321EC7CF796}">Joints</Type>
+						</Var>
+					</Vars>
+					<Contexts>
+						<Context>
+							<Id NeedCalleeCall="true">0</Id>
+							<Name>Task_1</Name>
+							<ManualConfig>
+								<OTCID>#x02010030</OTCID>
+							</ManualConfig>
+							<Priority>1</Priority>
+							<CycleTime>10000000</CycleTime>
+						</Context>
+						<Context>
+							<Id NeedCalleeCall="true">1</Id>
+							<Name>Task_2</Name>
+							<ManualConfig>
+								<OTCID>#x02010040</OTCID>
+							</ManualConfig>
+							<Priority>2</Priority>
+							<CycleTime>10000000</CycleTime>
+						</Context>
+					</Contexts>
+					<InitSymbols>
+						<InitSymbol>
+							<Name>MAIN.udp1.oid</Name>
+							<Type GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</Type>
+							<AreaNo>#x00000003</AreaNo>
+							<Data>20000101</Data>
+						</InitSymbol>
+					</InitSymbols>
+					<TaskPouOids>
+						<TaskPouOid Prio="1" OTCID="#x08502001"/>
+						<TaskPouOid Prio="2" OTCID="#x08502002"/>
+					</TaskPouOids>
+				</Instance>
+			</Project>
+		</Plc>
+		<Cpp>
+			<Project GUID="{ABAEE78C-568E-4F66-B00B-52547B3DE4F1}" Name="RsiReaderWriter" PrjFilePath="RsiReaderWriter\RsiReaderWriter.vcxproj" TmcFilePath="RsiReaderWriter\RsiReaderWriter.tmc">
+				<Instance Id="#x01010010" KeepUnrestoredLinks="2">
+					<Name>RsiReaderWriter_Obj1 (Rsi)</Name>
+					<TmcDesc GUID="{EB745B26-C68E-4EE7-9E8F-1D06260B78A8}">
+						<Name>Rsi</Name>
+						<CLSID ClassFactory="RsiReaderWriter" RealTimeInstantiable="true">{EB745B26-C68E-4EE7-9E8F-1D06260B78A8}</CLSID>
+						<Licenses>
+							<License>
+								<LicenseId>{304D006A-8299-4560-AB79-438534B50288}</LicenseId>
+							</License>
+						</Licenses>
+						<InitSequence>PSO</InitSequence>
+						<Contexts>
+							<Context>
+								<Id>1</Id>
+								<Name>Default</Name>
+							</Context>
+						</Contexts>
+						<Interfaces>
+							<Interface DisableCodeGeneration="true">
+								<Type GUID="{00000012-0000-0000-E000-000000000064}">ITComObject</Type>
+							</Interface>
+							<Interface DisableCodeGeneration="true">
+								<Type GUID="{03000012-0000-0000-E000-000000000064}">ITcADI</Type>
+							</Interface>
+							<Interface DisableCodeGeneration="true">
+								<Type GUID="{03000018-0000-0000-E000-000000000064}">ITcWatchSource</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{FC0258CE-5FC8-476C-9617-5A58D8BF5C9C}">IRsi</Type>
+							</Interface>
+						</Interfaces>
+						<Parameters>
+							<Parameter HideParameter="true">
+								<Name>TraceLevelMax</Name>
+								<Comment><![CDATA[Controls the amount of log messages.]]></Comment>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{8007AE3B-86BB-40F2-B385-EF87FCC239A4}">TcTraceLevel</BaseType>
+								<PTCID>#x03002103</PTCID>
+								<ContextId>1</ContextId>
+							</Parameter>
+						</Parameters>
+						<Deployment>
+							<FileEntry TargetPlatform="TwinCAT RT (x86)">
+								<SourceFile>%SOLUTIONDEPLOYMENTPATH%TwinCAT RT (x86)\%CLASSFACTORYNAME%.sys</SourceFile>
+								<DestinationFile>%TC_DRIVERAUTOINSTALLPATH%%CLASSFACTORYNAME%.sys</DestinationFile>
+							</FileEntry>
+							<FileEntry TargetPlatform="TwinCAT RT (x86)">
+								<SourceFile>%SOLUTIONDEPLOYMENTPATH%TwinCAT RT (x86)\%CLASSFACTORYNAME%.pdb</SourceFile>
+								<DestinationFile>%TC_DRIVERAUTOINSTALLPATH%%CLASSFACTORYNAME%.pdb</DestinationFile>
+							</FileEntry>
+							<FileEntry TargetPlatform="TwinCAT RT (x64)">
+								<SourceFile>%SOLUTIONDEPLOYMENTPATH%TwinCAT RT (x64)\%CLASSFACTORYNAME%.sys</SourceFile>
+								<DestinationFile>%TC_DRIVERAUTOINSTALLPATH%%CLASSFACTORYNAME%.sys</DestinationFile>
+							</FileEntry>
+							<FileEntry TargetPlatform="TwinCAT RT (x64)">
+								<SourceFile>%SOLUTIONDEPLOYMENTPATH%TwinCAT RT (x64)\%CLASSFACTORYNAME%.pdb</SourceFile>
+								<DestinationFile>%TC_DRIVERAUTOINSTALLPATH%%CLASSFACTORYNAME%.pdb</DestinationFile>
+							</FileEntry>
+						</Deployment>
+						<ParameterValues>
+							<Value>
+								<Name>TraceLevelMax</Name>
+								<EnumText>tlAlways</EnumText>
+							</Value>
+						</ParameterValues>
+					</TmcDesc>
+				</Instance>
+			</Project>
+		</Cpp>
+		<Io>
+			<Device Id="1" DevType="109" DevFlags="#x0004">
+				<Name>Device 1 (RT-Ethernet Adapter)</Name>
+				<AddressInfo>
+					<Pnp>
+						<DeviceDesc>Ethernet (TwinCAT-Intel PCI Ethernet Adapter (Gigab</DeviceDesc>
+						<DeviceName>\DEVICE\{2E1711A7-0549-4F9D-AAB2-B0BC1356178F}</DeviceName>
+						<DeviceData>00010569fdd3</DeviceData>
+					</Pnp>
+				</AddressInfo>
+				<Module Id="#x01010020" KeepUnrestoredLinks="2">
+					<Name>Device 1 (RT-Ethernet Adapter)_Obj1 (TCP/UDP RT)</Name>
+					<ImageId>1000</ImageId>
+					<TmcDesc GUID="{080D0399-6A65-408D-80E1-18D8F699496A}">
+						<Name>TCP/UDP RT</Name>
+						<CLSID ClassFactory="TCIOETH">{03010070-0000-0000-F000-000000000064}</CLSID>
+						<Licenses>
+							<License>
+								<LicenseId>{081AC839-28D0-49CA-9792-72680E1F3249}</LicenseId>
+							</License>
+						</Licenses>
+						<InitSequence>PSO</InitSequence>
+						<Contexts>
+							<Context>
+								<Id>1</Id>
+							</Context>
+						</Contexts>
+						<Interfaces>
+							<Interface>
+								<Type GUID="{00000012-0000-0000-E000-000000000064}">ITComObject</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{03010035-0000-0000-E000-000000000064}">ITcIoEthProtocol</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{0301009E-0000-0000-E000-000000000064}">ITcIoArpPing</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{0301009D-0000-0000-E000-000000000064}">ITcIoIpStackControl</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{03010097-0000-0000-E000-000000000064}">ITcIoUdpProtocol</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{03010098-0000-0000-E000-000000000064}">ITcIoTcpProtocol</Type>
+							</Interface>
+						</Interfaces>
+						<Parameters>
+							<Parameter>
+								<Name>TcIoIpSettings</Name>
+								<BitSize>128</BitSize>
+								<SubItem>
+									<Name>IpAddress</Name>
+									<Type GUID="{18071995-0000-0000-0000-00000000003E}">IPADDR</Type>
+									<BitSize>32</BitSize>
+									<BitOffs>0</BitOffs>
+								</SubItem>
+								<SubItem>
+									<Name>SubnetMask</Name>
+									<Type GUID="{18071995-0000-0000-0000-00000000003E}">IPADDR</Type>
+									<BitSize>32</BitSize>
+									<BitOffs>32</BitOffs>
+								</SubItem>
+								<SubItem>
+									<Name>Gateway</Name>
+									<Type GUID="{18071995-0000-0000-0000-00000000003E}">IPADDR</Type>
+									<BitSize>32</BitSize>
+									<BitOffs>64</BitOffs>
+								</SubItem>
+								<SubItem>
+									<Name>DhcpEnable</Name>
+									<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+									<BitSize>8</BitSize>
+									<BitOffs>96</BitOffs>
+								</SubItem>
+								<SubItem>
+									<Name>ManualSettings</Name>
+									<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+									<BitSize>8</BitSize>
+									<BitOffs>104</BitOffs>
+								</SubItem>
+								<PTCID>#x03002050</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpMaxReceivers</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>4</Value>
+								</Default>
+								<PTCID>#x03011101</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpMaxPendingOnArp</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>40</Value>
+								</Default>
+								<PTCID>#x03011103</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpMacCacheSize</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>64</Value>
+								</Default>
+								<PTCID>#x03011104</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpMTU</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>1514</Value>
+								</Default>
+								<PTCID>#x03011105</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpRecvFrameQueueSize</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>255</Value>
+								</Default>
+								<PTCID>#x03011115</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>UdpMaxReceivers</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>4</Value>
+								</Default>
+								<PTCID>#x03011111</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>UdpMTU</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>1514</Value>
+								</Default>
+								<PTCID>#x03011112</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>UdpCheckCrc</Name>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+								<Default>
+									<EnumText>TRUE</EnumText>
+								</Default>
+								<PTCID>#x03011113</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TTL</Name>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+								<Default>
+									<Value>128</Value>
+								</Default>
+								<PTCID>#x03011106</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>MulticastTTL</Name>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+								<Default>
+									<Value>1</Value>
+								</Default>
+								<PTCID>#x0301110a</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>PassiveMode</Name>
+								<Comment><![CDATA[Ethernet adapter frame processing triggered by other protocol]]></Comment>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+								<PTCID>#x03011133</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>MulticastIpList</Name>
+								<BitSize>0</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-00000000003E}">IPADDR</BaseType>
+								<ArrayInfo>
+									<LBound>0</LBound>
+									<Elements Min="0" Max="8">0</Elements>
+								</ArrayInfo>
+								<PTCID>#x0301110d</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpMTU</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>1514</Value>
+								</Default>
+								<PTCID>#x03011122</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpCheckCrc</Name>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+								<Default>
+									<EnumText>TRUE</EnumText>
+								</Default>
+								<PTCID>#x03011123</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpMaxSocketCount</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>32</Value>
+								</Default>
+								<PTCID>#x03011124</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpReceiveBufferSize</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>16192</Value>
+								</Default>
+								<PTCID>#x03011125</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpTransmitBufferSize</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>16192</Value>
+								</Default>
+								<PTCID>#x03011126</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpMaxRetry</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>5</Value>
+								</Default>
+								<PTCID>#x03011127</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpTimeoutWait</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>60000</Value>
+								</Default>
+								<PTCID>#x03011128</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpTimeoutCon</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>5000</Value>
+								</Default>
+								<PTCID>#x03011129</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpTimeoutIdle</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>1000</Value>
+								</Default>
+								<PTCID>#x03011130</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpRoundTripTime</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>3000</Value>
+								</Default>
+								<PTCID>#x03011131</PTCID>
+							</Parameter>
+							<Parameter OnlineParameter="true">
+								<Name>IpStackDiagnosis</Name>
+								<BitSize>768</BitSize>
+								<BaseType GUID="{38621CD5-4239-4327-97F7-35F1414B7265}">IpStackDiagnosis</BaseType>
+								<PTCID>#x03011108</PTCID>
+							</Parameter>
+						</Parameters>
+						<InterfacePointers>
+							<InterfacePointer>
+								<PTCID>#x03002040</PTCID>
+								<Name>ITcIoEthAdapter</Name>
+								<Type GUID="{03010034-0000-0000-E000-000000000064}"></Type>
+							</InterfacePointer>
+						</InterfacePointers>
+						<Properties>
+							<Property>
+								<Name>Category</Name>
+								<Value>NeedEthernetAdapterPort</Value>
+							</Property>
+							<Property>
+								<Name>Category</Name>
+								<Value>NeedIoIdleTask</Value>
+							</Property>
+							<Property>
+								<Name>ChildCategory</Name>
+								<Value>IpProtocol</Value>
+							</Property>
+						</Properties>
+						<ParentOTCID>#x03010010</ParentOTCID>
+						<ParameterValues>
+							<Value>
+								<Name>TcIoIpSettings.IpAddress</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>TcIoIpSettings.SubnetMask</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>TcIoIpSettings.Gateway</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>TcIoIpSettings.DhcpEnable</Name>
+								<EnumText>FALSE</EnumText>
+							</Value>
+							<Value>
+								<Name>TcIoIpSettings.ManualSettings</Name>
+								<EnumText>FALSE</EnumText>
+							</Value>
+							<Value>
+								<Name>IpMaxReceivers</Name>
+								<Value>4</Value>
+							</Value>
+							<Value>
+								<Name>IpMaxPendingOnArp</Name>
+								<Value>40</Value>
+							</Value>
+							<Value>
+								<Name>IpMacCacheSize</Name>
+								<Value>64</Value>
+							</Value>
+							<Value>
+								<Name>IpMTU</Name>
+								<Value>1514</Value>
+							</Value>
+							<Value>
+								<Name>IpRecvFrameQueueSize</Name>
+								<Value>255</Value>
+							</Value>
+							<Value>
+								<Name>UdpMaxReceivers</Name>
+								<Value>4</Value>
+							</Value>
+							<Value>
+								<Name>UdpMTU</Name>
+								<Value>1514</Value>
+							</Value>
+							<Value>
+								<Name>UdpCheckCrc</Name>
+								<EnumText>TRUE</EnumText>
+							</Value>
+							<Value>
+								<Name>TTL</Name>
+								<Value>128</Value>
+							</Value>
+							<Value>
+								<Name>MulticastTTL</Name>
+								<Value>1</Value>
+							</Value>
+							<Value>
+								<Name>PassiveMode</Name>
+								<EnumText>FALSE</EnumText>
+							</Value>
+							<Value>
+								<Name>TcpMTU</Name>
+								<Value>1514</Value>
+							</Value>
+							<Value>
+								<Name>TcpCheckCrc</Name>
+								<EnumText>TRUE</EnumText>
+							</Value>
+							<Value>
+								<Name>TcpMaxSocketCount</Name>
+								<Value>32</Value>
+							</Value>
+							<Value>
+								<Name>TcpReceiveBufferSize</Name>
+								<Value>16192</Value>
+							</Value>
+							<Value>
+								<Name>TcpTransmitBufferSize</Name>
+								<Value>16192</Value>
+							</Value>
+							<Value>
+								<Name>TcpMaxRetry</Name>
+								<Value>5</Value>
+							</Value>
+							<Value>
+								<Name>TcpTimeoutWait</Name>
+								<Value>60000</Value>
+							</Value>
+							<Value>
+								<Name>TcpTimeoutCon</Name>
+								<Value>5000</Value>
+							</Value>
+							<Value>
+								<Name>TcpTimeoutIdle</Name>
+								<Value>1000</Value>
+							</Value>
+							<Value>
+								<Name>TcpRoundTripTime</Name>
+								<Value>3000</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.ip.nSendCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.ip.nSendFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.ip.nRecvCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.ip.nRecvFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.arpRequest.nSendCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.arpRequest.nSendFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.arpRequest.nRecvCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.arpRequest.nRecvFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.arpReply.nSendCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.arpReply.nSendFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.arpReply.nRecvCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.arpReply.nRecvFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.pingRequest.nSendCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.pingRequest.nSendFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.pingRequest.nRecvCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.pingRequest.nRecvFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.pingReply.nSendCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.pingReply.nSendFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.pingReply.nRecvCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.pingReply.nRecvFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.nLinkStatusChangedCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.nAllocFailCnt</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.nArpTimeoutFrames</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>IpStackDiagnosis.nDroppedFrames</Name>
+								<Value>0</Value>
+							</Value>
+						</ParameterValues>
+						<InterfacePointerValues>
+							<Value>
+								<Name>ITcIoEthAdapter</Name>
+								<OTCID>#x00000000</OTCID>
+							</Value>
+						</InterfacePointerValues>
+					</TmcDesc>
+				</Module>
+				<Ethernet DeviceDesc="Ethernet (TwinCAT-Intel PCI Ethernet Adapter (Gigabit))" Ports="1" VLanIds="0a0014001e00280032003c00460050005a0064006e00780082008c009600a000aa00b400be00c800d200dc00e600f000fa0004010e01180122012c01360140014a0154015e01680172017c01860190019a01a401ae01b801c201cc01d601e001ea01f401fe01080212021c02260230023a0244024e02580262026c0276028002">
+					<Esl SyncSlaveProtocolPort="-1"/>
+				</Ethernet>
+			</Device>
+		</Io>
+	</Project>
+	<Mappings>
+		<MappingInfo Identifier="{08502001-2002-0850-0020-500801205008}" Id="#x02030010" Watchdog="04000000040000000400000004000000"/>
+		<OwnerA Name="TIPC^PLC_to_Cpp^PLC_to_Cpp Instance">
+			<OwnerB Name="TIPC^PLC_to_Cpp^PLC_to_Cpp Instance">
+				<Link VarA="Task_1 Inputs^MAIN.udp1.joints_command" VarB="Task_2 Outputs^MQTT_Subscriber.joints_command"/>
+				<Link VarA="Task_2 Inputs^MQTT_Publisher.robot_state" VarB="Task_1 Outputs^MAIN.udp1.robot_state"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
+</TcSmProject>

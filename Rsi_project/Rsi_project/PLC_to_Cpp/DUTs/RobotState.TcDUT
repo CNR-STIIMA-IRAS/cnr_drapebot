@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <DUT Name="RobotState" Id="{729d144b-a755-481f-abb3-37ff2995d7bc}">
+    <Declaration><![CDATA[TYPE RobotState :
+STRUCT
+	joints_position : Joints;
+	cartesian_position : Cartesian;
+	joints_setpoint : Joints;
+	cartesian_setpoint : Cartesian;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

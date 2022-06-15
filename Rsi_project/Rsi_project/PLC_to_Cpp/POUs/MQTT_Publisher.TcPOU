@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <POU Name="MQTT_Publisher" Id="{83b11df6-3ef4-444f-9ec4-55cd721b41e4}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MQTT_Publisher
+VAR
+	robot_state AT %I* : RobotState;
+	robot_state_msg AT %Q* : RobotState;
+	
+	received_msg_size : UDINT;
+	PayloadPub : PVOID;
+	PayloadSizePub : UDINT;
+	sTopicPub : STRING := 'robot1/state';
+	eQoSPub : TcIotMqttQos;
+	bConnectPub : BOOL;
+	MQTT_client : MQTTClient_RobotState;	
+	bRetainPub : BOOL;
+	bQueuePub : BOOL;
+	isConnected : BOOL;
+	isPub : BOOL;
+	
+	
+	// Only for test putpose
+	joints_command_fake AT %Q* : Joints;
+	MQTT_client_fake : MQTTClient_Joints;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bRetainPub := FALSE; 
+bQueuePub := FALSE;
+bConnectPub := TRUE;
+isConnected := MQTT_client.bConnected;
+MQTT_client.sHostName := '169.254.252.101';
+
+robot_state_msg := robot_state;
+
+PayloadPub := ADR(robot_state_msg);
+PayloadSizePub := SIZEOF(robot_state_msg);
+MQTT_client.Execute(bConnect := bConnectPub);
+isPub := MQTT_client.Publish(	sTopic := sTopicPub, 
+								pPayload := PayloadPub, 
+								nPayloadSize := PayloadSizePub, 
+								eQos := eQoSPub, 
+								bRetain := bRetainPub, 
+								bQueue := bQueuePub);
+isConnected := MQTT_client.bConnected;
+
+// Only for test purpose
+(*
+joints_command_fake.joint1 := -0.01;
+joints_command_fake.joint2 := -0.02;
+joints_command_fake.joint3 := -0.03;
+joints_command_fake.joint4 := -0.04;
+joints_command_fake.joint5 := -0.05;
+joints_command_fake.joint6 := -0.010;
+joints_command_fake.external_axis1 := -0.001;
+
+PayloadPub := ADR(joints_command_fake);
+PayloadSizePub := SIZEOF(joints_command_fake);
+MQTT_client_fake.sHostName := MQTT_client.sHostName;
+MQTT_client_fake.Execute(bConnect := bConnectPub);
+MQTT_client_fake.Publish(	sTopic := 'robot1/command', 
+												pPayload := PayloadPub, 
+												nPayloadSize := PayloadSizePub, 
+												eQos := eQoSPub, 
+												bRetain := bRetainPub, 
+												bQueue := bQueuePub);
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="MQTT_Publisher">
+      <LineId Id="27" Count="1" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="29" Count="1" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="38" Count="4" />
+      <LineId Id="50" Count="4" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="191" Count="5" />
+      <LineId Id="187" Count="1" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="245" Count="0" />
+      <LineId Id="220" Count="0" />
+      <LineId Id="182" Count="4" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="269" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

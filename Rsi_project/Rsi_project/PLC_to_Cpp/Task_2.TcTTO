@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.10">
+  <Task Name="Task_2" Id="{508dedf9-62ac-4bd7-a6f9-35bd20b26ab5}">
+    <!--CycleTime in micro seconds.-->
+    <CycleTime>10000</CycleTime>
+    <Priority>2</Priority>
+    <PouCall>
+      <Name>MQTT_Subscriber</Name>
+    </PouCall>
+    <PouCall>
+      <Name>MQTT_Publisher</Name>
+    </PouCall>
+    <TaskFBGuid>{17dae7e8-255a-4198-8e94-770fcaeab336}</TaskFBGuid>
+    <Fb_init>{465d2d45-8a82-43ad-b538-e73a05a52a3a}</Fb_init>
+    <Fb_exit>{1a321f91-36a4-4fee-8375-26199b90731a}</Fb_exit>
+    <CycleUpdate>{9e2bc2bf-6163-4bad-95a5-39a06dce0638}</CycleUpdate>
+    <PostCycleUpdate>{6accfced-2e0c-48db-9885-86568b40ab04}</PostCycleUpdate>
+  </Task>
+</TcPlcObject>
