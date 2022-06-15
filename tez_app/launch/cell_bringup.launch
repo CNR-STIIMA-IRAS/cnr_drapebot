@@ -7,7 +7,7 @@
 <!--   <rosparam command="load" file="$(find tez_app)/config/tez_hw.yaml" /> -->
   <rosparam command="load" file="$(find tez_app)/config/robot_1/robot_hw.yaml" />
   <rosparam command="load" file="$(find tez_app)/config/robot_2/robot_hw.yaml" />
-  <rosparam command="load" file="$(find tez_app)/config/topics_hw.yaml" />
+  <rosparam command="load" file="$(find tez_app)/config/multichain_hw.yaml" />
 
   <include file="$(find tez_moveit)/launch/planning_context.launch" >
     <arg name="load_robot_description" value="true" />
@@ -55,12 +55,16 @@
   </include>
 
   <group ns="robot_1">
-    <node pkg="cnr_mqtt" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/>
+<!--     <node pkg="cnr_mqtt" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/> -->
+    <include file="$(find tez_app)/launch/mqtt_converter.launch" >
+      <arg name="robot_name" value="robot_1"/>
+    </include>
     <rosparam command="load" file="$(find tez_app)/config/robot_1/mqtt_config.yaml" />
   </group>
   
 <!--  <group ns="robot_2">
     <node pkg="cnr_mqtt" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/>
+    <include file="$(find tez_app)/launch/mqtt_converter.launch" />
     <rosparam command="load" file="$(find tez_app)/config/robot_2/mqtt_config.yaml" />
   </group>-->
   

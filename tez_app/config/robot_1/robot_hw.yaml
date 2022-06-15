@@ -63,6 +63,40 @@ robot1_mqtt_hw:
     kin_update_period : 0.1
 
 
+multichain_hw:
+  type: cnr/control/FakeRobotHW
+  appenders: [file, screen]
+  levels: [trace, trace]
+  file_name: "multichain_hw"
+  
+  joint_names: 
+  - kr210_1_linear_axis_joint
+  - kr210_1_joint_1
+  - kr210_1_joint_2
+  - kr210_1_joint_3
+  - kr210_1_joint_4
+  - kr210_1_joint_5
+  - kr210_1_joint_6
+  - kr210_2_linear_axis_joint
+  - kr210_2_joint_1
+  - kr210_2_joint_2
+  - kr210_2_joint_3
+  - kr210_2_joint_4
+  - kr210_2_joint_5
+  - kr210_2_joint_6
+  
+  chain_ids: [KR210_1, KR210_2]
+  base_links: [ linear_axis, linear_axis]
+  tool_links: [ KR210_1_A6, KR210_2_A6]
+  robot_description_param: /robot_description
+  robot_description_planning_param: /robot_description_planning
+  sampling_period: 0.001
+
+  initial_position: [0, 0,0,0,0,0,0, 0,0,0,0,0,0,0]
+    
+  multichain_js_pub:
+    type: cnr/control/MultiChainStatePublisher
+    controlled_joint: all
 
 
 

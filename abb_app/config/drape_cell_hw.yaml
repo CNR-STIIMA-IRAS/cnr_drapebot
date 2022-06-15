@@ -17,25 +17,30 @@ mqtt_hw:
   - joint_4
   - joint_5
   - joint_6
-
+  
+  
+  #chain_ids: [ABB]
+  #base_links: [ fake_linear_axis]
+  #tool_links: [ link_6]
+  
   base_link: "fake_linear_axis"
   tool_link: "link_6"
   robot_description_param: /robot_description
   robot_description_planning_param: /robot_description_planning
-  kin_update_period: 0.1
+  kin_update_period: 0.004
 
   initial_position: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   
   use_delta_target_pos: false
   delta_pos_from_start: false
   
-  use_real_robot: true
+  use_real_robot: false
   
   #--- MQTT ---
   
   client_id: "MQTT_HW"
-  host: 192.168.125.7    # drapebot
-  #host: localhost
+  #host: 192.168.125.7    # drapebot
+  host: localhost
   port: 1883
   
   feedback_mqtt_topic: "/robot_1/feedback"
@@ -90,9 +95,13 @@ deformation_hw:
   type: cnr/control/TopicRobotHW
   appenders: [file, screen]
   levels: [trace, info]
-  #default_throttle_time: 5.0
   pattern_layout: "[%5p][%d{HH:mm:ss,SSS}][%M:%L][%c] %m%n"
   file_name: "deformation_hw"
+  kin_update_period: 0.004
+  sampling_period: 0.004
+  diagnostic_period: 0.1
+  feedback_joint_state_timeout: 20
+  maximum_missing_cycles: 100
   
   joint_names:   
   - joint_0
@@ -110,10 +119,6 @@ deformation_hw:
 
   feedback_joint_state_topic: /joint_states
   command_joint_state_topic:  /joint_pos_target
-  sampling_period: 0.004
-  diagnostic_period: 0.1
-  feedback_joint_state_timeout: 20
-  maximum_missing_cycles: 100
 
   deformation_ctrl:
     type: "cnr/control/DeformationCtrl"

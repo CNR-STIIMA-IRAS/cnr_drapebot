@@ -20,7 +20,7 @@ control_configurations:
     depends: [olp_ctrl]
     hidden: true
     components:
-      - { hardware_interface: "deformation_hw", controller : "deformation_ctrl"}
+      - { hardware_interface: "deformation_hw", controller : "deformation_ctrl", runtime_check: true}
 
   - name: planner
     depends: [def_ctrl]

@@ -37,13 +37,13 @@
 
 
 #include <cnr_controller_interface_params/cnr_controller_interface_params.h>
-#include <cnr_hardware_interface/internal/vector_to_string.h>
+// #include <cnr_hardware_interface/internal/vector_to_string.h>
 #include <cnr_hardware_interface/cnr_robot_hw.h>
 #include <cnr_mqtt_hardware_interface/cnr_mqtt_robot_hw.h>
 
 #include <jsoncpp/json/json.h>
 
-PLUGINLIB_EXPORT_CLASS(cnr_hardware_interface::MQTTRobotHW, cnr_hardware_interface::RobotHW)
+PLUGINLIB_EXPORT_CLASS(cnr_hardware_interface::MQTTRobotHW, hardware_interface::RobotHW)
 
 
 mqtt_client::mqtt_client(const char *id, const char *host, int port, int keepalive) : mosquittopp(id)
@@ -180,7 +180,7 @@ bool MQTTRobotHW::doInit()
 {
   CNR_TRACE_START(m_logger);
 
-  CNR_DEBUG(m_logger, "Resources (" << resourceNumber() << "): " << cnr_hardware_interface::to_string(resourceNames()));
+//   CNR_DEBUG(m_logger, "Resources (" << resourceNumber() << "): " << cnr_hardware_interface::to_string(hw->resourceNames()));
   m_pos.resize(resourceNumber());
   m_vel.resize(resourceNumber());
   m_eff.resize(resourceNumber());
