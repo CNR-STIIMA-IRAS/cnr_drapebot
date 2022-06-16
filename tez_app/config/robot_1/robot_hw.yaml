@@ -33,8 +33,8 @@ robot1_mqtt_hw:
   #--- MQTT ---
   
   client_id: "MQTT_HW"
-  host: 169.254.57.188    # drapebot
-  #host: localhost
+  #host: 169.254.57.188    # drapebot
+  host: localhost
   port: 1883
   
   feedback_mqtt_topic: "robot1/feedback"
@@ -47,7 +47,6 @@ robot1_mqtt_hw:
   remap_source_args:
   - "/robot1_mqtt_hw/js_pub_r1/joint_states"
   remap_target_args:
-  #- "/robot1/joint_states"  # TODO: se mai sara disponibile topics_hw
   - "/joint_states"
 
   js_pub_r1:
@@ -61,42 +60,6 @@ robot1_mqtt_hw:
     setpoint_topic_name: /robot1/joint_pos_target
     controlled_joints: all
     kin_update_period : 0.1
-
-
-multichain_hw:
-  type: cnr/control/FakeRobotHW
-  appenders: [file, screen]
-  levels: [trace, trace]
-  file_name: "multichain_hw"
-  
-  joint_names: 
-  - kr210_1_linear_axis_joint
-  - kr210_1_joint_1
-  - kr210_1_joint_2
-  - kr210_1_joint_3
-  - kr210_1_joint_4
-  - kr210_1_joint_5
-  - kr210_1_joint_6
-  - kr210_2_linear_axis_joint
-  - kr210_2_joint_1
-  - kr210_2_joint_2
-  - kr210_2_joint_3
-  - kr210_2_joint_4
-  - kr210_2_joint_5
-  - kr210_2_joint_6
-  
-  chain_ids: [KR210_1, KR210_2]
-  base_links: [ linear_axis, linear_axis]
-  tool_links: [ KR210_1_A6, KR210_2_A6]
-  robot_description_param: /robot_description
-  robot_description_planning_param: /robot_description_planning
-  sampling_period: 0.001
-
-  initial_position: [0, 0,0,0,0,0,0, 0,0,0,0,0,0,0]
-    
-  multichain_js_pub:
-    type: cnr/control/MultiChainStatePublisher
-    controlled_joint: all
 
 
 
@@ -186,9 +149,13 @@ robot1_plan_hw:
   - "tez_1_moveit_lab/follow_joint_trajectory/result"
   - "tez_1_moveit_lab/follow_joint_trajectory/status"
 
-  microint_r1:
+  microint_r1__:
     type: "cnr/control/FollowJointTrajectoryPosVelEffController"
     controlled_joints: all
     interpolator: "thor/ThorPrefilter"
     regulator: "regulator/fake_regulator"
     spline_order: 1
+    
+  microint_r1:
+    type: "cnr/control/ScaledFJTPosController"
+    controlled_joints: all

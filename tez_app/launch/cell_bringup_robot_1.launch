@@ -32,8 +32,8 @@
       append_to_file: true
       pattern_layout: "[%5p][%d{HH:mm:ss,SSS}][%M:%04L][%c] %m%n"
     </rosparam>
-    <rosparam command="load" file="$(find tez_app)/config/tez_configurations.yaml" />
-<!--     <rosparam command="load" file="$(find tez_app)/config/robot_1/configurations.yaml" /> -->
+<!--     <rosparam command="load" file="$(find tez_app)/config/tez_configurations.yaml" /> -->
+    <rosparam command="load" file="$(find tez_app)/config/robot_1/configurations_single_robot.yaml" />
 <!--     <rosparam command="load" file="$(find tez_app)/config/robot_2/configurations.yaml" /> -->
   </node>
 
@@ -64,10 +64,8 @@
   
 <!--   <group ns="robot_2"> -->
 <!--     <node pkg="cnr_mqtt" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/> -->
-<!--    <include file="$(find tez_app)/launch/mqtt_converter.launch" >
-      <arg name="robot_name" value="robot_2"/>
-    </include>-->
-    <!--     <rosparam command="load" file="$(find tez_app)/config/robot_2/mqtt_config.yaml" /> -->
+<!--     <include file="$(find tez_app)/launch/mqtt_converter.launch" /> -->
+<!--     <rosparam command="load" file="$(find tez_app)/config/robot_2/mqtt_config.yaml" /> -->
 <!--   </group> -->
   
 </launch>

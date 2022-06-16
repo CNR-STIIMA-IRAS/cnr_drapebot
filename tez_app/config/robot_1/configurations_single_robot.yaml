@@ -1,30 +1,26 @@
 control_configurations:      
-  - name: multichain_watch
+  - name: mqtt_watch
     components:
-    - {hardware_interface: "multichain_hw",   controller: "multichain_js_pub", description: ""}
-
+    - {hardware_interface: "robot1_mqtt_hw",   controller: "js_pub_r1", description: ""}    
+    
   - name: olp_ctrl
-    depends: [multichain_watch]
+    depends: [mqtt_watch]
     hidden: true
     components:
       - { hardware_interface: "robot1_mqtt_hw", controller : "p_j_r1"}
-      - { hardware_interface: "robot2_mqtt_hw", controller : "p_j_r2"}
-
+      
   - name: def_ctrl
     depends: [olp_ctrl]
     hidden: true
     components:
       - { hardware_interface: "robot1_deformation_hw", controller : "deformation_ctrl_r1"}
-      - { hardware_interface: "robot2_deformation_hw", controller : "deformation_ctrl_r2"}
-
+      
   - name: planner
     depends: [def_ctrl]
     components:
     - {hardware_interface: "robot1_plan_hw", controller: "microint_r1"}
-    - {hardware_interface: "robot2_plan_hw", controller: "microint_r2"}
-
-
+    
+    
 configuration_dispatches:
-  - { name: multichain_watch,  at: 0.5 }
-  - { name: planner,  at: 8.0 }
-
+  - { name: mqtt_watch,  at: 0.5 }
+  - { name: planner,  at: 1.0 }

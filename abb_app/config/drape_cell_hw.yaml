@@ -19,9 +19,9 @@ mqtt_hw:
   - joint_6
   
   
-  #chain_ids: [ABB]
-  #base_links: [ fake_linear_axis]
-  #tool_links: [ link_6]
+  chain_ids: [ABB]
+  base_links: [ fake_linear_axis]
+  tool_links: [ link_6]
   
   base_link: "fake_linear_axis"
   tool_link: "link_6"
@@ -49,10 +49,11 @@ mqtt_hw:
   nominal_trajectory_topic: /joint_pos_target
   # --- end ---
   
-
   remap_source_args:
+  - "/mqtt_hw/multichain_js_pub/joint_states"
   - "/mqtt_hw/js_pub/joint_states"
   remap_target_args:
+  - "/joint_states"
   - "/joint_states"
 
 
@@ -86,6 +87,50 @@ mqtt_hw:
     external_wrench_topic : /robotiq_ft_wrench 
     controlled_joints     : all
     damping_ratio         : [.9,.9,.9,.9,.9,.9]
+  
+  multichain_js_pub:
+    type: cnr/control/MultiChainStatePublisher
+    controlled_joint: all
+  
+  
+  
+  
+  
+multichain_hw:
+  type: cnr/control/FakeRobotHW
+  appenders: [file, screen]
+  levels: [trace, info]
+  file_name: "multichain_hw"
+
+  joint_names:    
+  - joint_0
+  - joint_1
+  - joint_2
+  - joint_3
+  - joint_4
+  - joint_5
+  - joint_6
+  
+  chain_ids: [ABB]
+  base_links: [ fake_linear_axis]
+  tool_links: [ link_6]
+  
+  robot_description_param: /robot_description
+  robot_description_planning_param: /robot_description_planning
+  sampling_period: 0.004
+
+  initial_position: [0,0,0,0,0,0,0]
+  
+  remap_source_args:
+  - "/multichain_hw/multichain_js_pub/joint_states"
+  remap_target_args:
+  - "/joint_states"
+  
+  multichain_js_pub:
+    type: cnr/control/MultiChainStatePublisher
+    controlled_joint: all
+  
+  
   
   
   
@@ -177,12 +222,12 @@ plan_hw:
   - "abb_moveit_lab/follow_joint_trajectory/result"
   - "abb_moveit_lab/follow_joint_trajectory/status"
 
-  microint____:
-    type: "cnr/control/FollowJointTrajectoryPosVelEffController"
-    controlled_joints: all
-    interpolator: "thor/ThorPrefilter"
-    regulator: "regulator/fake_regulator"
-    spline_order: 1
+  #microint_:
+    #type: "cnr/control/FollowJointTrajectoryPosVelEffController"
+    #controlled_joints: all
+    #interpolator: "thor/ThorPrefilter"
+    #regulator: "regulator/fake_regulator"
+    #spline_order: 1
     
     
   microint:
