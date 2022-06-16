@@ -5,13 +5,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/spannfeld.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/spannfeld.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/spannfeld.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/spannfeld.dae"/>
       </geometry>
     </collision>
   </link>
@@ -27,13 +27,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/jig.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/jig.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/jig.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/jig.dae"/>
       </geometry>
     </collision>
   </link>
@@ -49,13 +49,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/linear_axis.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/linear_axis.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/linear_axis.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/linear_axis.dae"/>
       </geometry>
     </collision>
   </link>
@@ -73,13 +73,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
       </geometry>
     </collision>
   </link>
@@ -96,13 +96,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
       </geometry>
     </collision>
   </link>
@@ -119,13 +119,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
       </geometry>
     </collision>
   </link>
@@ -142,13 +142,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
       </geometry>
     </collision>
   </link>
@@ -165,13 +165,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
       </geometry>
     </collision>
   </link>
@@ -188,13 +188,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
       </geometry>
     </collision>
   </link>
@@ -211,13 +211,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
       </geometry>
     </collision>
   </link>
@@ -245,13 +245,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
       </geometry>
     </collision>
   </link>
@@ -268,13 +268,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
       </geometry>
     </collision>
   </link>
@@ -291,13 +291,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
       </geometry>
     </collision>
   </link>
@@ -314,13 +314,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
       </geometry>
     </collision>
   </link>
@@ -337,13 +337,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
       </geometry>
     </collision>
   </link>
@@ -360,13 +360,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
       </geometry>
     </collision>
   </link>
@@ -383,13 +383,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
       </geometry>
     </collision>
   </link>

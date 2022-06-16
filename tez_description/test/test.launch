@@ -1,0 +1,144 @@
+<launch>
+
+<arg name="valgrind" default="false" />
+<arg name="debug" default="false" />
+
+<group ns="/hw" >
+<rosparam>
+  type: cnr/control/FakeRobotHW
+  appenders: [file, screen]
+  levels: [trace, trace]
+  file_name: "hw"
+  joint_names: 
+  - kr210_1_linear_axis_joint
+  - kr210_1_joint_1
+  - kr210_1_joint_2
+  - kr210_1_joint_3
+  - kr210_1_joint_4
+  - kr210_1_joint_5
+  - kr210_1_joint_6
+  - kr210_2_linear_axis_joint
+  - kr210_2_joint_1
+  - kr210_2_joint_2
+  - kr210_2_joint_3
+  - kr210_2_joint_4
+  - kr210_2_joint_5
+  - kr210_2_joint_6
+  chain_ids: [KR210_1, KR210_2]
+  base_links: [ linear_axis, linear_axis]
+  tool_links: [ KR210_1_A6, KR210_2_A6]
+  robot_description_param: /robot_description
+  robot_description_planning_param: /robot_description_planning
+  sampling_period: 0.001
+
+  initial_position: [0, 0,0,0,0,0,0, 0,0,0,0,0,0,0]
+  fake_controller:
+    type: cnr/control/MultiChainStatePublisher
+    controlled_joint: all
+</rosparam>
+</group>
+
+<include file="$(find tez_description)/launch/tez_cell_fullmesh_visualization.launch" />
+
+<group ns="/robot_description_planning">
+  <rosparam>
+  joint_limits:
+    kr210_1_linear_axis_joint:
+      has_velocity_limits: true
+      max_velocity: 0.5
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_1_joint_1:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 3
+    kr210_1_joint_2:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_1_joint_3:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_1_joint_4:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_1_joint_5:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_1_joint_6:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 3
+    kr210_2_linear_axis_joint:
+      has_velocity_limits: true
+      max_velocity: 0.5
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_2_joint_1:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 3
+    kr210_2_joint_2:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_2_joint_3:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_2_joint_4:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_2_joint_5:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 14 #1.55
+    kr210_2_joint_6:
+      has_velocity_limits: true
+      max_velocity: 1.4
+      has_acceleration_limits: true
+      max_acceleration: 3
+  </rosparam>
+</group>
+
+
+
+<group if="$(arg valgrind)">
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+  <arg     if="$(arg debug)" name="launch_prefix"
+      value="valgrind -v --track-origins=yes --tool=memcheck --leak-check=full --show-reachable=yes  --num-callers=20 --track-fds=yes  --log-file=/home/feymann/a.txt" />
+      <test launch-prefix="$(arg launch_prefix)"
+              test-name="cnr_joint_state_publisher_test"
+                pkg="cnr_joint_state_publisher"
+                  type="cnr_joint_state_publisher_test">
+      </test>
+</group>
+<group unless="$(arg valgrind)">
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+  <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+
+  <test launch-prefix="$(arg launch_prefix)"
+          test-name="cnr_joint_state_publisher_test"
+            pkg="cnr_joint_state_publisher"
+              type="cnr_joint_state_publisher_test">
+  </test>
+
+</group>
+
+</launch>
+

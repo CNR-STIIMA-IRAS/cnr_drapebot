@@ -544,13 +544,13 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
       m.E0 = m_cmd_pos[0];
     }
     
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW] : command J1: "<< m.J1);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW] : command J2: "<< m.J2);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW] : command J3: "<< m.J3);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW] : command J4: "<< m.J4);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW] : command J5: "<< m.J5);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW] : command J6: "<< m.J6);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW] : command E0: "<< m.E0);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J1: "<< m.J1);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J2: "<< m.J2);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J3: "<< m.J3);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J4: "<< m.J4);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J5: "<< m.J5);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J6: "<< m.J6);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command E0: "<< m.E0);
     
     size_t message_size_ = sizeof(m);
     
@@ -709,13 +709,13 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
     m_pos.at(6) = m_cmd_pos.at(6);
   }
   
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW] : robot state joint 1: "<<m_pos[1] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW] : robot state joint 2: "<<m_pos[2] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW] : robot state joint 3: "<<m_pos[3] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW] : robot state joint 4: "<<m_pos[4] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW] : robot state joint 5: "<<m_pos[5] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW] : robot state joint 6: "<<m_pos[6] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW] : robot state linax  : "<<m_pos[0] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 1: "<<m_pos[1] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 2: "<<m_pos[2] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 3: "<<m_pos[3] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 4: "<<m_pos[4] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 5: "<<m_pos[5] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 6: "<<m_pos[6] );
+  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state linax  : "<<m_pos[0] );
 
   root["J0"]["current_value"] = m_pos.at(0);
   root["J1"]["current_value"] = m_pos.at(1);

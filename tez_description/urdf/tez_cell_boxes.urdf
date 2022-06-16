@@ -27,13 +27,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/jig.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/jig.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/reduced_details/jig.dae"/>
+        <mesh filename="package://tez_description/mesh/reduced_details/jig.dae"/>
       </geometry>
     </collision>
   </link>
@@ -49,13 +49,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/full_details/linear_axis.dae"/>
+        <mesh filename="package://tez_description/mesh/full_details/linear_axis.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://tez_workcell/mesh/full_details/linear_axis.dae"/>
+        <mesh filename="package://tez_description/mesh/full_details/linear_axis.dae"/>
       </geometry>
     </collision>
   </link>

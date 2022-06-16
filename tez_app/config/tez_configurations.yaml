@@ -1,6 +1,7 @@
 control_configurations:      
   - name: multichain_watch
     components:
+    #- {hardware_interface: "robot1_mqtt_hw",   controller: "multichain_js_pub", description: ""}
     - {hardware_interface: "multichain_hw",   controller: "multichain_js_pub", description: ""}
 
   - name: olp_ctrl

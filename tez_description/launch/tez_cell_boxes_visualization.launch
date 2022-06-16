@@ -2,7 +2,7 @@
 <launch>
   <arg name="gui" default="true" />
 
-  <param name="robot_description" command="cat $(find tez_workcell)/urdf/tez_cell_boxes.urdf" />
+  <param name="robot_description" command="cat $(find tez_description)/urdf/tez_cell_boxes.urdf" />
 
   <!-- <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" /> -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
