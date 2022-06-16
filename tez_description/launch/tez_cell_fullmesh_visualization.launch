@@ -4,12 +4,12 @@
 
   <param name="robot_description" command="cat $(find tez_description)/urdf/tez_cell_fullmesh.urdf" />
 
-  <!-- <group if = "$(eval gui)">
+   <group if = "$(eval gui)">
     <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
   </group>
   <group unless = "$(eval gui)">
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"  />
-  </group> -->
+  </group> 
 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
