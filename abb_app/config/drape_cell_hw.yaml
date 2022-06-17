@@ -18,7 +18,6 @@ mqtt_hw:
   - joint_5
   - joint_6
   
-  
   chain_ids: [ABB]
   base_links: [ fake_linear_axis]
   tool_links: [ link_6]

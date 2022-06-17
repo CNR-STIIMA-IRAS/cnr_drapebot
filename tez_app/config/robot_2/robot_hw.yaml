@@ -4,7 +4,7 @@ robot2_mqtt_hw:
   levels         : [trace, info]
   pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%50M:%04L][%24c] %m%n"
   file_name      : mqtt_hw
-  sampling_period: 0.01
+  sampling_period: 0.004
   diagnostic_period: 0.1
   maximum_missing_cycles: 100
   feedback_joint_state_timeout: 10
@@ -18,7 +18,6 @@ robot2_mqtt_hw:
   - kr210_2_joint_5
   - kr210_2_joint_6
 
-
   base_link: "linear_axis"
   tool_link: "KR210_2_A6"
   robot_description_param: /robot_description
@@ -26,18 +25,22 @@ robot2_mqtt_hw:
   kin_update_period: 0.1
 
   initial_position: [5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-  use_delta_target_pose: true
+  
+  use_delta_target_pos: true
+  delta_pos_from_start: false
+  
+  use_real_robot: false
   
   #--- MQTT ---
   
-  client_id: "MQTT_HW"
-  #host: 169.254.57.188    # drapebot
+  client_id: "robot2/MQTT_HW"
+  #host: 169.254.252.101    # drapebot
   host: localhost
   port: 1883
   
-  feedback_mqtt_topic: "robot2/feedback"
-  out_feedback_mqtt_topic: "ITR_feedback"
-  command_mqtt_topic:  "robot2/command"
+  feedback_mqtt_topic: "/robot_2/feedback"
+  out_feedback_mqtt_topic: "/robot_2/ITR_feedback"
+  command_mqtt_topic:  "/robot_2/command"
   nominal_trajectory_topic: /robot2/joint_pos_target
   # --- end ---
   
@@ -46,6 +49,7 @@ robot2_mqtt_hw:
   - "/robot2_mqtt_hw/js_pub_r2/joint_states"
   remap_target_args:
   - "/robot2/joint_states"
+  #- "/joint_states"  # TODO:: per uso singolo robot
 
   js_pub_r2:
     type: cnr/control/JointStatePublisher
@@ -58,8 +62,6 @@ robot2_mqtt_hw:
     setpoint_topic_name: /robot2/joint_pos_target
     controlled_joints: all
     kin_update_period : 0.1
-
-
 
 
 
@@ -86,9 +88,9 @@ robot2_deformation_hw:
   robot_description_param: /robot_description
   robot_description_planning_param: /robot_description_planning
 
-  feedback_joint_state_topic: /joint_states
+  feedback_joint_state_topic: /robot2/joint_states
   command_joint_state_topic:  /robot2/joint_pos_target
-  sampling_period: 0.01
+  sampling_period: 0.004
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100
@@ -128,9 +130,9 @@ robot2_plan_hw:
   robot_description_param: /robot_description
   robot_description_planning_param: /robot_description_planning
 
-  feedback_joint_state_topic: /joint_states
+  feedback_joint_state_topic: /robot2/joint_states
   command_joint_state_topic:  /robot2/interp_joint_pos_target
-  sampling_period: 0.005
+  sampling_period: 0.004
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100
@@ -149,9 +151,13 @@ robot2_plan_hw:
   - "tez_2_moveit_lab/follow_joint_trajectory/result"
   - "tez_2_moveit_lab/follow_joint_trajectory/status"
 
-  microint_r2:
+  microint_r2__:
     type: "cnr/control/FollowJointTrajectoryPosVelEffController"
     controlled_joints: all
     interpolator: "thor/ThorPrefilter"
     regulator: "regulator/fake_regulator"
     spline_order: 1
+    
+  microint_r2:
+    type: "cnr/control/ScaledFJTPosController"
+    controlled_joints: all

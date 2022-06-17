@@ -1,20 +1,20 @@
 topics_hw:
   type           : "cnr/control/TopicsRobotHW"
   appenders      : [file, screen]
-  levels         : [trace, debug]
+  levels         : [trace, info]
   pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%50M:%04L][%24c] %m%n"
   file_name      : "topics_hw"
 
   resources: [ joint_resource ]
   joint_resource:
     joint_names:
-    #- kr210_1_linear_axis_joint # TODO: make two robots available. not possible due to below
-    #- kr210_1_joint_1
-    #- kr210_1_joint_2
-    #- kr210_1_joint_3
-    #- kr210_1_joint_4
-    #- kr210_1_joint_5
-    #- kr210_1_joint_6
+    - kr210_1_linear_axis_joint
+    - kr210_1_joint_1
+    - kr210_1_joint_2
+    - kr210_1_joint_3
+    - kr210_1_joint_4
+    - kr210_1_joint_5
+    - kr210_1_joint_6
     - kr210_2_linear_axis_joint
     - kr210_2_joint_1
     - kr210_2_joint_2
@@ -23,13 +23,13 @@ topics_hw:
     - kr210_2_joint_5
     - kr210_2_joint_6
     subscribed_topics :
-    #- /robot1/joint_states  # TODO: make two robots available. not possible due to below
-    #- /robot1/joint_states
-    #- /robot1/joint_states
-    #- /robot1/joint_states
-    #- /robot1/joint_states
-    #- /robot1/joint_states
-    #- /robot1/joint_states
+    - /robot1/joint_states 
+    - /robot1/joint_states
+    - /robot1/joint_states
+    - /robot1/joint_states
+    - /robot1/joint_states
+    - /robot1/joint_states
+    - /robot1/joint_states
     - /robot2/joint_states
     - /robot2/joint_states
     - /robot2/joint_states
@@ -40,60 +40,33 @@ topics_hw:
     published_topics :
     - /joint_states
 
-  sampling_period: 0.008
+  sampling_period: 0.004
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 1000
-  base_link: "linear_axis"          # TODO: requires modifications for the parallel usage of two robots. wants a chain. not possible with two robots
-  tool_link: "KR210_2_A6"
+  
+  #base_link: "linear_axis"          # TODO: requires modifications for the parallel usage of two robots. wants a chain. not possible with two robots
+  #tool_link: "KR210_2_A6"
+  chain_ids: [KR210_1, KR210_2]
+  base_links: [ linear_axis, linear_axis]
+  tool_links: [ KR210_1_A6, KR210_2_A6]
+  
   robot_description_param: /robot_description
   robot_description_planning_param: /robot_description_planning
 
   remap_source_args:
   - "/topics_hw/js_pub/joint_states"
+  - "/topics_hw/multichain_js_pub/joint_states"
   remap_target_args:
+  - "/joint_states"
   - "/joint_states"
 
   js_pub:
     type: cnr/control/JointStatePublisher
     controlled_joints: all
     kin_update_period : 0.1
-
-    
-    
-    
-    
-    
-    
-multichain_hw:
-  type: cnr/control/FakeRobotHW
-  appenders: [file, screen]
-  levels: [trace, trace]
-  file_name: "hw"
-  joint_names: 
-  - kr210_1_linear_axis_joint
-  - kr210_1_joint_1
-  - kr210_1_joint_2
-  - kr210_1_joint_3
-  - kr210_1_joint_4
-  - kr210_1_joint_5
-  - kr210_1_joint_6
-  - kr210_2_linear_axis_joint
-  - kr210_2_joint_1
-  - kr210_2_joint_2
-  - kr210_2_joint_3
-  - kr210_2_joint_4
-  - kr210_2_joint_5
-  - kr210_2_joint_6
-  chain_ids: [KR210_1, KR210_2]
-  base_links: [ linear_axis, linear_axis]
-  tool_links: [ KR210_1_A6, KR210_2_A6]
-  robot_description_param: /robot_description
-  robot_description_planning_param: /robot_description_planning
-  sampling_period: 0.001
-
-  initial_position: [0, 0,0,0,0,0,0, 0,0,0,0,0,0,0]
-  fake_controller:
+  
+  multichain_js_pub:
     type: cnr/control/MultiChainStatePublisher
     controlled_joint: all
 

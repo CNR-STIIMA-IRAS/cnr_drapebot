@@ -4,7 +4,7 @@ robot1_mqtt_hw:
   levels         : [trace, info]
   pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%50M:%04L][%24c] %m%n"
   file_name      : mqtt_hw
-  sampling_period: 0.01
+  sampling_period: 0.004
   diagnostic_period: 0.1
   maximum_missing_cycles: 100
   feedback_joint_state_timeout: 10
@@ -18,28 +18,29 @@ robot1_mqtt_hw:
   - kr210_1_joint_5
   - kr210_1_joint_6
 
-
   base_link: "linear_axis"
   tool_link: "KR210_1_A6"
   robot_description_param: /robot_description
   robot_description_planning_param: /robot_description_planning
   kin_update_period: 0.1
 
-  initial_position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  initial_position: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   
   use_delta_target_pos: true
-  delta_pos_from_start: true
+  delta_pos_from_start: false
+  
+  use_real_robot: false
   
   #--- MQTT ---
   
-  client_id: "MQTT_HW"
-  #host: 169.254.57.188    # drapebot
+  client_id: "robot1/MQTT_HW"
+  #host: 169.254.252.101    # drapebot
   host: localhost
   port: 1883
   
-  feedback_mqtt_topic: "robot1/feedback"
-  out_feedback_mqtt_topic: "ITR_feedback"
-  command_mqtt_topic:  "robot1/command"
+  feedback_mqtt_topic: "/robot_1/feedback"
+  out_feedback_mqtt_topic: "/robot_1/ITR_feedback"
+  command_mqtt_topic:  "/robot_1/command"
   nominal_trajectory_topic: /robot1/joint_pos_target
   # --- end ---
   
@@ -47,7 +48,8 @@ robot1_mqtt_hw:
   remap_source_args:
   - "/robot1_mqtt_hw/js_pub_r1/joint_states"
   remap_target_args:
-  - "/joint_states"
+  - "/robot1/joint_states"
+  #- "/joint_states"  # TODO:: per uso singolo robot
 
   js_pub_r1:
     type: cnr/control/JointStatePublisher
@@ -86,9 +88,9 @@ robot1_deformation_hw:
   robot_description_param: /robot_description
   robot_description_planning_param: /robot_description_planning
 
-  feedback_joint_state_topic: /joint_states
+  feedback_joint_state_topic: /robot1/joint_states
   command_joint_state_topic:  /robot1/joint_pos_target
-  sampling_period: 0.01
+  sampling_period: 0.004
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100
@@ -128,9 +130,9 @@ robot1_plan_hw:
   robot_description_param: /robot_description
   robot_description_planning_param: /robot_description_planning
 
-  feedback_joint_state_topic: /joint_states
+  feedback_joint_state_topic: /robot1/joint_states
   command_joint_state_topic:  /robot1/interp_joint_pos_target
-  sampling_period: 0.005
+  sampling_period: 0.004
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100

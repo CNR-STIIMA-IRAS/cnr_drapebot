@@ -4,10 +4,10 @@
   <arg name="use_rviz" default="true" />
   <arg name="plot_traj" default="true" />
 
-  <rosparam command="load" file="$(find tez_app)/config/tez_hw.yaml" />
-<!--   <rosparam command="load" file="$(find tez_app)/config/robot_1/robot_hw.yaml" /> -->
-<!--   <rosparam command="load" file="$(find tez_app)/config/robot_2/robot_hw.yaml" /> -->
-  <rosparam command="load" file="$(find tez_app)/config/multichain_hw.yaml" />
+<!--   <rosparam command="load" file="$(find tez_app)/config/tez_hw.yaml" /> -->
+  <rosparam command="load" file="$(find tez_app)/config/robot_1/robot_hw.yaml" />
+  <rosparam command="load" file="$(find tez_app)/config/robot_2/robot_hw.yaml" />
+  <rosparam command="load" file="$(find tez_app)/config/topics_hw.yaml" />
 
   <include file="$(find tez_moveit)/launch/planning_context.launch" >
     <arg name="load_robot_description" value="true" />

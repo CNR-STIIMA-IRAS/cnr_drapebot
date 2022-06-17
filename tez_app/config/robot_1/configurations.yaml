@@ -2,9 +2,7 @@ control_configurations:
   - name: mqtt_watch
     components:
     - {hardware_interface: "robot1_mqtt_hw",   controller: "js_pub_r1", description: ""}
-    #- {hardware_interface: "multichain_hw",   controller: "multichain_js_pub", description: ""}
-    
-    
+
   - name: olp_ctrl
     depends: [mqtt_watch]
     hidden: true

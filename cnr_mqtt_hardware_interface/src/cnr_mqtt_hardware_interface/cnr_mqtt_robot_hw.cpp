@@ -402,16 +402,7 @@ bool MQTTRobotHW::doInit()
   char topic[n+ 1];
   strcpy(topic, m_mqtt_feedback_topic.c_str());
   m_client->subscribe(NULL, topic);
-  ROS_FATAL_STREAM("[cnr_mqtt_hardware_interface] Subscribed to : "<<topic);
-    
-//   m_client->J1 = m_pos[1];
-//   m_client->J2 = m_pos[2];
-//   m_client->J3 = m_pos[3];
-//   m_client->J4 = m_pos[4];
-//   m_client->J5 = m_pos[5];
-//   m_client->J6 = m_pos[6];
-//   m_client->E0 = m_pos[0];
-  
+  ROS_FATAL_STREAM("[cnr_mqtt_hardware_interface] Subscribed to : "<<topic);  
   
   if(USE_REAL_ROBOT)
   {
@@ -421,6 +412,16 @@ bool MQTTRobotHW::doInit()
       m_client->loop();
       ros::Duration(0.005).sleep();
     }
+  }
+  else
+  {
+    m_client->J1 = m_pos[1];
+    m_client->J2 = m_pos[2];
+    m_client->J3 = m_pos[3];
+    m_client->J4 = m_pos[4];
+    m_client->J5 = m_pos[5];
+    m_client->J6 = m_pos[6];
+    m_client->E0 = m_pos[0];
   }
   
   m_cmd_pos[0] = m_client->E0; 
@@ -531,6 +532,15 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
       m.J5 = m_delta_pos[5];    
       m.J6 = m_delta_pos[6];    
       m.E0 = m_delta_pos[0];
+      
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J1: "<< m.J1);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J2: "<< m.J2);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J3: "<< m.J3);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J4: "<< m.J4);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J5: "<< m.J5);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J6: "<< m.J6);
+    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command E0: "<< m.E0);
+    
     }
     else
     {
@@ -542,8 +552,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
       m.J5 = m_cmd_pos[5];    
       m.J6 = m_cmd_pos[6];    
       m.E0 = m_cmd_pos[0];
-    }
-    
+      
     ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J1: "<< m.J1);
     ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J2: "<< m.J2);
     ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J3: "<< m.J3);
@@ -551,6 +560,8 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J5: "<< m.J5);
     ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J6: "<< m.J6);
     ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command E0: "<< m.E0);
+    
+    }
     
     size_t message_size_ = sizeof(m);
     
