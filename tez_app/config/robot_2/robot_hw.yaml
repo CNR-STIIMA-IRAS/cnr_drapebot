@@ -2,9 +2,10 @@ robot2_mqtt_hw:
   type: "cnr/control/MQTTRobotHW"
   appenders      : [file, screen]
   levels         : [trace, info]
-  pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%50M:%04L][%24c] %m%n"
+  #pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%F:%M:%04L][%24c] %m%n"
+  pattern_layout : "[%5p][%d{HH:mm,SSS}][%M:%04L][%24c] %m%n"
   file_name      : mqtt_hw
-  sampling_period: 0.004
+  sampling_period: 0.01
   diagnostic_period: 0.1
   maximum_missing_cycles: 100
   feedback_joint_state_timeout: 10
@@ -27,15 +28,16 @@ robot2_mqtt_hw:
   initial_position: [5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   
   use_delta_target_pos: true
-  delta_pos_from_start: false
+  delta_pos_from_start: true
   
   use_real_robot: false
+  verbose: false
   
   #--- MQTT ---
   
   client_id: "robot2/MQTT_HW"
-  #host: 169.254.252.101    # drapebot
-  host: localhost
+  host: 192.168.10.201    # drapebot
+  #host: localhost
   port: 1883
   
   feedback_mqtt_topic: "/robot_2/feedback"
@@ -90,7 +92,7 @@ robot2_deformation_hw:
 
   feedback_joint_state_topic: /robot2/joint_states
   command_joint_state_topic:  /robot2/joint_pos_target
-  sampling_period: 0.004
+  sampling_period: 0.01
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100
@@ -132,7 +134,7 @@ robot2_plan_hw:
 
   feedback_joint_state_topic: /robot2/joint_states
   command_joint_state_topic:  /robot2/interp_joint_pos_target
-  sampling_period: 0.004
+  sampling_period: 0.01
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100

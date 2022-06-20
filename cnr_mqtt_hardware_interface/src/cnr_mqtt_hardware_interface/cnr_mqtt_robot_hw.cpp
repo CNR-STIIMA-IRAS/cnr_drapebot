@@ -45,6 +45,25 @@
 
 PLUGINLIB_EXPORT_CLASS(cnr_hardware_interface::MQTTRobotHW, hardware_interface::RobotHW)
 
+static const char* DEFAULT      = "\033[0m";
+static const char* RESET        = "\033[0m";
+static const char* BLACK        = "\033[30m";
+static const char* RED          = "\033[31m";
+static const char* GREEN        = "\033[32m";
+static const char* YELLOW       = "\033[33m";
+static const char* BLUE         = "\033[34m";
+static const char* MAGENTA      = "\033[35m";
+static const char* CYAN         = "\033[36m";
+static const char* WHITE        = "\033[37m";
+static const char* BOLDBLACK    = "\033[1m\033[30m";
+static const char* BOLDRED      = "\033[1m\033[31m";
+static const char* BOLDGREEN    = "\033[1m\033[32m";
+static const char* BOLDYELLOW   = "\033[1m\033[33m";
+static const char* BOLDBLUE     = "\033[1m\033[34m";
+static const char* BOLDMAGENTA  = "\033[1m\033[35m";
+static const char* BOLDCYAN     = "\033[1m\033[36m";
+static const char* BOLDWHITE    = "\033[1m\033[37m";
+
 
 mqtt_client::mqtt_client(const char *id, const char *host, int port, int keepalive) : mosquittopp(id)
 { 
@@ -78,6 +97,7 @@ void mqtt_client::on_subscribe(int mid, int qos_count, const int *granted_qos)
 
 void mqtt_client::on_message(const struct mosquitto_message *message)
 {
+  
   message_struct* buf = new message_struct;
   memcpy(buf, message->payload, message->payloadlen);
   
@@ -88,6 +108,7 @@ void mqtt_client::on_message(const struct mosquitto_message *message)
   ROS_INFO_STREAM_THROTTLE(5.0,"feedback J5: "<< buf->J5);
   ROS_INFO_STREAM_THROTTLE(5.0,"feedback J6: "<< buf->J6);
   ROS_INFO_STREAM_THROTTLE(5.0,"feedback E0: "<< buf->E0);
+  ROS_INFO_STREAM_THROTTLE(5.0,"count      : "<< buf->count);
   
   J1 = buf->J1;
   J2 = buf->J2;
@@ -96,6 +117,9 @@ void mqtt_client::on_message(const struct mosquitto_message *message)
   J5 = buf->J5;
   J6 = buf->J6;
   E0 = buf->E0;
+  
+  msg_count_fb = buf->count;
+  
   first_message_received = true;
 }
 
@@ -104,9 +128,105 @@ bool mqtt_client::get_first_message_status()
   return first_message_received ;
 }
 
+void mqtt_client::publish_with_tracking(const std::string cmd_topic, message_struct& m)
+{
+  msg_count_cmd +=1;
+  m.count = msg_count_cmd;
+  
+  size_t message_size_ = sizeof(m);
+  void* payload_ = malloc( message_size_ );
+  memcpy(payload_, &m, message_size_);  
+  
+  int n = cmd_topic.length();
+  char topic[n+ 1];
+  strcpy(topic, cmd_topic.c_str());
+  
+  publish(NULL, topic, message_size_, payload_);
+  
+}
+
+
+int mqtt_client::get_msg_count_cmd()
+{
+  return msg_count_cmd;
+}
+
+int mqtt_client::get_msg_count_fb()
+{
+  return msg_count_fb;
+}
 
 
 
+
+
+void mqtt_to_vector(const mqtt_client * client,std::vector<double> & ret)
+{
+  if(ret.size()!=7)
+    ret.resize(7,0);
+  
+  ret.at(1) = client->J1;
+  ret.at(2) = client->J2;
+  ret.at(3) = client->J3;
+  ret.at(4) = client->J4;
+  ret.at(5) = client->J5;
+  ret.at(6) = client->J6;
+  ret.at(0) = client->E0;
+}
+
+
+void vector_to_mqtt(const std::vector<double>& v, mqtt_client * client)
+{
+  assert(v.size()==7);
+
+  client->J1 = v.at(1);
+  client->J2 = v.at(2);
+  client->J3 = v.at(3);
+  client->J4 = v.at(4);
+  client->J5 = v.at(5);
+  client->J6 = v.at(6);
+  client->E0 = v.at(0);
+}
+
+void vector_to_mqtt_msg(const std::vector<double>& v, message_struct& m)
+{
+  assert(v.size()==7);
+
+  m.J1 = v.at(1);    
+  m.J2 = v.at(2);    
+  m.J3 = v.at(3);    
+  m.J4 = v.at(4);    
+  m.J5 = v.at(5);    
+  m.J6 = v.at(6);    
+  m.E0 = v.at(0);}
+
+void print_vector(const std::string& msg, const std::vector<double>& v, const char* color = "\033[0m" )
+{
+  assert(v.size()==7);
+  for(size_t i=0;i< v.size();i++)
+  {
+    ROS_INFO_STREAM( color << msg << " " << (i==0u? "E" : "J") << i << ": "  << v.at(i));
+  }
+}
+void print_vector_throttle(const std::string& msg, const std::vector<double>& v ,double throttle = 1.0, const char* color = "\033[0m")
+{
+  assert(v.size()==7);
+  for(size_t i=0;i< v.size();i++)
+  {
+    ROS_INFO_STREAM_THROTTLE(throttle, color << msg << " " << (i==0u? "E" : "J") << i << ": "  << v.at(i));
+  }
+}
+
+void print_message_struct_throttle(cnr_logger::TraceLogger logger, const std::string& msg, const message_struct& m, double throttle = 1.0)
+{
+  CNR_INFO_THROTTLE(logger,throttle , msg << m.J1);
+  CNR_INFO_THROTTLE(logger,throttle , msg << m.J2);
+  CNR_INFO_THROTTLE(logger,throttle , msg << m.J3);
+  CNR_INFO_THROTTLE(logger,throttle , msg << m.J4);
+  CNR_INFO_THROTTLE(logger,throttle , msg << m.J5);
+  CNR_INFO_THROTTLE(logger,throttle , msg << m.J6);
+  CNR_INFO_THROTTLE(logger,throttle , msg << m.E0);
+}
 
 
 namespace cnr_hardware_interface
@@ -180,10 +300,17 @@ bool MQTTRobotHW::doInit()
 {
   CNR_TRACE_START(m_logger);
 
-//   CNR_DEBUG(m_logger, "Resources (" << resourceNumber() << "): " << cnr_hardware_interface::to_string(hw->resourceNames()));
+  CNR_WARN(m_logger, "Resources (" << resourceNumber() << ") ");
   m_pos.resize(resourceNumber());
   m_vel.resize(resourceNumber());
   m_eff.resize(resourceNumber());
+  
+  m_cmd_pos.resize(resourceNumber());
+  m_old_pos.resize(resourceNumber());
+  m_start_pos.resize(resourceNumber());
+  m_delta_pos.resize(resourceNumber());
+  m_cmd_vel.resize(resourceNumber());
+  m_cmd_eff.resize(resourceNumber());
 
   std::fill(m_pos.begin(), m_pos.end(), 0.0);
   std::fill(m_cmd_pos.begin(), m_cmd_pos.end(), 0.0);
@@ -227,18 +354,9 @@ bool MQTTRobotHW::doInit()
     timeout = 10;
   }
 
-  m_cmd_pos.resize(resourceNumber());
-  m_old_pos.resize(resourceNumber());
-  m_start_pos.resize(resourceNumber());
-  m_delta_pos.resize(resourceNumber());
-  m_cmd_vel.resize(resourceNumber());
-  m_cmd_eff.resize(resourceNumber());
-
   m_cmd_pos = m_pos;
   m_cmd_vel = m_vel;
   m_cmd_pos = m_eff;
-  m_old_pos = m_pos;
-  m_start_pos = m_pos;
   m_delta_pos = m_pos;
   
   for(size_t i=0;i<resourceNumber();i++)
@@ -258,8 +376,6 @@ bool MQTTRobotHW::doInit()
     m_ve_jh.registerHandle(hardware_interface::VelEffJointHandle(state_handle, &(m_cmd_vel.at(i)), &(m_cmd_eff.at(i))));
   }
   
-  m_robothw_nh.setParam("initial_traj_pos", m_start_pos);
-
   std::string wrench_name="wrench";
   if (!m_robothw_nh.getParam("wrench_resourse",wrench_name))
   {
@@ -282,13 +398,17 @@ bool MQTTRobotHW::doInit()
   m_wrench_sub=m_robothw_nh.subscribe(wrench_topic,1,&MQTTRobotHW::wrenchCb,this);
 
 
+  CNR_TRACE(m_logger,"Sensor handle");
   hardware_interface::ForceTorqueSensorHandle sensor_handle(wrench_name
       , m_frame_id
       , &(m_ft_sensor.at(0))
       , &(m_ft_sensor.at(3)));
 
+  CNR_TRACE(m_logger,"Register handle");
+  
   m_ft_jh.registerHandle(sensor_handle);
 
+  CNR_TRACE(m_logger,"Register Interface");
   registerInterface(&m_js_jh);
   registerInterface(&m_p_jh);
   registerInterface(&m_v_jh);
@@ -299,24 +419,24 @@ bool MQTTRobotHW::doInit()
 
   m_p_jh_active = m_v_jh_active = m_e_jh_active = false;
   
+  CNR_TRACE(m_logger,"Pose Target");
   
   std::string pose_target;
   if (!m_robothw_nh.getParam("nominal_trajectory_topic",pose_target))
   {
     pose_target="/joint_pos_target";
-    CNR_TRACE(m_logger,"default noimnal trajectory topic : joint_pos_target");
+    CNR_WARN(m_logger,"default noimnal trajectory topic : joint_pos_target");
   }
   m_traj_sub=m_robothw_nh.subscribe(pose_target,1,&MQTTRobotHW::trajCb,this);
   
-  m_nom_traj.resize(7);
-  
-  m_nom_traj[0]=m_pos[1];
-  m_nom_traj[1]=m_pos[2];
-  m_nom_traj[2]=m_pos[3];
-  m_nom_traj[3]=m_pos[4];
-  m_nom_traj[4]=m_pos[5];
-  m_nom_traj[5]=m_pos[6];
-  m_nom_traj[6]=m_pos[0];
+  m_nom_traj.resize(7,0);
+  m_nom_traj.at(0) = m_pos[1];
+  m_nom_traj.at(1) = m_pos[2];
+  m_nom_traj.at(2) = m_pos[3];
+  m_nom_traj.at(3) = m_pos[4];
+  m_nom_traj.at(4) = m_pos[5];
+  m_nom_traj.at(5) = m_pos[6];
+  m_nom_traj.at(6) = m_pos[0];
   
   if (!m_robothw_nh.getParam("use_delta_target_pos",use_delta_target_pos_))
   {
@@ -333,13 +453,15 @@ bool MQTTRobotHW::doInit()
   }
   
 //   ---- MQTT params ----
-  
+  CNR_TRACE(m_logger," MQTT PARAMS");
   std::string cid;
   if (!m_robothw_nh.getParam("client_id",cid))
   {
     cid="Client_ID";
     CNR_TRACE(m_logger,"using defalut client ID: Client_ID");
   }
+  
+  CNR_TRACE(m_logger," MQTT PARAMS 2");
 
   int n_id = cid.length();
   char client_id[n_id + 1];
@@ -351,6 +473,9 @@ bool MQTTRobotHW::doInit()
     host_str="localhost";
     CNR_TRACE(m_logger,"using defalut host: localhost");
   }
+  
+  CNR_TRACE(m_logger," MQTT PARAMS 3");
+
   int n_host = host_str.length();
   char host[n_host + 1];
   strcpy(host, host_str.c_str());
@@ -362,18 +487,24 @@ bool MQTTRobotHW::doInit()
     CNR_TRACE(m_logger,"using defalut port: 1883");
   }
   
+  CNR_TRACE(m_logger," MQTT PARAMS 4");
+
+  
   if (!m_robothw_nh.getParam("command_mqtt_topic",m_mqtt_command_topic))
   {
     m_mqtt_command_topic="mqtt_command_topic";
     CNR_TRACE(m_logger,"using topic out : mqtt_command_topic");
   }
   
+  CNR_TRACE(m_logger," MQTT PARAMS mosquitto_lib_init");
+
   mosquitto_lib_init();
   
   CNR_WARN(m_logger,"connencting mqtt: "<<client_id<<":"<<host);
   m_client = new mqtt_client(client_id, host, port);
   CNR_INFO(m_logger,"connencted to: "<<client_id<<":"<<host);
   
+  CNR_TRACE(m_logger," MQTT PARAMS lib_init");
   mosqpp::lib_init();
   
   if (!m_robothw_nh.getParam("feedback_mqtt_topic",m_mqtt_feedback_topic))
@@ -392,64 +523,54 @@ bool MQTTRobotHW::doInit()
   {
     USE_REAL_ROBOT = false;
     CNR_WARN(this->m_logger, "\n\n USING SIMULATED ROBOT !!. SET PARAM >> use_real_robot: true << in the config to use the real robot");
-    CNR_TRACE(m_logger,"using topic out : out_mqtt_feedback_topic");
+    CNR_TRACE(m_logger,"\n\n USING SIMULATED ROBOT !!. SET PARAM >> use_real_robot: true << in the config to use the real robot");
+  }
+  
+  if (!m_robothw_nh.getParam("verbose",verbose_))
+  {
+    verbose_ = true;
+    CNR_TRACE(m_logger,"default verbose: true");
   }
   
   std::string v = USE_REAL_ROBOT ? "ACHTUNG ! ! ! \n USING REAL ROBOT ! \n be careful, be nice please" : "using fake robot." ;
-  ROS_FATAL_STREAM("\n\n ################# \n "<< v <<" \n################# \n\n");
+  if (USE_REAL_ROBOT)
+    CNR_INFO(m_logger,RED<<"\n\n ################# \n "<< v <<" \n################# \n\n");
+  else
+    CNR_INFO(m_logger,BLUE<<"\n"<<v<<"\n");
   
   int n = m_mqtt_feedback_topic.length();
   char topic[n+ 1];
   strcpy(topic, m_mqtt_feedback_topic.c_str());
   m_client->subscribe(NULL, topic);
-  ROS_FATAL_STREAM("[cnr_mqtt_hardware_interface] Subscribed to : "<<topic);  
+  CNR_INFO(m_logger,"[cnr_mqtt_hardware_interface - "<< m_robothw_nh.getNamespace() << "] Subscribed to : "<<topic);  
   
   if(USE_REAL_ROBOT)
   {
+    ROS_INFO_STREAM("start waiting");
     while ( !m_client->get_first_message_status() )
     {
-      ROS_WARN_STREAM_THROTTLE(2.0,"waiting for first feedback message");
+      CNR_WARN_THROTTLE(m_logger,2.0,"waiting for first feedback message");
       m_client->loop();
       ros::Duration(0.005).sleep();
     }
   }
   else
   {
-    m_client->J1 = m_pos[1];
-    m_client->J2 = m_pos[2];
-    m_client->J3 = m_pos[3];
-    m_client->J4 = m_pos[4];
-    m_client->J5 = m_pos[5];
-    m_client->J6 = m_pos[6];
-    m_client->E0 = m_pos[0];
+    vector_to_mqtt(m_pos,m_client);
   }
   
-  m_cmd_pos[0] = m_client->E0; 
-  m_cmd_pos[1] = m_client->J1; 
-  m_cmd_pos[2] = m_client->J2; 
-  m_cmd_pos[3] = m_client->J3; 
-  m_cmd_pos[4] = m_client->J4; 
-  m_cmd_pos[5] = m_client->J5; 
-  m_cmd_pos[6] = m_client->J6; 
+  mqtt_to_vector(m_client,m_cmd_pos);
+  mqtt_to_vector(m_client,m_pos);
+  m_start_pos = m_pos;
   
-  m_pos[0] = m_client->E0; 
-  m_pos[1] = m_client->J1; 
-  m_pos[2] = m_client->J2; 
-  m_pos[3] = m_client->J3; 
-  m_pos[4] = m_client->J4; 
-  m_pos[5] = m_client->J5; 
-  m_pos[6] = m_client->J6; 
+  if(verbose_)
+  {
+    print_vector("INITIAL POSITION" , m_cmd_pos  , BLUE   );
+    print_vector("STARTING POSITION", m_start_pos, MAGENTA);
+  }
   
-  
-  CNR_INFO(this->m_logger, "Message received!");
-  
-  ROS_FATAL_STREAM( "INITIAL POSITION J1: " <<m_cmd_pos[1]);
-  ROS_FATAL_STREAM( "INITIAL POSITION J2: " <<m_cmd_pos[2]);
-  ROS_FATAL_STREAM( "INITIAL POSITION J3: " <<m_cmd_pos[3]);
-  ROS_FATAL_STREAM( "INITIAL POSITION J4: " <<m_cmd_pos[4]);
-  ROS_FATAL_STREAM( "INITIAL POSITION J5: " <<m_cmd_pos[5]);
-  ROS_FATAL_STREAM( "INITIAL POSITION J6: " <<m_cmd_pos[6]);
-  ROS_FATAL_STREAM( "INITIAL POSITION E0: " <<m_cmd_pos[0]);
+  m_start_pos = m_pos;
+  m_old_pos = m_pos;
   
   cmd_pos_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("cmd_joint_pos",5);
   fb_pos_pub_  = m_robothw_nh.advertise<sensor_msgs::JointState>("fb_joint_pos",5);
@@ -458,58 +579,13 @@ bool MQTTRobotHW::doInit()
   CNR_RETURN_TRUE(m_logger);
 }
 
+
 bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period)
 {
   CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
-  
-//   if(m_p_jh_active)
-//   {
-//     if(USE_REAL_ROBOT)
-//     {
-//       m_pos[0] = m_client->E0;
-//       m_pos[1] = m_client->J1;
-//       m_pos[2] = m_client->J2;
-//       m_pos[3] = m_client->J3;
-//       m_pos[4] = m_client->J4;
-//       m_pos[5] = m_client->J5;
-//       m_pos[6] = m_client->J6;
-//     }
-//     else
-//     {
-//       m_pos = m_cmd_pos;  
-//     }
-//   }
 
-//   if (m_v_jh_active)
-//   {
-//     m_vel = m_cmd_vel;
-//     if(!m_p_jh_active)
-//     {
-//       for(size_t iAx=0; iAx<resourceNumber(); iAx++)
-//       {
-//         m_pos.at(iAx) = m_pos.at(iAx) + m_cmd_vel.at(iAx) * period.toSec();
-//       }
-//     }
-//   }
-//   else
-//   {
-//     m_vel.resize(resourceNumber());
-//     std::fill(m_vel.begin(), m_vel.end(), 0.0);
-//   }
-// 
-//   if (m_e_jh_active)
-//   {
-//     m_eff = m_cmd_eff;
-//   }
-//   else
-//   {
-//     m_eff.resize(resourceNumber());
-//     std::fill(m_eff.begin(), m_eff.end(), 0.0);
-//   }
-  
   // ----------- BYTE MQTT MSG -------------------
   {
-    m_robothw_nh.getParam("initial_traj_pos", m_start_pos);
     
     for(int jj=0;jj<m_cmd_pos.size();jj++)
     {
@@ -522,58 +598,43 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     message_struct m;
     
+    std::string st = MAGENTA;
+    
     if(use_delta_target_pos_)
     {
-      ROS_INFO_STREAM_THROTTLE(10.0,"using relative cmd position");
-      m.J1 = m_delta_pos[1];    
-      m.J2 = m_delta_pos[2];    
-      m.J3 = m_delta_pos[3];    
-      m.J4 = m_delta_pos[4];    
-      m.J5 = m_delta_pos[5];    
-      m.J6 = m_delta_pos[6];    
-      m.E0 = m_delta_pos[0];
+      vector_to_mqtt_msg(m_delta_pos,m);
       
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J1: "<< m.J1);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J2: "<< m.J2);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J3: "<< m.J3);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J4: "<< m.J4);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J5: "<< m.J5);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command J6: "<< m.J6);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : delta command E0: "<< m.E0);
-    
+      CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using relative cmd position");
+      st += "[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] : delta command : ";
     }
     else
     {
-      ROS_INFO_STREAM_THROTTLE(10.0,"using absolute cmd position");
-      m.J1 = m_cmd_pos[1];    
-      m.J2 = m_cmd_pos[2];    
-      m.J3 = m_cmd_pos[3];    
-      m.J4 = m_cmd_pos[4];    
-      m.J5 = m_cmd_pos[5];    
-      m.J6 = m_cmd_pos[6];    
-      m.E0 = m_cmd_pos[0];
+      vector_to_mqtt_msg(m_cmd_pos,m);
       
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J1: "<< m.J1);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J2: "<< m.J2);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J3: "<< m.J3);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J4: "<< m.J4);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J5: "<< m.J5);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command J6: "<< m.J6);
-    ROS_FATAL_STREAM_THROTTLE(2.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : command E0: "<< m.E0);
-    
+      CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using absolute cmd position");
+      st += "[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] : command : "; 
     }
     
-    size_t message_size_ = sizeof(m);
     
-    void* payload_ = malloc( message_size_ );
+    if(verbose_)
+    {
+      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J1);
+      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J2);
+      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J3);
+      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J4);
+      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J5);
+      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J6);
+      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.E0);
+    }
     
-    memcpy(payload_, &m, message_size_);  
+    m_client->publish_with_tracking(m_mqtt_command_topic,m);
+    
+    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<" msg_count : "<< m_client->get_msg_count_cmd());
     
     int n = m_mqtt_command_topic.length();
     char topic[n+ 1];
     strcpy(topic, m_mqtt_command_topic.c_str());
-    m_client->publish(NULL, topic, message_size_, payload_);
-    ROS_INFO_STREAM_THROTTLE(10.0,"[cnr_mqtt_hardware_interface] publishing command on : "<<topic);
+    ROS_INFO_STREAM_THROTTLE(10.0,"[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] publishing command on : "<<topic);
     
     sensor_msgs::JointState js;
     
@@ -701,56 +762,25 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   
   if (USE_REAL_ROBOT)
   {
-    m_pos.at(0) = m_client->E0;
-    m_pos.at(1) = m_client->J1;
-    m_pos.at(2) = m_client->J2;
-    m_pos.at(3) = m_client->J3;
-    m_pos.at(4) = m_client->J4;
-    m_pos.at(5) = m_client->J5;
-    m_pos.at(6) = m_client->J6;
+    mqtt_to_vector(m_client,m_pos);
   }
   else
   {
-    m_pos.at(0) = m_cmd_pos.at(0);
-    m_pos.at(1) = m_cmd_pos.at(1);
-    m_pos.at(2) = m_cmd_pos.at(2);
-    m_pos.at(3) = m_cmd_pos.at(3);
-    m_pos.at(4) = m_cmd_pos.at(4);
-    m_pos.at(5) = m_cmd_pos.at(5);
-    m_pos.at(6) = m_cmd_pos.at(6);
+    m_pos = m_cmd_pos;
   }
   
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 1: "<<m_pos[1] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 2: "<<m_pos[2] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 3: "<<m_pos[3] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 4: "<<m_pos[4] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 5: "<<m_pos[5] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state joint 6: "<<m_pos[6] );
-  ROS_WARN_STREAM_THROTTLE(5.0,"[MQTTRobotHW"<< m_robothw_nh.getNamespace() <<"] : robot state linax  : "<<m_pos[0] );
-
-  root["J0"]["current_value"] = m_pos.at(0);
-  root["J1"]["current_value"] = m_pos.at(1);
-  root["J2"]["current_value"] = m_pos.at(2);
-  root["J3"]["current_value"] = m_pos.at(3);
-  root["J4"]["current_value"] = m_pos.at(4);
-  root["J5"]["current_value"] = m_pos.at(5);
-  root["J6"]["current_value"] = m_pos.at(6);
   
-  root["J0"]["command_value"] = m_cmd_pos.at(0);
-  root["J1"]["command_value"] = m_cmd_pos.at(1);
-  root["J2"]["command_value"] = m_cmd_pos.at(2);
-  root["J3"]["command_value"] = m_cmd_pos.at(3);
-  root["J4"]["command_value"] = m_cmd_pos.at(4);
-  root["J5"]["command_value"] = m_cmd_pos.at(5);
-  root["J6"]["command_value"] = m_cmd_pos.at(6);
+  if(verbose_)
+  {
+    print_vector_throttle("[MQTTRobotHW - "+ m_robothw_nh.getNamespace() + "] : robot state joint ", m_pos,2.0);
+  }
   
-  root["J0"]["reference_value"] = m_nom_traj.at(0);
-  root["J1"]["reference_value"] = m_nom_traj.at(1);
-  root["J2"]["reference_value"] = m_nom_traj.at(2);
-  root["J3"]["reference_value"] = m_nom_traj.at(3);
-  root["J4"]["reference_value"] = m_nom_traj.at(4);
-  root["J5"]["reference_value"] = m_nom_traj.at(5);
-  root["J6"]["reference_value"] = m_nom_traj.at(6);
+  for(size_t i=0;i<m_pos.size();i++)
+  {
+    root["J" +std::to_string(i)]["current_value"] = m_pos.at(i);
+    root["J" +std::to_string(i)]["command_value"] = m_cmd_pos.at(i);  
+    root["J" +std::to_string(i)]["reference_value"] = m_nom_traj.at(i);
+  }
   
   Json::StreamWriterBuilder builder;
   const std::string json_file = Json::writeString(builder, root);
@@ -763,10 +793,10 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   char pl[len+1];
   strcpy(pl, json_file.c_str());
   m_client->publish(NULL, topic, sizeof(pl), pl);
-  ROS_FATAL_STREAM_THROTTLE(2.0,"[cnr_mqtt_hardware_interface] publishing in loop on : "<<topic);
+  CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<"[MQTTRobotHW - "+ m_robothw_nh.getNamespace() + "] publishing in loop on : "<<topic);
   
   sensor_msgs::JointState js;
-  
+  js.name.clear();
   js.name.push_back("J1");
   js.name.push_back("J2");
   js.name.push_back("J3");
@@ -775,13 +805,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   js.name.push_back("J6");
   js.name.push_back("E0");
 
-  js.position.push_back(m_pos.at(1));
-  js.position.push_back(m_pos.at(2));
-  js.position.push_back(m_pos.at(3));
-  js.position.push_back(m_pos.at(4));
-  js.position.push_back(m_pos.at(5));
-  js.position.push_back(m_pos.at(6));
-  js.position.push_back(m_pos.at(0));
+  js.position = m_pos;
   
   js.header.stamp = ros::Time::now();
   

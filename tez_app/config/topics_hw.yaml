@@ -2,7 +2,7 @@ topics_hw:
   type           : "cnr/control/TopicsRobotHW"
   appenders      : [file, screen]
   levels         : [trace, info]
-  pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%50M:%04L][%24c] %m%n"
+  pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%F:%M:%04L][%24c] %m%n"
   file_name      : "topics_hw"
 
   resources: [ joint_resource ]
@@ -40,7 +40,7 @@ topics_hw:
     published_topics :
     - /joint_states
 
-  sampling_period: 0.004
+  sampling_period: 0.001
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 1000

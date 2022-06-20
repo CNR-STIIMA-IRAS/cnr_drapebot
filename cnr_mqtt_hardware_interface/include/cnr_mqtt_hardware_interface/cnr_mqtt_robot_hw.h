@@ -58,6 +58,7 @@ struct message_struct {
   double J5;
   double J6;
   double E0;
+  int count;
   
 } mqtt_msg;   
 
@@ -81,8 +82,14 @@ public:
     double J6;
     double E0;
     
+    void publish_with_tracking(const std::string cmd_topic, message_struct& m);
+    int get_msg_count_fb();
+    int get_msg_count_cmd();
+    
 private:
     
+    int msg_count_fb;
+    int msg_count_cmd;
     bool first_message_received;
     
 };
@@ -154,6 +161,7 @@ protected:
   ros::Publisher fb_pos_pub_;
   
   bool USE_REAL_ROBOT;
+  bool verbose_;
 
   friend void setParam(MQTTRobotHW* hw, const std::string& ns);
 };
