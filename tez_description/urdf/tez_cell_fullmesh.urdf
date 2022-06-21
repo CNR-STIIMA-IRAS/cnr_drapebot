@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot name="tez_cell" version="1.0">
 
+
   <link name="base_link">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -12,28 +13,6 @@
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="package://tez_description/mesh/full_details/spannfeld.dae"/>
-      </geometry>
-    </collision>
-  </link>
-
-  <!-- Jig -->
-  <joint name="jig_pos" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="base_link"/>
-    <child link="jig"/>
-  </joint>
-
-  <link name="jig">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://tez_description/mesh/full_details/jig.dae"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://tez_description/mesh/full_details/jig.dae"/>
       </geometry>
     </collision>
   </link>
@@ -62,11 +41,11 @@
 
   <!-- KR210_1 -->
   <joint name="kr210_1_linear_axis_joint" type="prismatic">
-    <origin rpy="0 0 3.14159" xyz="0 0 0.487"/>
+    <origin rpy="0 0 0" xyz="0 0 0.487"/>
     <parent link="linear_axis"/>
     <child link="KR210_1_socket"/>
     <axis xyz="1.0 0.0 0.0"/>
-    <limit effort="100" lower="0" upper="9" velocity="100"/>
+    <limit effort="100" lower="-9" upper="0" velocity="100"/> <!--upper = 9 in origin version-->
   </joint>
 
   <link name="KR210_1_socket">
@@ -85,11 +64,11 @@
   </link>
 
   <joint name="kr210_1_joint_1" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5256"/>
+    <origin rpy="0 0 -1.5707963267948966" xyz="0 0 0.5256"/>
     <parent link="KR210_1_socket"/>
     <child link="KR210_1_A1"/>
-    <axis xyz="0.0 0.0 1.0"/>
-    <limit effort="100" lower="-3.22886" upper="3.22886" velocity="100"/>
+    <axis xyz="0.0 0.0 -1.0"/>
+    <limit effort="100" lower="-3.22886" upper="3.22886" velocity="1"/>
   </joint>
 
   <link name="KR210_1_A1">
@@ -108,11 +87,11 @@
   </link>
 
   <joint name="kr210_1_joint_2" type="revolute">
-    <origin rpy="0 0 0" xyz="0.005 -0.35 0.45"/>
+    <origin rpy="1.5707963267948966 0 0" xyz="0.005 -0.35 0.45"/>
     <parent link="KR210_1_A1"/>
     <child link="KR210_1_A2"/>
     <axis xyz="1.0 0.0 0.0"/>
-    <limit effort="10000" lower="-2.0944" upper="1.22173" velocity="100"/>
+    <limit effort="10000" lower="-2.443460952792061" upper="-0.08726646259971647" velocity="1"/>
   </joint>
 
   <link name="KR210_1_A2">
@@ -131,11 +110,11 @@
   </link>
 
   <joint name="kr210_1_joint_3" type="revolute">
-    <origin rpy="0 0 0" xyz="-0.183 0 1.35"/>
+    <origin rpy="-1.5707963267948966 0 0" xyz="-0.183 0 1.35"/>
     <parent link="KR210_1_A2"/>
     <child link="KR210_1_A3"/>
     <axis xyz="1.0 0.0 0.0"/>
-    <limit effort="100" lower="-2.0944" upper="2.70526" velocity="100"/>
+    <limit effort="100" lower="-2.0943951023931953" upper="2.705260340591211" velocity="1"/>
   </joint>
 
   <link name="KR210_1_A3">
@@ -181,7 +160,7 @@
     <parent link="KR210_1_A4"/>
     <child link="KR210_1_A5"/>
     <axis xyz="1.0 0.0 0.0"/>
-    <limit effort="100" lower="-2.18166" upper="2.18166" velocity="100"/>
+    <limit effort="100" lower="-2.138028333693054" upper="2.138028333693054" velocity="1"/>
   </joint>
 
   <link name="KR210_1_A5">

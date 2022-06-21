@@ -2,6 +2,31 @@
 #include "cnr_mqtt/mqtt_client.h"
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/simple_client_goal_state.h>
+
+
+
+static const char* DEFAULT      = "\033[0m";
+static const char* RESET        = "\033[0m";
+static const char* BLACK        = "\033[30m";
+static const char* RED          = "\033[31m";
+static const char* GREEN        = "\033[32m";
+static const char* YELLOW       = "\033[33m";
+static const char* BLUE         = "\033[34m";
+static const char* MAGENTA      = "\033[35m";
+static const char* CYAN         = "\033[36m";
+static const char* WHITE        = "\033[37m";
+static const char* BOLDBLACK    = "\033[1m\033[30m";
+static const char* BOLDRED      = "\033[1m\033[31m";
+static const char* BOLDGREEN    = "\033[1m\033[32m";
+static const char* BOLDYELLOW   = "\033[1m\033[33m";
+static const char* BOLDBLUE     = "\033[1m\033[34m";
+static const char* BOLDMAGENTA  = "\033[1m\033[35m";
+static const char* BOLDCYAN     = "\033[1m\033[36m";
+static const char* BOLDWHITE    = "\033[1m\033[37m";
+
+
+
 
 int main(int argc, char **argv)
 {
@@ -96,26 +121,61 @@ int main(int argc, char **argv)
   
   while(ros::ok())
   {
-    ROS_INFO_THROTTLE(2.0,"looping");
+    ROS_INFO_THROTTLE(5.0,"looping");
     client.loop();
     
     if(client.new_trajectory_available)
     {
       execute_trajectory.sendGoal ( client.trajectory_msg );
-      ROS_WARN_STREAM("goal trajectory sent:\n"<<client.trajectory_msg);
+      ROS_INFO_STREAM(BLUE<<"goal trajectory sent:\n"<<client.trajectory_msg);
       
       std::vector<double> first_point;
+      ROS_INFO_STREAM("first traj point");
       for (auto p : client.trajectory_msg.trajectory.points[0].positions)
         ROS_INFO_STREAM(p);
       
-      nh.setParam("initial_traj_pos", client.trajectory_msg.trajectory.points[0].positions );
+      ROS_INFO_STREAM("last traj point");      
+      for (auto p : client.trajectory_msg.trajectory.points.back().positions)
+        ROS_INFO_STREAM(p);
+      
       ROS_INFO_STREAM("waitin for execution");
-      execute_trajectory.waitForResult();
+      
+      actionlib::SimpleClientGoalState as = execute_trajectory.getState();
+      
+      while(as != actionlib::SimpleClientGoalState::SUCCEEDED )
+      {
+        as = execute_trajectory.getState();
+        
+        if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
+          ROS_INFO_STREAM(RED<<"executing trajectory. State :  SUCCEEDED !" );
+        
+        if(as == actionlib::SimpleClientGoalState::ACTIVE) 
+          ROS_INFO_STREAM(GREEN<<"executing trajectory. State :  ACTIVE !" );
+        
+        if(as == actionlib::SimpleClientGoalState::ABORTED) 
+          ROS_INFO_STREAM(YELLOW<<"executing trajectory. State :  ABORTED !" );
+        
+        if(as == actionlib::SimpleClientGoalState::LOST) 
+          ROS_INFO_STREAM(BLUE<<"executing trajectory. State :  LOST !" );
+        
+        if(as == actionlib::SimpleClientGoalState::PENDING) 
+          ROS_INFO_STREAM(MAGENTA<<"executing trajectory. State :  PENDING !" );
+        
+        if(as == actionlib::SimpleClientGoalState::RECALLED) 
+          ROS_INFO_STREAM(CYAN<<"executing trajectory. State :  RECALLED !" );
+        
+        if(as == actionlib::SimpleClientGoalState::REJECTED) 
+          ROS_INFO_STREAM(WHITE<<"executing trajectory. State :  REJECTED!" );
+        
+      }
+      
+//       execute_trajectory.waitForResult();
       if ( !execute_trajectory.getResult() )
       {
         ROS_ERROR("some error in trajectory execution. Return!");
         return -1;
       }
+      ROS_INFO_STREAM(GREEN << "Trajectory executed correctly ! ");
       
       client.new_trajectory_available = false;
       

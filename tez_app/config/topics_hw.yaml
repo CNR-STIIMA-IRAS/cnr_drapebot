@@ -40,7 +40,7 @@ topics_hw:
     published_topics :
     - /joint_states
 
-  sampling_period: 0.001
+  sampling_period: 0.008
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 1000

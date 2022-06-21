@@ -65,7 +65,7 @@ static const char* BOLDCYAN     = "\033[1m\033[36m";
 static const char* BOLDWHITE    = "\033[1m\033[37m";
 
 
-mqtt_client::mqtt_client(const char *id, const char *host, int port, int keepalive) : mosquittopp(id)
+mqtt_client::mqtt_client(const char *id, const char *host, int port, cnr_logger::TraceLogger &logger, int keepalive) : mosquittopp(id)
 { 
   first_message_received = false;
   J1 = 0;
@@ -75,7 +75,12 @@ mqtt_client::mqtt_client(const char *id, const char *host, int port, int keepali
   J5 = 0;
   J6 = 0;
   E0 = 0;
+  msg_count_cmd = 0;
+  msg_count_fb  = 0;
   connect(host, port, keepalive);
+  
+  logger_ = new cnr_logger::TraceLogger(logger);
+  
 }
 
 mqtt_client::~mqtt_client()
@@ -101,14 +106,14 @@ void mqtt_client::on_message(const struct mosquitto_message *message)
   message_struct* buf = new message_struct;
   memcpy(buf, message->payload, message->payloadlen);
   
-  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J1: "<< buf->J1);
-  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J2: "<< buf->J2);
-  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J3: "<< buf->J3);
-  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J4: "<< buf->J4);
-  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J5: "<< buf->J5);
-  ROS_INFO_STREAM_THROTTLE(5.0,"feedback J6: "<< buf->J6);
-  ROS_INFO_STREAM_THROTTLE(5.0,"feedback E0: "<< buf->E0);
-  ROS_INFO_STREAM_THROTTLE(5.0,"count      : "<< buf->count);
+  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J1: " << buf->J1);
+  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J2: " << buf->J2);
+  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J3: " << buf->J3);
+  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J4: " << buf->J4);
+  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J5: " << buf->J5);
+  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J6: " << buf->J6);
+  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback E0: " << buf->E0);
+  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "count      : " << buf->count);
   
   J1 = buf->J1;
   J2 = buf->J2;
@@ -128,9 +133,9 @@ bool mqtt_client::get_first_message_status()
   return first_message_received ;
 }
 
-void mqtt_client::publish_with_tracking(const std::string cmd_topic, message_struct& m)
+void mqtt_client::publish_with_tracking(const std::string& cmd_topic, message_struct& m)
 {
-  msg_count_cmd +=1;
+  msg_count_cmd += 1;
   m.count = msg_count_cmd;
   
   size_t message_size_ = sizeof(m);
@@ -154,6 +159,11 @@ int mqtt_client::get_msg_count_cmd()
 int mqtt_client::get_msg_count_fb()
 {
   return msg_count_fb;
+}
+
+void mqtt_client::set_msg_count_cmd(const int& count)
+{
+  msg_count_cmd = count;
 }
 
 
@@ -200,32 +210,38 @@ void vector_to_mqtt_msg(const std::vector<double>& v, message_struct& m)
   m.J6 = v.at(6);    
   m.E0 = v.at(0);}
 
-void print_vector(const std::string& msg, const std::vector<double>& v, const char* color = "\033[0m" )
+void print_vector(cnr_logger::TraceLogger& logger, const std::string& msg, const std::vector<double>& v, const char* color = "\033[0m" )
 {
   assert(v.size()==7);
   for(size_t i=0;i< v.size();i++)
   {
-    ROS_INFO_STREAM( color << msg << " " << (i==0u? "E" : "J") << i << ": "  << v.at(i));
+    CNR_INFO(logger, color << msg << " " << (i==0u? "E" : "J") << i << ": "  << v.at(i));
   }
 }
-void print_vector_throttle(const std::string& msg, const std::vector<double>& v ,double throttle = 1.0, const char* color = "\033[0m")
+void print_vector_throttle(cnr_logger::TraceLogger& logger, const std::string& msg, const std::vector<double>& v ,double throttle = 1.0, const char* color = "\033[0m")
 {
   assert(v.size()==7);
   for(size_t i=0;i< v.size();i++)
   {
-    ROS_INFO_STREAM_THROTTLE(throttle, color << msg << " " << (i==0u? "E" : "J") << i << ": "  << v.at(i));
+    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J1: "  << v.at(1));
+    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J2: "  << v.at(2));
+    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J3: "  << v.at(3));
+    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J4: "  << v.at(4));
+    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J5: "  << v.at(5));
+    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J6: "  << v.at(6));
+    CNR_INFO_THROTTLE(logger, throttle, color << msg << " E0: "  << v.at(0));
   }
 }
 
-void print_message_struct_throttle(cnr_logger::TraceLogger logger, const std::string& msg, const message_struct& m, double throttle = 1.0)
+void print_message_struct_throttle(cnr_logger::TraceLogger& logger, const std::string& msg, const message_struct& m, double throttle = 1.0)
 {
-  CNR_INFO_THROTTLE(logger,throttle , msg << m.J1);
-  CNR_INFO_THROTTLE(logger,throttle , msg << m.J2);
-  CNR_INFO_THROTTLE(logger,throttle , msg << m.J3);
-  CNR_INFO_THROTTLE(logger,throttle , msg << m.J4);
-  CNR_INFO_THROTTLE(logger,throttle , msg << m.J5);
-  CNR_INFO_THROTTLE(logger,throttle , msg << m.J6);
-  CNR_INFO_THROTTLE(logger,throttle , msg << m.E0);
+  CNR_INFO_THROTTLE(logger,throttle , msg << " J1 : " << m.J1);
+  CNR_INFO_THROTTLE(logger,throttle , msg << " J2 : " << m.J2);
+  CNR_INFO_THROTTLE(logger,throttle , msg << " J3 : " << m.J3);
+  CNR_INFO_THROTTLE(logger,throttle , msg << " J4 : " << m.J4);
+  CNR_INFO_THROTTLE(logger,throttle , msg << " J5 : " << m.J5);
+  CNR_INFO_THROTTLE(logger,throttle , msg << " J6 : " << m.J6);
+  CNR_INFO_THROTTLE(logger,throttle , msg << " E0 : " << m.E0);
 }
 
 
@@ -501,7 +517,7 @@ bool MQTTRobotHW::doInit()
   mosquitto_lib_init();
   
   CNR_WARN(m_logger,"connencting mqtt: "<<client_id<<":"<<host);
-  m_client = new mqtt_client(client_id, host, port);
+  m_client = new mqtt_client(client_id, host, port,m_logger);
   CNR_INFO(m_logger,"connencted to: "<<client_id<<":"<<host);
   
   CNR_TRACE(m_logger," MQTT PARAMS lib_init");
@@ -553,6 +569,8 @@ bool MQTTRobotHW::doInit()
       m_client->loop();
       ros::Duration(0.005).sleep();
     }
+    CNR_INFO(m_logger, GREEN << "FIRST FEEDBACK MSG COUNT : " << m_client->get_msg_count_fb());
+    m_client->set_msg_count_cmd(m_client->get_msg_count_fb());
   }
   else
   {
@@ -565,8 +583,8 @@ bool MQTTRobotHW::doInit()
   
   if(verbose_)
   {
-    print_vector("INITIAL POSITION" , m_cmd_pos  , BLUE   );
-    print_vector("STARTING POSITION", m_start_pos, MAGENTA);
+    print_vector(m_logger, "INITIAL POSITION" , m_cmd_pos  , BLUE   );
+    print_vector(m_logger, "STARTING POSITION", m_start_pos, CYAN);
   }
   
   m_start_pos = m_pos;
@@ -605,26 +623,19 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
       vector_to_mqtt_msg(m_delta_pos,m);
       
       CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using relative cmd position");
-      st += "[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] : delta command : ";
+      st += " delta command : ";
     }
     else
     {
       vector_to_mqtt_msg(m_cmd_pos,m);
       
       CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using absolute cmd position");
-      st += "[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] : command : "; 
+      st += " command : "; 
     }
-    
     
     if(verbose_)
     {
-      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J1);
-      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J2);
-      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J3);
-      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J4);
-      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J5);
-      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.J6);
-      CNR_INFO_THROTTLE(m_logger, 2.0, st << m.E0);
+      print_message_struct_throttle(m_logger,st, m);
     }
     
     m_client->publish_with_tracking(m_mqtt_command_topic,m);
@@ -772,7 +783,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   
   if(verbose_)
   {
-    print_vector_throttle("[MQTTRobotHW - "+ m_robothw_nh.getNamespace() + "] : robot state joint ", m_pos,2.0);
+    print_vector_throttle(m_logger, "[MQTTRobotHW - "+ m_robothw_nh.getNamespace() + "] : robot state joint ", m_pos,2.0);
   }
   
   for(size_t i=0;i<m_pos.size();i++)

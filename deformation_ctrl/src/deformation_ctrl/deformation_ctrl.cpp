@@ -14,6 +14,25 @@
 
 PLUGINLIB_EXPORT_CLASS(cnr::control::DeformationCtrl  , controller_interface::ControllerBase)
 
+static const char* DEFAULT      = "\033[0m";
+static const char* RESET        = "\033[0m";
+static const char* BLACK        = "\033[30m";
+static const char* RED          = "\033[31m";
+static const char* GREEN        = "\033[32m";
+static const char* YELLOW       = "\033[33m";
+static const char* BLUE         = "\033[34m";
+static const char* MAGENTA      = "\033[35m";
+static const char* CYAN         = "\033[36m";
+static const char* WHITE        = "\033[37m";
+static const char* BOLDBLACK    = "\033[1m\033[30m";
+static const char* BOLDRED      = "\033[1m\033[31m";
+static const char* BOLDGREEN    = "\033[1m\033[32m";
+static const char* BOLDYELLOW   = "\033[1m\033[33m";
+static const char* BOLDBLUE     = "\033[1m\033[34m";
+static const char* BOLDMAGENTA  = "\033[1m\033[35m";
+static const char* BOLDCYAN     = "\033[1m\033[36m";
+static const char* BOLDWHITE    = "\033[1m\033[37m";
+
 namespace cnr
 {
 namespace control
@@ -152,10 +171,7 @@ bool DeformationCtrl::doUpdate(const ros::Time& time, const ros::Duration& perio
     
     q_=q_sp_;
     
-    CNR_WARN_THROTTLE(this->logger(),2.0,"[DeformationCtrl] : command position] \n"<<q_sp_);
-    
     this->setCommandPosition( q_sp_ );
-//     this->setCommandVelocity( dq_);
     
     CNR_RETURN_TRUE_THROTTLE_DEFAULT(this->logger());
     

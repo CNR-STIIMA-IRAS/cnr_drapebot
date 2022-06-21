@@ -58,7 +58,7 @@ struct message_struct {
   double J5;
   double J6;
   double E0;
-  int count;
+  unsigned int count;
   
 } mqtt_msg;   
 
@@ -66,7 +66,7 @@ struct message_struct {
 class mqtt_client : public mosqpp::mosquittopp
 {
 public:
-    mqtt_client (const char *id, const char *host, int port, int keepalive = 60);
+    mqtt_client (const char *id, const char *host, int port, cnr_logger::TraceLogger& logger, int keepalive = 60);
     ~mqtt_client();
 
     void on_connect(int rc);
@@ -82,14 +82,17 @@ public:
     double J6;
     double E0;
     
-    void publish_with_tracking(const std::string cmd_topic, message_struct& m);
+    void publish_with_tracking(const std::string& cmd_topic, message_struct& m);
     int get_msg_count_fb();
     int get_msg_count_cmd();
+    void set_msg_count_cmd(const int& count);
+    
+    cnr_logger::TraceLogger* logger_;
     
 private:
     
-    int msg_count_fb;
-    int msg_count_cmd;
+    unsigned int msg_count_fb;
+    unsigned int msg_count_cmd;
     bool first_message_received;
     
 };

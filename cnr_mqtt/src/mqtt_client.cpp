@@ -95,20 +95,6 @@ control_msgs::FollowJointTrajectoryGoal mqtt_client::transform_trajectory(Json::
       ag.trajectory.points[i].accelerations[jj]=0;
     }
     
-//     ag.trajectory.points[i].positions[0] = traj[P]["J0"]["value"].asDouble();
-//     ag.trajectory.points[i].positions[1] = traj[P]["J1"]["value"].asDouble();
-//     ag.trajectory.points[i].positions[2] = traj[P]["J2"]["value"].asDouble();
-//     ag.trajectory.points[i].positions[3] = traj[P]["J3"]["value"].asDouble();
-//     ag.trajectory.points[i].positions[4] = traj[P]["J4"]["value"].asDouble();
-//     ag.trajectory.points[i].positions[5] = traj[P]["J5"]["value"].asDouble();
-//     ag.trajectory.points[i].positions[6] = traj[P]["J6"]["value"].asDouble();
-//     
-//     for(int kk =0; kk<ag.trajectory.points[i].positions.size();kk++)
-//     {
-//       ag.trajectory.points[i].velocities[i]=0;
-//       ag.trajectory.points[i].accelerations[i]=0;
-//     }
-    
   }
   
   ROS_INFO_STREAM("goal trajectory: \n"<<ag);

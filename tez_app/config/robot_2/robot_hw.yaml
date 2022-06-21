@@ -4,8 +4,8 @@ robot2_mqtt_hw:
   levels         : [trace, info]
   #pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%F:%M:%04L][%24c] %m%n"
   pattern_layout : "[%5p][%d{HH:mm,SSS}][%M:%04L][%24c] %m%n"
-  file_name      : mqtt_hw
-  sampling_period: 0.01
+  file_name      : robot2_mqtt_hw
+  sampling_period: 0.008
   diagnostic_period: 0.1
   maximum_missing_cycles: 100
   feedback_joint_state_timeout: 10
@@ -25,10 +25,10 @@ robot2_mqtt_hw:
   robot_description_planning_param: /robot_description_planning
   kin_update_period: 0.1
 
-  initial_position: [5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  initial_position: [8.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   
-  use_delta_target_pos: true
-  delta_pos_from_start: true
+  use_delta_target_pos: false
+  delta_pos_from_start: false
   
   use_real_robot: false
   verbose: false
@@ -36,7 +36,7 @@ robot2_mqtt_hw:
   #--- MQTT ---
   
   client_id: "robot2/MQTT_HW"
-  host: 192.168.10.201    # drapebot
+  host: 192.168.12.201    # drapebot
   #host: localhost
   port: 1883
   
