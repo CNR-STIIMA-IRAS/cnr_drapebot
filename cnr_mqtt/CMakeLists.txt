@@ -5,7 +5,12 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   actionlib
   control_msgs
+  configuration_msgs
   )
+
+#find_package(PkgConfig REQUIRED)
+#pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquitto REQUIRED)
+#pkg_check_modules(Mosquittopp IMPORTED_TARGET libmosquittopp REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -31,4 +36,7 @@ mqtt src/mqtt_client.cpp
 
 add_executable(mqtt_converter src/mqtt_converter.cpp)
 target_link_libraries(mqtt_converter mqtt ${catkin_LIBRARIES} mosquittopp mosquitto jsoncpp)
+
+#target_link_libraries (${PROJECT_NAME} ${catkin_LIBRARIES} PkgConfig::Mosquittopp PkgConfig::Mosquitto jsoncpp)
+
 add_dependencies(mqtt_converter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} )

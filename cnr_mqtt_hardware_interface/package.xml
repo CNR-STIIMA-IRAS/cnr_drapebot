@@ -19,13 +19,13 @@
   <depend>nodelet</depend>
   <depend>roscpp</depend>
   <depend>cnr_mqtt</depend>
+  <depend> state_space_filters      </depend>
   
   <depend>code_coverage</depend>
   <depend>rostest</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
-<!--     <nodelet                plugin="${prefix}/plugin.xml" /> -->
     <hardware_interface plugin="${prefix}/plugin.xml" />
   </export>
 </package>

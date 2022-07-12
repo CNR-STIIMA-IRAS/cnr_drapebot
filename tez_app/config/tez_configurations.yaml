@@ -33,5 +33,5 @@ control_configurations:
 
 configuration_dispatches:
   - { name: multichain_watch,  at: 0.5 }
-  - { name: planner,  at: 5.0 }
+  - { name: planner,  at: 1.0 }
 

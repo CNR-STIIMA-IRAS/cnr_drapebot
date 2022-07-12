@@ -1,5 +1,25 @@
 #include "cnr_mqtt/mqtt_client.h"
 
+static const char* DEFAULT      = "\033[0m";
+static const char* RESET        = "\033[0m";
+static const char* BLACK        = "\033[30m";
+static const char* RED          = "\033[31m";
+static const char* GREEN        = "\033[32m";
+static const char* YELLOW       = "\033[33m";
+static const char* BLUE         = "\033[34m";
+static const char* MAGENTA      = "\033[35m";
+static const char* CYAN         = "\033[36m";
+static const char* WHITE        = "\033[37m";
+static const char* BOLDBLACK    = "\033[1m\033[30m";
+static const char* BOLDRED      = "\033[1m\033[31m";
+static const char* BOLDGREEN    = "\033[1m\033[32m";
+static const char* BOLDYELLOW   = "\033[1m\033[33m";
+static const char* BOLDBLUE     = "\033[1m\033[34m";
+static const char* BOLDMAGENTA  = "\033[1m\033[35m";
+static const char* BOLDCYAN     = "\033[1m\033[36m";
+static const char* BOLDWHITE    = "\033[1m\033[37m";
+
+
 mqtt_client::mqtt_client(const char *id, const char *host, int port) : mosquittopp(id)
 {
   int keepalive = DEFAULT_KEEP_ALIVE;
@@ -28,6 +48,16 @@ void mqtt_client::set_joint_names(std::vector<std::string> jn)
   n_joints_ = joint_names_.size();
 }
 
+void mqtt_client::set_config(const std::string& config)
+{
+  configuration_ = config;
+}
+
+std::string mqtt_client::get_config()
+{
+  return configuration_;
+}
+
 
 void mqtt_client::on_subscribe(int mid, int qos_count, const int *granted_qos)
 {
@@ -44,7 +74,7 @@ void mqtt_client::on_message(const struct mosquitto_message *message)
   
   reader.parse(buf,root);
   
-  ROS_INFO_STREAM("Json Trajectory from MotionPlanner: \n" << buf);
+  ROS_INFO_STREAM(GREEN<<"Json Trajectory from MotionPlanner: \n" << buf);
   
   trajectory_msg = transform_trajectory(root);
   
@@ -55,22 +85,18 @@ control_msgs::FollowJointTrajectoryGoal mqtt_client::transform_trajectory(Json::
 {
   control_msgs::FollowJointTrajectoryGoal ag;
   
-//   ROS_INFO_STREAM("joint number: "<<std::to_string(n_joints_));
-  
   ag.trajectory.points.resize(traj.size());
   
-//   ag.trajectory.header.frame_id = joint_names_[0];
-  ag.trajectory.header.frame_id = "fake_linear_axis";
+  ag.trajectory.header.frame_id = joint_names_[0];
   
   for(auto n : joint_names_)
   {
     ag.trajectory.joint_names.push_back(n);
-    ROS_INFO_STREAM(ag.trajectory.joint_names.back());
+    ROS_DEBUG_STREAM(ag.trajectory.joint_names.back());
   }
     
   for (int i=0; i<traj.size();i++)
   {
-    
     std::string P = "P"+  std::to_string((i+1));
     
     ros::Duration time_from_start( std::stod( traj[P]["time"].asString() ));
@@ -85,19 +111,18 @@ control_msgs::FollowJointTrajectoryGoal mqtt_client::transform_trajectory(Json::
     {
       std::string jn = "J";
       jn+= std::to_string(jj);
-      ROS_INFO_STREAM(jn);
-
-      double j = std::stod( traj[P][jn]["value"].asString() );
+      ROS_DEBUG_STREAM(jn);
       
-      ag.trajectory.points[i].positions[jj] = j;
+      double jp = std::stod( traj[P][jn]["value"].asString() );
+      double jv = std::stod( traj[P][jn]["velocity"].asString() );
       
-      ag.trajectory.points[i].velocities[jj]=0;
+      ag.trajectory.points[i].positions[jj] = jp;
+      ag.trajectory.points[i].velocities[jj]= jv;
       ag.trajectory.points[i].accelerations[jj]=0;
     }
-    
   }
   
-  ROS_INFO_STREAM("goal trajectory: \n"<<ag);
+  ROS_DEBUG_STREAM("goal trajectory: \n"<<ag);
   
   new_trajectory_available = true;
   

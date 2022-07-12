@@ -325,6 +325,7 @@ bool MQTTRobotHW::doInit()
   m_old_pos.resize(resourceNumber());
   m_start_pos.resize(resourceNumber());
   m_delta_pos.resize(resourceNumber());
+  m_old_delta_pos.resize(resourceNumber());
   m_cmd_vel.resize(resourceNumber());
   m_cmd_eff.resize(resourceNumber());
 
@@ -333,6 +334,7 @@ bool MQTTRobotHW::doInit()
   std::fill(m_old_pos.begin(), m_old_pos.end(), 0.0);
   std::fill(m_start_pos.begin(), m_start_pos.end(), 0.0);
   std::fill(m_delta_pos.begin(), m_delta_pos.end(), 0.0);
+  std::fill(m_old_delta_pos.begin(), m_old_delta_pos.end(), 0.0);
   std::fill(m_vel.begin(), m_vel.end(), 0.0);
   std::fill(m_eff.begin(), m_eff.end(), 0.0);
 
@@ -373,7 +375,7 @@ bool MQTTRobotHW::doInit()
   m_cmd_pos = m_pos;
   m_cmd_vel = m_vel;
   m_cmd_pos = m_eff;
-  m_delta_pos = m_pos;
+//   m_delta_pos = m_pos;
   
   for(size_t i=0;i<resourceNumber();i++)
   {
@@ -583,16 +585,19 @@ bool MQTTRobotHW::doInit()
   
   if(verbose_)
   {
-    print_vector(m_logger, "INITIAL POSITION" , m_cmd_pos  , BLUE   );
+    print_vector(m_logger, "INITIAL POSITION" , m_cmd_pos  , BLUE);
     print_vector(m_logger, "STARTING POSITION", m_start_pos, CYAN);
   }
   
   m_start_pos = m_pos;
   m_old_pos = m_pos;
   
-  cmd_pos_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("cmd_joint_pos",5);
-  fb_pos_pub_  = m_robothw_nh.advertise<sensor_msgs::JointState>("fb_joint_pos",5);
+  cmd_pos_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("cmd_joint_pos",1);
+  fb_pos_pub_  = m_robothw_nh.advertise<sensor_msgs::JointState>("fb_joint_pos",1);
 
+  cmd_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("cmd_pos",1);
+  old_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("old_pos",1);
+  delta_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("delta_pos",1);
   
   CNR_RETURN_TRUE(m_logger);
 }
@@ -605,14 +610,70 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   // ----------- BYTE MQTT MSG -------------------
   {
     
+    
+    {
+      sensor_msgs::JointState js;
+      
+      js.name.push_back("E0");
+      js.name.push_back("J1");
+      js.name.push_back("J2");
+      js.name.push_back("J3");
+      js.name.push_back("J4");
+      js.name.push_back("J5");
+      js.name.push_back("J6");
+
+      js.position = m_cmd_pos;
+      
+      js.header.stamp = ros::Time::now();
+      
+      cmd_pub_.publish(js);
+    }
+    
+    {
+      sensor_msgs::JointState js;
+      
+      js.name.push_back("E0");
+      js.name.push_back("J1");
+      js.name.push_back("J2");
+      js.name.push_back("J3");
+      js.name.push_back("J4");
+      js.name.push_back("J5");
+      js.name.push_back("J6");
+
+      js.position = m_old_pos;
+      
+      js.header.stamp = ros::Time::now();
+      
+      old_pub_.publish(js);
+    }
+    
+    {
+      sensor_msgs::JointState js;
+      
+      js.name.push_back("E0");
+      js.name.push_back("J1");
+      js.name.push_back("J2");
+      js.name.push_back("J3");
+      js.name.push_back("J4");
+      js.name.push_back("J5");
+      js.name.push_back("J6");
+      
+      js.header.stamp = ros::Time::now();
+      
+      delta_pub_.publish(js);
+    }
+    
     for(int jj=0;jj<m_cmd_pos.size();jj++)
     {
       if (delta_pos_from_start_)
-        m_delta_pos[jj]=m_cmd_pos[jj]-m_start_pos[jj];
+        m_delta_pos.at(jj)=m_cmd_pos.at(jj)-m_start_pos.at(jj);
       else
-        m_delta_pos[jj]=m_cmd_pos[jj]-m_old_pos[jj];
-      m_old_pos[jj]=m_cmd_pos[jj];
+        m_delta_pos.at(jj)=m_cmd_pos.at(jj)-m_old_pos.at(jj);   
+        
+      m_old_delta_pos.at(jj)=m_delta_pos.at(jj);
+      m_old_pos.at(jj)=m_cmd_pos.at(jj);
     }
+    
     
     message_struct m;
     
@@ -636,6 +697,13 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     if(verbose_)
     {
       print_message_struct_throttle(m_logger,st, m);
+      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J1 "<< m_cmd_pos.at(1));
+      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J2 "<< m_cmd_pos.at(2));
+      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J3 "<< m_cmd_pos.at(3));
+      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J4 "<< m_cmd_pos.at(4));
+      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J5 "<< m_cmd_pos.at(5));
+      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J6 "<< m_cmd_pos.at(6));
+      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd E0 "<< m_cmd_pos.at(0));
     }
     
     m_client->publish_with_tracking(m_mqtt_command_topic,m);
@@ -649,21 +717,21 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     sensor_msgs::JointState js;
     
+    js.name.push_back("E0");
     js.name.push_back("J1");
     js.name.push_back("J2");
     js.name.push_back("J3");
     js.name.push_back("J4");
     js.name.push_back("J5");
     js.name.push_back("J6");
-    js.name.push_back("E0");
 
+    js.position.push_back(m.E0);
     js.position.push_back(m.J1);
     js.position.push_back(m.J2);
     js.position.push_back(m.J3);
     js.position.push_back(m.J4);
     js.position.push_back(m.J5);
     js.position.push_back(m.J6);
-    js.position.push_back(m.E0);
     
     js.header.stamp = ros::Time::now();
     
@@ -783,7 +851,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   
   if(verbose_)
   {
-    print_vector_throttle(m_logger, "[MQTTRobotHW - "+ m_robothw_nh.getNamespace() + "] : robot state joint ", m_pos,2.0);
+    print_vector_throttle(m_logger, "robot state joint ", m_pos,2.0);
   }
   
   for(size_t i=0;i<m_pos.size();i++)
@@ -804,17 +872,17 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   char pl[len+1];
   strcpy(pl, json_file.c_str());
   m_client->publish(NULL, topic, sizeof(pl), pl);
-  CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<"[MQTTRobotHW - "+ m_robothw_nh.getNamespace() + "] publishing in loop on : "<<topic);
+  CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<" publishing in loop on : "<<topic);
   
   sensor_msgs::JointState js;
   js.name.clear();
+  js.name.push_back("E0");
   js.name.push_back("J1");
   js.name.push_back("J2");
   js.name.push_back("J3");
   js.name.push_back("J4");
   js.name.push_back("J5");
   js.name.push_back("J6");
-  js.name.push_back("E0");
 
   js.position = m_pos;
   

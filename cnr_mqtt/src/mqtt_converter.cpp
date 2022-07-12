@@ -3,6 +3,7 @@
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/simple_client_goal_state.h>
+#include <configuration_msgs/StartConfiguration.h>
 
 
 
@@ -92,6 +93,20 @@ int main(int argc, char **argv)
     ROS_WARN_STREAM("rate not found on namespace: "<<nh.getNamespace()<<". default!: 10");
   }
   
+  
+  bool handle_deformation;
+  if(!nh.getParam("handle_deformation",handle_deformation))
+  {
+    ROS_WARN_STREAM("handle_deformation not found on namespace: "<<nh.getNamespace()<<". default: false");
+    handle_deformation = false;
+  }
+  std::string staring_configuration;
+  if(!nh.getParam("staring_configuration",staring_configuration))
+  {
+    staring_configuration = "watch";
+    ROS_WARN_STREAM("staring_configuration  not found on namespace: "<<nh.getNamespace()<<". default!: "<<staring_configuration);
+  }
+  
   ROS_INFO_STREAM(joint_names[0]);
   ROS_INFO_STREAM(std::to_string(port));
   ROS_INFO_STREAM(topic);
@@ -109,6 +124,7 @@ int main(int argc, char **argv)
   
   ROS_INFO_STREAM("[mqtt_converter] -> subscribing to "<<topic);
   client.subscribe(NULL, topic);  
+  client.set_config(staring_configuration);
   
   client.set_joint_names(joint_names);
   
@@ -119,6 +135,14 @@ int main(int argc, char **argv)
   execute_trajectory.waitForServer();
   ROS_INFO_STREAM(action_name<<" connected ! ");
   
+  ros::ServiceClient configuration_srv = nh.serviceClient<configuration_msgs::StartConfiguration>("/configuration_manager/start_configuration");
+  if (handle_deformation)
+  {
+    ROS_INFO_STREAM("waitin for server /configuration_manager/start_configuration");
+    configuration_srv.waitForExistence();
+    ROS_INFO_STREAM("/configuration_manager/start_configuration connected ! ");
+  }
+  
   while(ros::ok())
   {
     ROS_INFO_THROTTLE(5.0,"looping");
@@ -126,6 +150,17 @@ int main(int argc, char **argv)
     
     if(client.new_trajectory_available)
     {
+      
+      if (handle_deformation)
+      {
+        configuration_msgs::StartConfiguration start;
+        start.request.start_configuration = client.get_config();
+        start.request.strictness = 1;
+        configuration_srv.call(start);
+      }
+      
+      client.new_trajectory_available = false;
+      
       execute_trajectory.sendGoal ( client.trajectory_msg );
       ROS_INFO_STREAM(BLUE<<"goal trajectory sent:\n"<<client.trajectory_msg);
       
@@ -146,38 +181,57 @@ int main(int argc, char **argv)
       {
         as = execute_trajectory.getState();
         
-        if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
-          ROS_INFO_STREAM(RED<<"executing trajectory. State :  SUCCEEDED !" );
-        
         if(as == actionlib::SimpleClientGoalState::ACTIVE) 
-          ROS_INFO_STREAM(GREEN<<"executing trajectory. State :  ACTIVE !" );
-        
-        if(as == actionlib::SimpleClientGoalState::ABORTED) 
+          ROS_INFO_STREAM_THROTTLE(2.0,GREEN<<"executing trajectory. State :  ACTIVE !" );
+        else if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
+          ROS_INFO_STREAM(RED<<"executing trajectory. State :  SUCCEEDED !" );
+        else if(as == actionlib::SimpleClientGoalState::ABORTED) 
+        {
           ROS_INFO_STREAM(YELLOW<<"executing trajectory. State :  ABORTED !" );
-        
-        if(as == actionlib::SimpleClientGoalState::LOST) 
+          ROS_ERROR("Trajectory not completely executed . Aborting");
+          break;
+        }
+        else if(as == actionlib::SimpleClientGoalState::LOST) 
+        {
           ROS_INFO_STREAM(BLUE<<"executing trajectory. State :  LOST !" );
-        
-        if(as == actionlib::SimpleClientGoalState::PENDING) 
+          break;
+        }
+        else if(as == actionlib::SimpleClientGoalState::PENDING) 
           ROS_INFO_STREAM(MAGENTA<<"executing trajectory. State :  PENDING !" );
-        
-        if(as == actionlib::SimpleClientGoalState::RECALLED) 
+        else if(as == actionlib::SimpleClientGoalState::RECALLED) 
+        {
           ROS_INFO_STREAM(CYAN<<"executing trajectory. State :  RECALLED !" );
-        
-        if(as == actionlib::SimpleClientGoalState::REJECTED) 
+          break;
+        }
+        else if(as == actionlib::SimpleClientGoalState::REJECTED)
+        {
           ROS_INFO_STREAM(WHITE<<"executing trajectory. State :  REJECTED!" );
+          break;
+        }
+        else if(as == actionlib::SimpleClientGoalState::PREEMPTED)
+        {
+          ROS_INFO_STREAM(CYAN<<"executing trajectory. State :  PREEMPTED!" );
+          break;
+        }
         
+        client.loop();
+        
+        if(client.new_trajectory_available)
+        {
+          execute_trajectory.cancelGoal();
+          execute_trajectory.cancelAllGoals();
+          execute_trajectory.sendGoal ( client.trajectory_msg );
+          ROS_INFO_STREAM(BOLDGREEN<<"New trajectory received. Goal changed ! ");
+          break;
+        }  
       }
-      
-//       execute_trajectory.waitForResult();
+
       if ( !execute_trajectory.getResult() )
       {
         ROS_ERROR("some error in trajectory execution. Return!");
         return -1;
       }
       ROS_INFO_STREAM(GREEN << "Trajectory executed correctly ! ");
-      
-      client.new_trajectory_available = false;
       
     }
     

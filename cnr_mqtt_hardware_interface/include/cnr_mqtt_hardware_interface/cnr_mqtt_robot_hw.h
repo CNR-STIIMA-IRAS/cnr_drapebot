@@ -146,8 +146,11 @@ protected:
   std::vector<double> m_old_pos;   // previous setpoint position position
   std::vector<double> m_start_pos;   //starting position position
   std::vector<double> m_delta_pos;   //target position
+  std::vector<double> m_old_delta_pos;   //target position
   std::vector<double> m_cmd_vel;   //target velocity
   std::vector<double> m_cmd_eff;   //target effort
+  
+  std::vector<double> m_old_command_pos;   // previous setpoint position position
 
   ros::Subscriber m_wrench_sub;
   ros::Subscriber m_traj_sub;
@@ -162,6 +165,10 @@ protected:
   
   ros::Publisher cmd_pos_pub_;
   ros::Publisher fb_pos_pub_;
+  
+  ros::Publisher cmd_pub_;
+  ros::Publisher old_pub_;
+  ros::Publisher delta_pub_;
   
   bool USE_REAL_ROBOT;
   bool verbose_;
