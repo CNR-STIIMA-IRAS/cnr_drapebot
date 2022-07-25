@@ -17,7 +17,6 @@ namespace drapebot_controller
         ~MQTTToPositionController();
 
         virtual bool init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& n) final;
-//         virtual bool init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh) final;
         void update   (const ros::Time& time, const ros::Duration& period) final;
         void starting (const ros::Time& time) final;
         void stopping (const ros::Time& time) final;
@@ -26,7 +25,7 @@ namespace drapebot_controller
 
     private:
 
-        drapebot::MQTTClient* mqtt_client_;
+        cnr::drapebot::MQTTDrapebotClient* mqtt_drapebot_client_;
 
         std::vector<double> j_pos_command_;
 

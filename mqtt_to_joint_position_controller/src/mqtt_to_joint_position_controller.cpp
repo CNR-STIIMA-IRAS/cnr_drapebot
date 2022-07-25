@@ -14,12 +14,8 @@ namespace drapebot_controller
 
   MQTTToPositionController::~MQTTToPositionController()
   {
-    delete mqtt_client_;  
+    delete mqtt_drapebot_client_;  
   }
-//   bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& /*root_nh*/, ros::NodeHandle& controller_nh)
-//   {
-//     return this->init(hw,controller_nh);    
-//   }
 
   bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& n)
   {
@@ -65,17 +61,17 @@ namespace drapebot_controller
     mosquitto_lib_init();
     
     ROS_WARN_STREAM("Connencting mqtt: "<< client_id << ": " <<host);
-    mqtt_client_ = new drapebot::MQTTClient(client_id, host, port);
+    mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id, host, port);
     ROS_ERROR_STREAM("Connencted to: "<< client_id << ": " <<host);
     
     mosqpp::lib_init();
     
-    j_pos_command_.resize(sizeof(mqtt_client_->msg_.joints_values_)/sizeof(double));
+    j_pos_command_.resize(sizeof(mqtt_drapebot_client_->msg_.joints_values_)/sizeof(double)); !!!!!!!!
     j_pos_command_  = *ctrl_.commands_buffer_.readFromNonRT();
     
     ROS_FATAL_STREAM("mqtt_command_topic : "<< mqtt_command_topic_);
     
-    drapebot::message_struct tmp_j_pos_feedback;
+    drapebot::message_struct tmp_j_pos_feedback; !!!!!!!!!!
     
     tmp_j_pos_feedback.linear_axis_value_ = 0;
     
@@ -93,7 +89,7 @@ namespace drapebot_controller
 
   void MQTTToPositionController::update(const ros::Time& time, const ros::Duration& period)
   {
-    mqtt_client_->loop();
+    mqtt_drapebot_client_->loop();
     
     if (first_cycle_)
     {
@@ -103,22 +99,22 @@ namespace drapebot_controller
       
     // Read the new MQTT message and send the command to the robot
       
-    if (mqtt_client_->is_new_message_available() && mqtt_client_->is_data_valid())
+    if (mqtt_drapebot_client_->is_new_message_available() && mqtt_drapebot_client_->is_data_valid()) !!!!!!!!!!
     {
-      for (size_t i=0; i<sizeof(mqtt_client_->msg_.joints_values_)/sizeof(double); i++)
+      for (size_t i=0; i<sizeof(mqtt_drapebot_client_->msg_.joints_values_)/sizeof(double); i++) !!!!!!!!!!!
       {
-        j_pos_command_[i] =  mqtt_client_->msg_.joints_values_[i];
+        j_pos_command_[i] =  mqtt_drapebot_client_->msg_.joints_values_[i]; !!!!!!!!
       }
     }
     else
       ROS_WARN_THROTTLE(10.0,"no new msg available");
     
-    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_0 : "<< j_pos_command_[0]);
-    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_1 : "<< j_pos_command_[1]);
-    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_2 : "<< j_pos_command_[2]);
-    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_3 : "<< j_pos_command_[3]);
-    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_4 : "<< j_pos_command_[4]);
-    ROS_FATAL_STREAM_THROTTLE(5.0,"joint command_5 : "<< j_pos_command_[5]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_0 : "<< j_pos_command_[0]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_1 : "<< j_pos_command_[1]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_2 : "<< j_pos_command_[2]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_3 : "<< j_pos_command_[3]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_4 : "<< j_pos_command_[4]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_5 : "<< j_pos_command_[5]);
     
     ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
     ctrl_.update(time,period);
@@ -132,7 +128,7 @@ namespace drapebot_controller
     ctrl_.starting(time);
     char topic_command[mqtt_command_topic_.size() + 1];
     strcpy(topic_command, mqtt_command_topic_.c_str());
-    mqtt_client_->subscribe(NULL, topic_command);
+    mqtt_drapebot_client_->subscribe(NULL, topic_command, 1);
     ROS_FATAL_STREAM("subscribing: "<< topic_command);
   }
 
@@ -141,7 +137,7 @@ namespace drapebot_controller
     ctrl_.stopping(time);
     char topic_command[mqtt_command_topic_.size() + 1];
     strcpy(topic_command, mqtt_command_topic_.c_str());
-    mqtt_client_->unsubscribe(NULL, topic_command);
+    mqtt_drapebot_client_->unsubscribe(NULL, topic_command);
     ROS_FATAL_STREAM("UNSUBSCRIBINg: "<< topic_command);
   }
   

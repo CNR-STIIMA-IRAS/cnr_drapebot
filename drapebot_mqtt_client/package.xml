@@ -51,6 +51,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>roscpp</depend>
+  <depend>cnr_mqtt_client</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

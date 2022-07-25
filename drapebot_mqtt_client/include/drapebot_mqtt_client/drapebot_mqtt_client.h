@@ -38,38 +38,80 @@
 #ifndef __DRAPEBOT_MQTT_CLIENT__
 #define __DRAPEBOT_MQTT_CLIENT__
 
-#include <mosquittopp.h>
 #include <mutex>
+#include <cnr_mqtt_client/cnr_mqtt_client.h>
 
-namespace drapebot
+#define MAX_PAYLOAD_SIZE 1024
+#define MSG_LENGTH 7
+#define DEFAULT_KEEP_ALIVE 60
+
+namespace cnr
 {
-  struct message_struct 
+  namespace drapebot
   {
-    double joints_values_[6];
-    double linear_axis_value_;    
-  };   
+
+    struct drapebot_msg 
+    {
+      double joints_values_[7];    
+    }; 
+
+    class DrapebotMsgDecoder: public cnr::mqtt::MsgDecoder
+    {
+    public:
+      DrapebotMsgDecoder(cnr::drapebot::drapebot_msg& mqtt_msg): mqtt_msg_(mqtt_msg) {};
+      // The method should be reimplemented on the base of the application
+      void on_message(const struct mosquitto_message *msg);
+    private:
+      cnr::drapebot::drapebot_msg mqtt_msg_;
+    };
+
+    class DrapebotMsgEncoder: public cnr::mqtt::MsgEncoder
+    {
+    public:
+      DrapebotMsgEncoder(cnr::drapebot::drapebot_msg& mqtt_msg): mqtt_msg_(mqtt_msg) {};
+      // The method should be reimplemented on the base of the application
+      void on_publish();
+    private:
+      cnr::drapebot::drapebot_msg mqtt_msg_;
+    };
 
 
-  class MQTTClient : public mosqpp::mosquittopp
-  {
-  public:
-      MQTTClient (const char *id, const char *host, int port, int keepalive = 60);
-      ~MQTTClient();
-      
-      void on_connect(int rc);
-      void on_message(const struct mosquitto_message *message);
-      void on_subscribe(int mid, int qos_count, const int *granted_qos);
-      
-      bool is_new_message_available();
-      bool is_data_valid();
-      
-      message_struct msg_;      
-  private:
-      std::mutex mtx_;
-      bool new_msg_available_ = false;
-      bool data_valid_ = false;
+    struct drapebot_message 
+    {
+      double joints_values_[MSG_LENGTH] = {0};    
+    };   
 
-  };
+    class MQTTDrapebotClient
+    {
+    public:
+      MQTTDrapebotClient (const char *id, const char *host, int port, int keepalive = 60);
+      ~MQTTDrapebotClient();
+
+      int stop();
+      int loop();
+      // int reconnect(unsigned int reconnect_delay, unsigned int reconnect_delay_max, bool reconnect_exponential_backoff);  
+      int subscribe(int *mid, const char *sub, int qos);
+      int unsubscribe(int *mid, const char *sub);
+      int publish(const uint8_t* payload, const uint32_t& payload_len, const std::string& topic_name);
+     
+
+      bool getLastReceivedMessage(cnr::drapebot::drapebot_msg* last_msg);
+      bool isNewMessageAvailable();
+      bool isDataValid();    
+
+    private:
+      cnr::drapebot::DrapebotMsgDecoder* drapebot_msg_decoder;
+      cnr::drapebot::DrapebotMsgEncoder* drapebot_msg_encoder;
+
+      cnr::mqtt::MsgDecoder* msg_decoder;
+      cnr::mqtt::MsgEncoder* msg_encoder; 
+
+      drapebot_msg mqtt_msg_;      
+      std::mutex mtx_mqtt_;  
+      cnr::mqtt::MQTTClient* mqtt_client;
+
+    };
+  }
 
 }
 #endif
