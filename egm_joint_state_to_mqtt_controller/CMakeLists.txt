@@ -1,22 +1,23 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(egm_to_mqtt_state_ctrl)
+project(egm_joint_state_to_mqtt_controller)
+
+set(CMAKE_CXX_STANDARD 11)
 
 find_package(catkin REQUIRED COMPONENTS
-
-    abb_egm_hardware_interface
-    abb_egm_msgs
-    abb_robot_cpp_utilities
-    controller_interface
-    pluginlib
-    realtime_tools
     roscpp
-	  drapebot_mqtt_client
+    realtime_tools
+    pluginlib
+    controller_interface
+    #abb_egm_hardware_interface
+    #abb_egm_msgs
+    #abb_robot_cpp_utilities
+    drapebot_mqtt_client
 )
 
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES egm_to_mqtt_state_ctrl
+  LIBRARIES egm_joint_state_to_mqtt_controller
   CATKIN_DEPENDS roscpp controller_interface drapebot_mqtt_client
 )
 
@@ -30,7 +31,7 @@ if(WIN32)
 endif()
 
 
-add_library(${PROJECT_NAME} src/egm_to_mqtt_state_ctrl.cpp)
+add_library(${PROJECT_NAME} src/egm_joint_state_to_mqtt_controller.cpp)
 
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
@@ -38,7 +39,6 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 
 target_link_libraries(${PROJECT_NAME}
    ${catkin_LIBRARIES}
-   jsoncpp
 )
 
 # Install

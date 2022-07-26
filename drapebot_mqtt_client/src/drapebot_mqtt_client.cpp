@@ -1,7 +1,7 @@
 /*
  *  Software License Agreement (New BSD License)
  *
- *  Copyright 2020 National Council of Research of Italy (CNR)
+ *  Copyright 2022 National Council of Research of Italy (CNR)
  *
  *  All rights reserved.
  *
@@ -48,12 +48,12 @@ namespace  cnr
 		  if ( msg->payloadlen/sizeof(double) == MSG_LENGTH )
       {
         memcpy(&mqtt_msg_, msg->payload, msg->payloadlen);
-        data_valid_ = true;
+        setDataValid(true);
       }
 		  else
       {
         ROS_WARN("The message received from MQTT has a wrong length");
-        data_valid_ = false;
+        setDataValid(false);
       }
     }
     
@@ -101,7 +101,7 @@ namespace  cnr
       return mqtt_client->unsubscribe(mid, sub);
     }
 
-    int MQTTDrapebotClient::publish(const uint8_t* payload, const uint32_t& payload_len, const std::string& topic_name)
+    int MQTTDrapebotClient::publish(const void* payload, int& payload_len, const char* topic_name)
     {
       return mqtt_client->publish(payload, payload_len, topic_name);
     }

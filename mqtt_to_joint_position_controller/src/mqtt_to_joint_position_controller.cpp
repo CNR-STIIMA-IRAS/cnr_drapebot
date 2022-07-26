@@ -1,3 +1,39 @@
+/*
+ *  Software License Agreement (New BSD License)
+ *
+ *  Copyright 2022 National Council of Research of Italy (CNR)
+ *
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the copyright holder(s) nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
 #include <string>
 
 #include <pluginlib/class_list_macros.hpp>
@@ -12,10 +48,12 @@ namespace drapebot_controller
 
   }
 
+
   MQTTToPositionController::~MQTTToPositionController()
   {
     delete mqtt_drapebot_client_;  
   }
+
 
   bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& n)
   {
@@ -23,16 +61,12 @@ namespace drapebot_controller
 
     // ---- MQTT params ----
 
-    std::string cid;
-    if (!n.getParam("client_id",cid))
+    std::string client_id;
+    if (!n.getParam("client_id",client_id))
     {
-      cid = "Client_ID";
-      ROS_WARN_STREAM("client id not found under " + n.getNamespace() + "/client_id . Using defalut client ID: " + cid);
+      client_id = "Client_ID";
+      ROS_WARN_STREAM("client id not found under " + n.getNamespace() + "/client_id . Using defalut client ID: " + client_id);
     }
-
-    int n_id = cid.length();
-    char client_id[n_id + 1];
-    strcpy(client_id, cid.c_str());
     
     std::string host_str;
     if (!n.getParam("broker_address",host_str))
@@ -40,16 +74,12 @@ namespace drapebot_controller
       host_str = "localhost";
       ROS_WARN_STREAM("broker_address not found under " + n.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
     }
-
-    int n_host = host_str.length();
-    char host[n_host + 1];
-    strcpy(host, host_str.c_str());
-    
+ 
     int port;
     if (!n.getParam("port",port))
     {
       port = 1883;
-      ROS_WARN_STREAM("port not found under " + n.getNamespace() + "/port. Using defalut broker address: "+ std::to_string( port));      
+      ROS_WARN_STREAM("port not found under " + n.getNamespace() + "/port. Using defalut broker address: "+ std::to_string(port));      
     }
     
     if (!n.getParam("mqtt_command_topic",mqtt_command_topic_))
@@ -58,27 +88,17 @@ namespace drapebot_controller
       ROS_WARN_STREAM("mqtt_command_topic not found under " + n.getNamespace() + "/mqtt_command_topic . Using defalut broker address: "+ mqtt_command_topic_);      
     }
     
-    mosquitto_lib_init();
+    ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ": " << host_str);
+    mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
+    ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
+        
+    cnr::drapebot::drapebot_msg j_pos_feedback; 
+
+    j_pos_command_.resize(MSG_LENGTH-1); // The seventh axis is not necessary in DrapeCell setup
+    j_pos_command_ = *ctrl_.commands_buffer_.readFromNonRT();
     
-    ROS_WARN_STREAM("Connencting mqtt: "<< client_id << ": " <<host);
-    mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id, host, port);
-    ROS_ERROR_STREAM("Connencted to: "<< client_id << ": " <<host);
-    
-    mosqpp::lib_init();
-    
-    j_pos_command_.resize(sizeof(mqtt_drapebot_client_->msg_.joints_values_)/sizeof(double)); !!!!!!!!
-    j_pos_command_  = *ctrl_.commands_buffer_.readFromNonRT();
-    
-    ROS_FATAL_STREAM("mqtt_command_topic : "<< mqtt_command_topic_);
-    
-    drapebot::message_struct tmp_j_pos_feedback; !!!!!!!!!!
-    
-    tmp_j_pos_feedback.linear_axis_value_ = 0;
-    
-    void* payload_ = malloc( sizeof(tmp_j_pos_feedback) );
-    
-    memcpy(payload_, &tmp_j_pos_feedback, sizeof(tmp_j_pos_feedback));  
-    
+    ROS_INFO_STREAM("mqtt_command_topic : "<< mqtt_command_topic_);
+            
     first_cycle_ = true;
     
     ROS_WARN_STREAM("Controller MQTTToPositionController Initialized ! ");
@@ -99,12 +119,13 @@ namespace drapebot_controller
       
     // Read the new MQTT message and send the command to the robot
       
-    if (mqtt_drapebot_client_->is_new_message_available() && mqtt_drapebot_client_->is_data_valid()) !!!!!!!!!!
+    if (mqtt_drapebot_client_->isNewMessageAvailable() && mqtt_drapebot_client_->isDataValid()) 
     {
-      for (size_t i=0; i<sizeof(mqtt_drapebot_client_->msg_.joints_values_)/sizeof(double); i++) !!!!!!!!!!!
-      {
-        j_pos_command_[i] =  mqtt_drapebot_client_->msg_.joints_values_[i]; !!!!!!!!
-      }
+      cnr::drapebot::drapebot_msg* command_from_mqtt;
+      mqtt_drapebot_client_->getLastReceivedMessage(command_from_mqtt);
+
+      for (size_t i=0; i<(MSG_LENGTH-1); i++)
+        j_pos_command_[i] =  command_from_mqtt->joints_values_[i]; 
     }
     else
       ROS_WARN_THROTTLE(10.0,"no new msg available");
@@ -118,38 +139,37 @@ namespace drapebot_controller
     
     ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
     ctrl_.update(time,period);
-    
   }
     
-  
   
   void MQTTToPositionController::starting(const ros::Time& time)
   { 
     ctrl_.starting(time);
-    char topic_command[mqtt_command_topic_.size() + 1];
-    strcpy(topic_command, mqtt_command_topic_.c_str());
-    mqtt_drapebot_client_->subscribe(NULL, topic_command, 1);
-    ROS_FATAL_STREAM("subscribing: "<< topic_command);
+    mqtt_drapebot_client_->subscribe(NULL, mqtt_command_topic_.c_str(), 1);
+    ROS_FATAL_STREAM("subscribing: "<< mqtt_command_topic_);
   }
+
 
   void MQTTToPositionController::stopping(const ros::Time& time) 
   {
     ctrl_.stopping(time);
-    char topic_command[mqtt_command_topic_.size() + 1];
-    strcpy(topic_command, mqtt_command_topic_.c_str());
-    mqtt_drapebot_client_->unsubscribe(NULL, topic_command);
-    ROS_FATAL_STREAM("UNSUBSCRIBINg: "<< topic_command);
+    mqtt_drapebot_client_->unsubscribe(NULL, mqtt_command_topic_.c_str());
+    ROS_FATAL_STREAM("UNSUBSCRIBINg: "<< mqtt_command_topic_);
   }
   
+
   void MQTTToPositionController::waiting(const ros::Time& time)
   {
     ctrl_.waiting(time);
   }
+
+
   void MQTTToPositionController::aborting(const ros::Time& time) 
   {
     ctrl_.aborting(time);
   }
-}
+
+} //end drapebot_controller
 
 PLUGINLIB_EXPORT_CLASS(drapebot_controller::MQTTToPositionController, controller_interface::ControllerBase)
 

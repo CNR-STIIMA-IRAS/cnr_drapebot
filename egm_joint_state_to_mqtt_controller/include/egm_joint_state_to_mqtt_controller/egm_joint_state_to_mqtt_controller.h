@@ -1,7 +1,9 @@
+
+
 /*
  *  Software License Agreement (New BSD License)
  *
- *  Copyright 2020 National Council of Research of Italy (CNR)
+ *  Copyright 2022 National Council of Research of Italy (CNR)
  *
  *  All rights reserved.
  *
@@ -33,58 +35,48 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef __EGM_JOINT_STATE_TO_MQTT_CONTROLLER_H__
+#define __EGM_JOINT_STATE_TO_MQTT_CONTROLLER_H__
+
+#include <memory>
+#include <vector>
 #include <ros/ros.h>
+#include <hardware_interface/joint_state_interface.h>
+#include <controller_interface/controller.h>
+#include <realtime_tools/realtime_publisher.h>
+// #include <abb_egm_hardware_interface/egm_state_interface.h>
+// #include <abb_egm_msgs/EGMState.h>
+#include <sensor_msgs/JointState.h>
 
 #include <drapebot_mqtt_client/drapebot_mqtt_client.h>
 
-
-namespace drapebot
+namespace drapebot_controller
 {
-	MQTTClient::MQTTClient(const char *id, const char *host, int port, int keepalive) : mosquittopp(id)
-	{
-    connect(host, port, keepalive);
-	}
+  class EgmJointStateToMQTTController: public controller_interface::Controller<hardware_interface::JointStateInterface>
+  {
+  public:
+    EgmJointStateToMQTTController() : publish_rate_(0.0) {}
 
-	MQTTClient::~MQTTClient()
-	{
+    virtual bool init(hardware_interface::JointStateInterface* hw,
+                      ros::NodeHandle&                         root_nh,
+                      ros::NodeHandle&                         controller_nh);
+    virtual void starting(const ros::Time& time);
+    virtual void update(const ros::Time& time, const ros::Duration& /*period*/);
+    virtual void stopping(const ros::Time& /*time*/);
 
-	}
+  private:
+    std::vector<hardware_interface::JointStateHandle> joint_state_;
+    std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::JointState> > realtime_pub_;
+    ros::Time last_publish_time_;
+    double publish_rate_;
+    size_t num_hw_joints_; ///< Number of joints present in the JointStateInterface, excluding extra joints
+    
+    cnr::drapebot::MQTTDrapebotClient* mqtt_drapebot_client_;
+    std::string mqtt_feedback_topic_;
 
-	void MQTTClient::on_connect(int rc)
-	{
-		if (!rc)
-		{
-			ROS_INFO_STREAM( "Connected - code " << rc );
-		}
-	}
+    void addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg);
+  };
 
-	void MQTTClient::on_subscribe(int mid, int qos_count, const int *granted_qos)
-	{
-	//         std::cout << "Subscription succeeded." << std::endl;
-	}
+} //end drapebot_controller
 
-	void MQTTClient::on_message(const struct mosquitto_message *message)
-	{
-		
-		message_struct* buf = new message_struct;
-		memcpy(buf, message->payload, message->payloadlen);
-		
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J1: "<< buf->joints_values_[1]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J2: "<< buf->joints_values_[2]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J3: "<< buf->joints_values_[3]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J4: "<< buf->joints_values_[4]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J5: "<< buf->joints_values_[5]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J6: "<< buf->joints_values_[6]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback E0: "<< buf->joints_values_[0]);
-
-		if ( message->payloadlen/sizeof(double) == 7 )
-			memcpy(&msg_, buf, sizeof(msg_)/sizeof(double));
-		else
-			ROS_WARN("The message received from MQTT has wrong length");
-
-		delete buf;
-			
-	}
-
-}
-
+#endif

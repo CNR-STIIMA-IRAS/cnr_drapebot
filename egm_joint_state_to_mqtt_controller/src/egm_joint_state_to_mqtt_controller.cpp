@@ -1,18 +1,52 @@
-#include "egm_to_mqtt_state_ctrl/egm_to_mqtt_state_ctrl.h"
+/*
+ *  Software License Agreement (New BSD License)
+ *
+ *  Copyright 2022 National Council of Research of Italy (CNR)
+ *
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the copyright holder(s) nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include <algorithm>
 #include <cstddef>
 #include <pluginlib/class_list_macros.hpp>
+#include <joint_state_controller/joint_state_controller.h>
 
-#include <jsoncpp/json/json.h>
+#include <egm_joint_state_to_mqtt_controller/egm_joint_state_to_mqtt_controller.h>
 
-#include "joint_state_controller/joint_state_controller.h"
 
 namespace drapebot_controller
 {
 
-  bool EgmToMQTTCtrl::init(hardware_interface::JointStateInterface* hw,
-                                  ros::NodeHandle&                         root_nh,
-                                  ros::NodeHandle&                         controller_nh)
+  bool EgmJointStateToMQTTController::init( hardware_interface::JointStateInterface* hw,
+                                            ros::NodeHandle&                         root_nh,
+                                            ros::NodeHandle&                         controller_nh)
   {
     // List of joints to be published
     std::vector<std::string> joint_names;
@@ -21,9 +55,12 @@ namespace drapebot_controller
     // alternatively, only publish states for a subset of joints. If the
     // parameter is not set, all joint states will be published in the order
     // specified by the hardware interface.
-    if (controller_nh.getParam("joints", joint_names)) {
+    if (controller_nh.getParam("joints", joint_names)) 
+    {
       ROS_INFO_STREAM("Joints parameter specified, publishing specified joints in desired order.");
-    } else {
+    } 
+    else 
+    {
       // get all joint names from the hardware interface
       joint_names = hw->getNames();
     }
@@ -51,22 +88,15 @@ namespace drapebot_controller
     }
     addExtraJoints(controller_nh, realtime_pub_->msg_);
     
-    
-    
-    
-    
+  
     // ---- MQTT params ----
-    std::string cid;
-    if (!controller_nh.getParam("client_id",cid))
+    std::string client_id;
+    if (!controller_nh.getParam("client_id",client_id))
     {
-      cid = "Client_ID";
-      ROS_WARN_STREAM("client id not found under " + controller_nh.getNamespace() + "/client_id . Using defalut client ID: " + cid);
+      client_id = "Client_ID";
+      ROS_WARN_STREAM("client id not found under " + controller_nh.getNamespace() + "/client_id . Using defalut client ID: " + client_id);
     }
 
-    int n_id = cid.length();
-    char client_id[n_id + 1];
-    strcpy(client_id, cid.c_str());
-    
     std::string host_str;
     if (!controller_nh.getParam("broker_address",host_str))
     {
@@ -74,10 +104,6 @@ namespace drapebot_controller
       ROS_WARN_STREAM("broker_address not found under " + controller_nh.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
     }
 
-    int n_host = host_str.length();
-    char host[n_host + 1];
-    strcpy(host, host_str.c_str());
-    
     int port;
     if (!controller_nh.getParam("port",port))
     {
@@ -85,15 +111,12 @@ namespace drapebot_controller
       ROS_WARN_STREAM("port not found under " + controller_nh.getNamespace() + "/port. Using defalut broker address: "+ std::to_string( port));      
     }    
     
-    mosquitto_lib_init();
+    ROS_WARN_STREAM("Connencting mqtt: "<< client_id << ": " << host_str);
+    mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
+    ROS_ERROR_STREAM("Connencted to: "<< client_id << ": " << host_str);
     
-    ROS_WARN_STREAM("Connencting mqtt: "<< client_id << ": " <<host);
-    mqtt_client_ = new drapebot::MQTTClient(client_id, host, port);
-    ROS_ERROR_STREAM("Connencted to: "<< client_id << ": " <<host);
-    
-    mosqpp::lib_init();
-    
-    if (!controller_nh.getParam("mqtt_feedback_topic",mqtt_feedback_topic_))
+   
+    if (!controller_nh.getParam("mqtt_feedback_topic", mqtt_feedback_topic_))
     {
       mqtt_feedback_topic_ = "mqtt_feedback_topic";
       ROS_WARN_STREAM("mqtt_feedback_topic not found under " + controller_nh.getNamespace() + "/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic_);  
@@ -102,13 +125,13 @@ namespace drapebot_controller
     return true;
   }
 
-  void EgmToMQTTCtrl::starting(const ros::Time& time)
+  void EgmJointStateToMQTTController::starting(const ros::Time& time)
   {
     // initialize time
     last_publish_time_ = time;
   }
 
-  void EgmToMQTTCtrl::update(const ros::Time& time, const ros::Duration& /*period*/)
+  void EgmJointStateToMQTTController::update(const ros::Time& time, const ros::Duration& /*period*/)
   {
     // limit rate of publishing
     if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
@@ -132,60 +155,34 @@ namespace drapebot_controller
     }
     
     
-    drapebot::message_struct tmp_j_pos_feedback;
+    cnr::drapebot::drapebot_msg j_pos_feedback = {0};
     
     for (unsigned i=0; i<num_hw_joints_; i++)
-      tmp_j_pos_feedback.joints_values_[i] = joint_state_[i].getPosition();
-    
-    tmp_j_pos_feedback.linear_axis_value_ = 0;
-    
-    
-    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_1 : " << tmp_j_pos_feedback.joints_values_[0]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_2 : " << tmp_j_pos_feedback.joints_values_[1]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_3 : " << tmp_j_pos_feedback.joints_values_[2]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_4 : " << tmp_j_pos_feedback.joints_values_[3]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_5 : " << tmp_j_pos_feedback.joints_values_[4]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state Joint_6 : " << tmp_j_pos_feedback.joints_values_[5]);  
-    ROS_WARN_STREAM_THROTTLE(5.0,"reading from robot state linax   : " << tmp_j_pos_feedback.linear_axis_value_);
-    
-    
-    void* payload_ = malloc( sizeof(tmp_j_pos_feedback) );
-    memcpy(payload_, &tmp_j_pos_feedback, sizeof(tmp_j_pos_feedback));  
-    char topic_feedback[mqtt_feedback_topic_.length()+ 1];
-    strcpy(topic_feedback, mqtt_feedback_topic_.c_str());
-    mqtt_client_->publish(NULL, topic_feedback, sizeof(tmp_j_pos_feedback), payload_); 
-    
-    { 
-      Json::Value root;
-      Json::FastWriter writer;
+      j_pos_feedback.joints_values_[i] = joint_state_[i].getPosition();
       
-      root["J0"] = tmp_j_pos_feedback.joints_values_[0];
-      root["J1"] = tmp_j_pos_feedback.joints_values_[1];
-      root["J2"] = tmp_j_pos_feedback.joints_values_[2];
-      root["J3"] = tmp_j_pos_feedback.joints_values_[3];
-      root["J4"] = tmp_j_pos_feedback.joints_values_[4];
-      root["J5"] = tmp_j_pos_feedback.joints_values_[5];
-      root["E0"] = tmp_j_pos_feedback.linear_axis_value_;
-      
-      Json::StreamWriterBuilder builder;
-      const std::string json_file = Json::writeString(builder, root);
-      
-      char topic[] = "mqtt_feedback";
-      
-      char pl[json_file.length()+1];
-      strcpy(pl, json_file.c_str());
-      
-      mqtt_client_->publish(NULL, topic, sizeof(pl), pl);
-    }
+    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
+    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
+    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
+    
+    void* payload_ = malloc( sizeof(j_pos_feedback) );
+    memcpy(payload_, &j_pos_feedback, sizeof(j_pos_feedback));  
+
+    int payload_len_ = sizeof(j_pos_feedback);
+    mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str() ); 
     
   }
 
-  void EgmToMQTTCtrl::stopping(const ros::Time& /*time*/)
-  {}
-
-  void EgmToMQTTCtrl::addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg)
+  void EgmJointStateToMQTTController::stopping(const ros::Time& /*time*/)
   {
 
+  }
+
+  void EgmJointStateToMQTTController::addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg)
+  {
     // Preconditions
     XmlRpc::XmlRpcValue list;
     if (!nh.getParam("extra_joints", list))
@@ -260,4 +257,4 @@ namespace drapebot_controller
 
 }
 
-PLUGINLIB_EXPORT_CLASS( drapebot_controller::EgmToMQTTCtrl, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS( drapebot_controller::EgmJointStateToMQTTController, controller_interface::ControllerBase)

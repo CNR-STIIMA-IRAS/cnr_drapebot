@@ -2,7 +2,7 @@
 /*
  *  Software License Agreement (New BSD License)
  *
- *  Copyright 2020 National Council of Research of Italy (CNR)
+ *  Copyright 2022 National Council of Research of Italy (CNR)
  *
  *  All rights reserved.
  *
@@ -42,7 +42,7 @@
 #include <cnr_mqtt_client/cnr_mqtt_client.h>
 
 #define MAX_PAYLOAD_SIZE 1024
-#define MSG_LENGTH 7
+#define MSG_LENGTH 7 // The length is given by 6 axes robot + linear axis
 #define DEFAULT_KEEP_ALIVE 60
 
 namespace cnr
@@ -52,7 +52,7 @@ namespace cnr
 
     struct drapebot_msg 
     {
-      double joints_values_[7];    
+      double joints_values_[MSG_LENGTH] = {0};    
     }; 
 
     class DrapebotMsgDecoder: public cnr::mqtt::MsgDecoder
@@ -75,12 +75,6 @@ namespace cnr
       cnr::drapebot::drapebot_msg mqtt_msg_;
     };
 
-
-    struct drapebot_message 
-    {
-      double joints_values_[MSG_LENGTH] = {0};    
-    };   
-
     class MQTTDrapebotClient
     {
     public:
@@ -92,7 +86,7 @@ namespace cnr
       // int reconnect(unsigned int reconnect_delay, unsigned int reconnect_delay_max, bool reconnect_exponential_backoff);  
       int subscribe(int *mid, const char *sub, int qos);
       int unsubscribe(int *mid, const char *sub);
-      int publish(const uint8_t* payload, const uint32_t& payload_len, const std::string& topic_name);
+      int publish(const void* payload, int& payload_len, const char* topic_name);
      
 
       bool getLastReceivedMessage(cnr::drapebot::drapebot_msg* last_msg);
