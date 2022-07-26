@@ -1,5 +1,3 @@
-
-
 /*
  *  Software License Agreement (New BSD License)
  *
@@ -44,8 +42,6 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <controller_interface/controller.h>
 #include <realtime_tools/realtime_publisher.h>
-// #include <abb_egm_hardware_interface/egm_state_interface.h>
-// #include <abb_egm_msgs/EGMState.h>
 #include <sensor_msgs/JointState.h>
 
 #include <drapebot_mqtt_client/drapebot_mqtt_client.h>

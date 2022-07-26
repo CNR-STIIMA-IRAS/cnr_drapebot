@@ -8,9 +8,6 @@ find_package(catkin REQUIRED COMPONENTS
     realtime_tools
     pluginlib
     controller_interface
-    #abb_egm_hardware_interface
-    #abb_egm_msgs
-    #abb_robot_cpp_utilities
     drapebot_mqtt_client
 )
 

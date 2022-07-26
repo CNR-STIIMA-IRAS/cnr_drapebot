@@ -19,7 +19,7 @@ egm_joint_state_to_mqtt_controller:
   port: 1883
   client_id: egm_joint_state_to_mqtt_controller
 
-mqtt_to_pos_ctrl:
+mqtt_to_joint_position_controller:
   type: position_controllers/MQTTToPositionController
   joints:
     - joint_1
