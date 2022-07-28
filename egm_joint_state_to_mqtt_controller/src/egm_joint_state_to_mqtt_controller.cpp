@@ -155,7 +155,7 @@ namespace drapebot_controller
     }
     
     
-    cnr::drapebot::drapebot_msg j_pos_feedback = {0};
+    cnr::drapebot::drapebot_msg j_pos_feedback;
     
     for (unsigned i=0; i<num_hw_joints_; i++)
       j_pos_feedback.joints_values_[i] = joint_state_[i].getPosition();
