@@ -94,9 +94,6 @@ namespace cnr
       bool isDataValid();    
 
     private:
-      cnr::drapebot::DrapebotMsgDecoder* drapebot_msg_decoder;
-      cnr::drapebot::DrapebotMsgEncoder* drapebot_msg_encoder;
-
       cnr::mqtt::MsgDecoder* msg_decoder;
       cnr::mqtt::MsgEncoder* msg_encoder; 
 

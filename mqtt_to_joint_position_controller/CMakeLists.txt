@@ -14,10 +14,22 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES mqtt_to_joint_position_controller
+  LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS position_controllers roscpp controller_interface drapebot_mqtt_client
 #  DEPENDS system_lib
 )
+
+##############
+## Settings ##
+##############
+if(NOT DEFINED BUILD_SHARED_LIBS)
+  set(BUILD_SHARED_LIBS ON)
+endif()
+
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+  message(STATUS "${PROJECT_NAME}: Defaulting build type to RelWithDebInfo")
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
 
 ###########
 ## Build ##
@@ -35,9 +47,16 @@ add_library(${PROJECT_NAME} src/mqtt_to_joint_position_controller.cpp)
 
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} PUBLIC
    ${catkin_LIBRARIES}
 )
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+endif()
+
 
 #############
 ## Install ##
@@ -51,5 +70,6 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
   )
 
-install(FILES mqtt_to_position_controllers_plugin.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(FILES mqtt_to_joint_position_controller_plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

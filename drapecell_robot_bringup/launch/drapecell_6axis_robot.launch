@@ -40,7 +40,6 @@
     <node pkg="controller_manager" type="spawner" name="stopped_mqtt_to_pos_ctrl" args="--stopped mqtt_to_joint_position_controller"/>
     <node pkg="controller_manager" type="spawner" name="stopped_pos_ctrl" args="--stopped j_pos_ctrl"/>
     <node pkg="controller_manager" type="spawner" name="stopped_vel_ctrl" args="--stopped j_vel_ctrl"/>
-
   </group>
 
   <!-- EGM hardware interface (i.e. 'ros_control'-based interface for interacting with mechanical units) -->

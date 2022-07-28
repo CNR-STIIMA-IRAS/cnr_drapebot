@@ -67,17 +67,19 @@ namespace  cnr
       cnr::drapebot::DrapebotMsgDecoder* drapebot_msg_decoder = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_);
       cnr::drapebot::DrapebotMsgEncoder* drapebot_msg_encoder = new cnr::drapebot::DrapebotMsgEncoder(mqtt_msg_);
 
-      cnr::mqtt::MsgDecoder* msg_decoder = dynamic_cast<cnr::mqtt::MsgDecoder*>(drapebot_msg_decoder);
-      cnr::mqtt::MsgEncoder* msg_encoder = dynamic_cast<cnr::mqtt::MsgEncoder*>(drapebot_msg_encoder);
+      msg_decoder = dynamic_cast<cnr::mqtt::MsgDecoder*>(drapebot_msg_decoder);
+      msg_encoder = dynamic_cast<cnr::mqtt::MsgEncoder*>(drapebot_msg_encoder);
 
       mqtt_client = new cnr::mqtt::MQTTClient(id, host, port, msg_decoder, msg_encoder);
 
+      delete drapebot_msg_decoder;
+      delete drapebot_msg_encoder;
     }
 
     MQTTDrapebotClient::~MQTTDrapebotClient()
     {  
-      delete drapebot_msg_decoder;
-      delete drapebot_msg_encoder;
+      delete msg_decoder;
+      delete msg_encoder;
       delete mqtt_client;
     }
 
