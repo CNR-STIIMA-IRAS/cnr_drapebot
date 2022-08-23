@@ -44,84 +44,106 @@
 namespace drapebot_controller
 {
 
+  EgmJointStateToMQTTController::EgmJointStateToMQTTController() : publish_rate_(0.0) 
+  {
+
+  }
+
+
+  EgmJointStateToMQTTController::~EgmJointStateToMQTTController() 
+  {
+    delete mqtt_drapebot_client_;
+  }
+
+
   bool EgmJointStateToMQTTController::init( hardware_interface::JointStateInterface* hw,
                                             ros::NodeHandle&                         root_nh,
                                             ros::NodeHandle&                         controller_nh)
   {
-    // List of joints to be published
-    std::vector<std::string> joint_names;
+    try
+    {
+      // List of joints to be published
+      std::vector<std::string> joint_names;
 
-    // Get list of joints: This allows specifying a desired order, or
-    // alternatively, only publish states for a subset of joints. If the
-    // parameter is not set, all joint states will be published in the order
-    // specified by the hardware interface.
-    if (controller_nh.getParam("joints", joint_names)) 
-    {
-      ROS_INFO_STREAM("Joints parameter specified, publishing specified joints in desired order.");
-    } 
-    else 
-    {
-      // get all joint names from the hardware interface
-      joint_names = hw->getNames();
+      // Get list of joints: This allows specifying a desired order, or
+      // alternatively, only publish states for a subset of joints. If the
+      // parameter is not set, all joint states will be published in the order
+      // specified by the hardware interface.
+      if (controller_nh.getParam("joints", joint_names)) 
+      {
+        ROS_INFO_STREAM("Joints parameter specified, publishing specified joints in desired order.");
+      } 
+      else 
+      {
+        // get all joint names from the hardware interface
+        joint_names = hw->getNames();
+      }
+
+      num_hw_joints_ = joint_names.size();
+      for (unsigned i=0; i<num_hw_joints_; i++)
+        ROS_DEBUG("Got joint %s", joint_names[i].c_str());
+
+      // get publishing period
+      if (!controller_nh.getParam("publish_rate", publish_rate_)){
+        ROS_ERROR("Parameter 'publish_rate' not set");
+        return false;
+      }
+
+      // realtime publisher
+      realtime_pub_.reset(new realtime_tools::RealtimePublisher<sensor_msgs::JointState>(root_nh, "joint_states", 4));
+
+      // get joints and allocate message
+      for (unsigned i=0; i<num_hw_joints_; i++){
+        joint_state_.push_back(hw->getHandle(joint_names[i]));
+        realtime_pub_->msg_.name.push_back(joint_names[i]);
+        realtime_pub_->msg_.position.push_back(0.0);
+        realtime_pub_->msg_.velocity.push_back(0.0);
+        realtime_pub_->msg_.effort.push_back(0.0);
+      }
+      addExtraJoints(controller_nh, realtime_pub_->msg_);
+      
+    
+      // ---- MQTT params ----
+      std::string client_id;
+      if (!controller_nh.getParam("client_id",client_id))
+      {
+        client_id = "Client_ID";
+        ROS_WARN_STREAM("client id not found under " + controller_nh.getNamespace() + "/client_id . Using defalut client ID: " + client_id);
+      }
+
+      std::string host_str;
+      if (!controller_nh.getParam("broker_address",host_str))
+      {
+        host_str = "localhost";
+        ROS_WARN_STREAM("broker_address not found under " + controller_nh.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
+      }
+
+      int port;
+      if (!controller_nh.getParam("port",port))
+      {
+        port = 1883;
+        ROS_WARN_STREAM("port not found under " + controller_nh.getNamespace() + "/port. Using defalut broker address: "+ std::to_string( port));      
+      }    
+
+      ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
+      mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
+      ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
+      
+    
+      if (!controller_nh.getParam("mqtt_feedback_topic", mqtt_feedback_topic_))
+      {
+        mqtt_feedback_topic_ = "mqtt_feedback_topic";
+        ROS_WARN_STREAM("mqtt_feedback_topic not found under " + controller_nh.getNamespace() + "/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic_);  
+      }
     }
-
-    num_hw_joints_ = joint_names.size();
-    for (unsigned i=0; i<num_hw_joints_; i++)
-      ROS_DEBUG("Got joint %s", joint_names[i].c_str());
-
-    // get publishing period
-    if (!controller_nh.getParam("publish_rate", publish_rate_)){
-      ROS_ERROR("Parameter 'publish_rate' not set");
+    catch(const std::exception& e)
+    {
+      ROS_ERROR_STREAM( "Thrown exception: " << e.what() );
       return false;
     }
 
-    // realtime publisher
-    realtime_pub_.reset(new realtime_tools::RealtimePublisher<sensor_msgs::JointState>(root_nh, "joint_states", 4));
+    ROS_INFO_STREAM("Controller EgmJointStateToMQTTController Initialized ! ");
 
-    // get joints and allocate message
-    for (unsigned i=0; i<num_hw_joints_; i++){
-      joint_state_.push_back(hw->getHandle(joint_names[i]));
-      realtime_pub_->msg_.name.push_back(joint_names[i]);
-      realtime_pub_->msg_.position.push_back(0.0);
-      realtime_pub_->msg_.velocity.push_back(0.0);
-      realtime_pub_->msg_.effort.push_back(0.0);
-    }
-    addExtraJoints(controller_nh, realtime_pub_->msg_);
-    
-  
-    // ---- MQTT params ----
-    std::string client_id;
-    if (!controller_nh.getParam("client_id",client_id))
-    {
-      client_id = "Client_ID";
-      ROS_WARN_STREAM("client id not found under " + controller_nh.getNamespace() + "/client_id . Using defalut client ID: " + client_id);
-    }
-
-    std::string host_str;
-    if (!controller_nh.getParam("broker_address",host_str))
-    {
-      host_str = "localhost";
-      ROS_WARN_STREAM("broker_address not found under " + controller_nh.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
-    }
-
-    int port;
-    if (!controller_nh.getParam("port",port))
-    {
-      port = 1883;
-      ROS_WARN_STREAM("port not found under " + controller_nh.getNamespace() + "/port. Using defalut broker address: "+ std::to_string( port));      
-    }    
-    
-    ROS_WARN_STREAM("Connencting mqtt: "<< client_id << ": " << host_str);
-    mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
-    ROS_ERROR_STREAM("Connencted to: "<< client_id << ": " << host_str);
-    
-   
-    if (!controller_nh.getParam("mqtt_feedback_topic", mqtt_feedback_topic_))
-    {
-      mqtt_feedback_topic_ = "mqtt_feedback_topic";
-      ROS_WARN_STREAM("mqtt_feedback_topic not found under " + controller_nh.getNamespace() + "/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic_);  
-    }
-    
     return true;
   }
 
@@ -129,10 +151,33 @@ namespace drapebot_controller
   {
     // initialize time
     last_publish_time_ = time;
+
+    if (mqtt_drapebot_client_->subscribe(NULL, mqtt_feedback_topic_.c_str(), 1) != 0)
+    {
+      ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_feedback_topic_);
+      return;
+    }
+    ROS_INFO_STREAM("Subscribing topic: "<< mqtt_feedback_topic_);
+  }
+
+  void EgmJointStateToMQTTController::stopping(const ros::Time& /*time*/)
+  {
+    if (mqtt_drapebot_client_->unsubscribe(NULL, mqtt_feedback_topic_.c_str()) != 0)
+    {
+      ROS_ERROR_STREAM("Error on Mosquitto unsubscribe topic: " << mqtt_feedback_topic_);
+      return;
+    } 
+    ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_feedback_topic_);
   }
 
   void EgmJointStateToMQTTController::update(const ros::Time& time, const ros::Duration& /*period*/)
   {
+    if (mqtt_drapebot_client_->loop() != 0 )
+    {
+      ROS_ERROR_STREAM("Error on Mosquitto loop function");
+      return;
+    }
+
     // limit rate of publishing
     if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
 
@@ -160,25 +205,25 @@ namespace drapebot_controller
     for (unsigned i=0; i<num_hw_joints_; i++)
       j_pos_feedback.joints_values_[i] = joint_state_[i].getPosition();
       
-    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
-    ROS_INFO_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
     
-    void* payload_ = malloc( sizeof(j_pos_feedback) );
+    void* payload_ = malloc( sizeof(j_pos_feedback) );        
     memcpy(payload_, &j_pos_feedback, sizeof(j_pos_feedback));  
-
     int payload_len_ = sizeof(j_pos_feedback);
-    mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str() ); 
-    
-  }
 
-  void EgmJointStateToMQTTController::stopping(const ros::Time& /*time*/)
-  {
+    ROS_WARN_STREAM("payload_len_  " << payload_len_ );
+    ROS_WARN_STREAM("mqtt_feedback_topic_  " << mqtt_feedback_topic_ );
 
+    int rc = mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str() );
+    if ( rc != 0)
+      ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
+      
   }
 
   void EgmJointStateToMQTTController::addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg)

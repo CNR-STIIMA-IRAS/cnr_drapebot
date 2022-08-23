@@ -57,59 +57,98 @@ namespace drapebot_controller
 
   bool MQTTToPositionController::init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& n)
   {
-    ctrl_.init(hw,n); 
+    try
+    {
+      ctrl_.init(hw,n); 
 
-    // ---- MQTT params ----
+      // ---- MQTT params ----
 
-    std::string client_id;
-    if (!n.getParam("client_id",client_id))
-    {
-      client_id = "Client_ID";
-      ROS_WARN_STREAM("client id not found under " + n.getNamespace() + "/client_id . Using defalut client ID: " + client_id);
-    }
-    
-    std::string host_str;
-    if (!n.getParam("broker_address",host_str))
-    {
-      host_str = "localhost";
-      ROS_WARN_STREAM("broker_address not found under " + n.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
-    }
- 
-    int port;
-    if (!n.getParam("port",port))
-    {
-      port = 1883;
-      ROS_WARN_STREAM("port not found under " + n.getNamespace() + "/port. Using defalut broker address: "+ std::to_string(port));      
-    }
-    
-    if (!n.getParam("mqtt_command_topic",mqtt_command_topic_))
-    {
-      mqtt_command_topic_ = "mqtt_command_topic";
-      ROS_WARN_STREAM("mqtt_command_topic not found under " + n.getNamespace() + "/mqtt_command_topic . Using defalut broker address: "+ mqtt_command_topic_);      
-    }
-    
-    ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ": " << host_str);
-    mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
-    ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
-        
-    cnr::drapebot::drapebot_msg j_pos_feedback; 
+      std::string client_id;
+      if (!n.getParam("client_id",client_id))
+      {
+        client_id = "Client_ID";
+        ROS_WARN_STREAM("client id not found under " + n.getNamespace() + "/client_id . Using defalut client ID: " + client_id);
+      }
+      
+      std::string host_str;
+      if (!n.getParam("broker_address",host_str))
+      {
+        host_str = "localhost";
+        ROS_WARN_STREAM("broker_address not found under " + n.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
+      }
+  
+      int port;
+      if (!n.getParam("port",port))
+      {
+        port = 1883;
+        ROS_WARN_STREAM("port not found under " + n.getNamespace() + "/port. Using defalut broker address: "+ std::to_string(port));      
+      }
+      
+      if (!n.getParam("mqtt_command_topic",mqtt_command_topic_))
+      {
+        mqtt_command_topic_ = "mqtt_command_topic";
+        ROS_WARN_STREAM("mqtt_command_topic not found under " + n.getNamespace() + "/mqtt_command_topic . Using defalut broker address: "+ mqtt_command_topic_);      
+      }
+      
+      ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
+      mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
+      ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
+          
+      cnr::drapebot::drapebot_msg j_pos_feedback; 
 
-    j_pos_command_.resize(MSG_LENGTH-1); // The seventh axis is not necessary in DrapeCell setup
-    j_pos_command_ = *ctrl_.commands_buffer_.readFromNonRT();
-    
-    ROS_INFO_STREAM("mqtt_command_topic : "<< mqtt_command_topic_);
-            
-    first_cycle_ = true;
-    
-    ROS_WARN_STREAM("Controller MQTTToPositionController Initialized ! ");
+      j_pos_command_.resize(MSG_LENGTH-1); // The seventh axis is not necessary in DrapeCell setup
+      j_pos_command_ = *ctrl_.commands_buffer_.readFromNonRT();
+      
+      ROS_INFO_STREAM("mqtt_command_topic : "<< mqtt_command_topic_);
+              
+      first_cycle_ = true;
+      
+    }
+    catch(const std::exception& e)
+    {
+      ROS_ERROR_STREAM( "Thrown exception: " << e.what() );
+      return false;
+    }
+
+    ROS_INFO_STREAM("Controller MQTTToPositionController Initialized ! ");
     
     return true;
+  }
+
+
+  void MQTTToPositionController::starting(const ros::Time& time)
+  { 
+    ctrl_.starting(time);
+    if (mqtt_drapebot_client_->subscribe(NULL, mqtt_command_topic_.c_str(), 1) != 0)
+    {
+      ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_command_topic_ );
+      return;
+    }
+
+    ROS_INFO_STREAM("Subscribing topic: "<< mqtt_command_topic_);
+  }
+
+
+  void MQTTToPositionController::stopping(const ros::Time& time) 
+  {
+    ctrl_.stopping(time);
+    if ( mqtt_drapebot_client_->unsubscribe(NULL, mqtt_command_topic_.c_str()) != 0)
+    {
+      ROS_ERROR_STREAM("Error on Mosquitto unsubscribe topic: " << mqtt_command_topic_);
+      return;
+    } 
+    ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_command_topic_);
   }
   
 
   void MQTTToPositionController::update(const ros::Time& time, const ros::Duration& period)
   {
-    mqtt_drapebot_client_->loop();
+    
+    if (mqtt_drapebot_client_->loop() != 0 )
+    {
+      ROS_ERROR_STREAM("Error on Mosquitto loop function");
+      return;
+    }
     
     if (first_cycle_)
     {
@@ -128,7 +167,7 @@ namespace drapebot_controller
         j_pos_command_[i] =  command_from_mqtt->joints_values_[i]; 
     }
     else
-      ROS_WARN_THROTTLE(10.0,"no new msg available");
+      ROS_WARN_THROTTLE(5.0,"no new msg available");
     
     ROS_INFO_STREAM_THROTTLE(5.0,"joint command_0 : "<< j_pos_command_[0]);
     ROS_INFO_STREAM_THROTTLE(5.0,"joint command_1 : "<< j_pos_command_[1]);
@@ -141,22 +180,6 @@ namespace drapebot_controller
     ctrl_.update(time,period);
   }
     
-  
-  void MQTTToPositionController::starting(const ros::Time& time)
-  { 
-    ctrl_.starting(time);
-    mqtt_drapebot_client_->subscribe(NULL, mqtt_command_topic_.c_str(), 1);
-    ROS_FATAL_STREAM("subscribing: "<< mqtt_command_topic_);
-  }
-
-
-  void MQTTToPositionController::stopping(const ros::Time& time) 
-  {
-    ctrl_.stopping(time);
-    mqtt_drapebot_client_->unsubscribe(NULL, mqtt_command_topic_.c_str());
-    ROS_FATAL_STREAM("UNSUBSCRIBINg: "<< mqtt_command_topic_);
-  }
-  
 
   void MQTTToPositionController::waiting(const ros::Time& time)
   {

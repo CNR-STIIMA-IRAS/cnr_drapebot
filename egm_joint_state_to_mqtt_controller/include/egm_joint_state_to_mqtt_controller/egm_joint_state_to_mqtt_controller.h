@@ -51,7 +51,8 @@ namespace drapebot_controller
   class EgmJointStateToMQTTController: public controller_interface::Controller<hardware_interface::JointStateInterface>
   {
   public:
-    EgmJointStateToMQTTController() : publish_rate_(0.0) {}
+    EgmJointStateToMQTTController();
+    ~EgmJointStateToMQTTController();
 
     virtual bool init(hardware_interface::JointStateInterface* hw,
                       ros::NodeHandle&                         root_nh,
