@@ -38,8 +38,8 @@ int main(int argc, char **argv)
 
         if (mqtt_drapebot_client_.loop() != 0 )
         {
-        ROS_ERROR_STREAM("Error on Mosquitto loop function");
-        return -1;
+            ROS_ERROR_STREAM("Error on Mosquitto loop function");
+            return -1;
         }
         r.sleep();
     }
