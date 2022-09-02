@@ -44,7 +44,6 @@ namespace  cnr
 
     void DrapebotMsgDecoder::on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
     {
-      std::cout << "DrapebotMsgEncoder::on_message" << std::endl;
       setNewMessageAvailable(true);
 		  if ( msg->payloadlen/sizeof(double) == MSG_LENGTH )
       {
@@ -60,41 +59,31 @@ namespace  cnr
     
     void DrapebotMsgEncoder::on_publish(struct mosquitto *mosq, void *obj, int mid)
     {
-      std::cout << "DrapebotMsgEncoder::on_publish" << std::endl;
       // Nothing to do here
     }
 
     MQTTDrapebotClient::MQTTDrapebotClient(const char *id, const char *host, int port, int keepalive)
     {
-      //drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_);
-      //drapebot_msg_encoder_ = new cnr::drapebot::DrapebotMsgEncoder(mqtt_msg_);
-
-      //msg_decoder_ = dynamic_cast<cnr::mqtt::MsgDecoder*>(drapebot_msg_decoder_);
-      //msg_encoder_ = dynamic_cast<cnr::mqtt::MsgEncoder*>(drapebot_msg_encoder_);
-
-
-      cnr::mqtt::MsgDecoder msg_decoder_tmp_;
-      cnr::mqtt::MsgEncoder msg_encoder_tmp_;
-
-      msg_decoder_ = &msg_decoder_tmp_;
-      msg_encoder_ = &msg_encoder_tmp_;
-
-      if (msg_decoder_ && msg_encoder_ != NULL )
+      try
       {
-        ROS_ERROR("NULL PTR");
-        return;
+        mqtt_msg_dec_ = new cnr::drapebot::drapebot_msg;
+        mqtt_msg_enc_ = new cnr::drapebot::drapebot_msg;
+
+        drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_dec_);
+        drapebot_msg_encoder_ = new cnr::drapebot::DrapebotMsgEncoder(mqtt_msg_enc_);
+      
+        mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, dynamic_cast<cnr::mqtt::MsgDecoder*>(drapebot_msg_decoder_), dynamic_cast<cnr::mqtt::MsgEncoder*>(drapebot_msg_encoder_));
       }
-      else
+      catch(const std::exception& e)
       {
-        ROS_INFO("Step 2");
-        mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, msg_decoder_, msg_encoder_);
+        ROS_ERROR_STREAM("Exception thrown in MQTTDrapebotClient constructor: " <<  e.what() );
       }
     }
 
     MQTTDrapebotClient::~MQTTDrapebotClient()
     {  
-      delete msg_decoder_;
-      delete msg_encoder_;
+      delete mqtt_msg_dec_;
+      delete mqtt_msg_enc_;
       delete drapebot_msg_decoder_;
       delete drapebot_msg_encoder_;
       delete mqtt_client_;
@@ -133,7 +122,7 @@ namespace  cnr
     }
 
     int MQTTDrapebotClient::publish(const void* payload, int& payload_len, const char* topic_name)
-    {
+    {        
       if (mqtt_client_ != NULL)
         return mqtt_client_->publish(payload, payload_len, topic_name);
       else
@@ -142,10 +131,10 @@ namespace  cnr
 
     bool MQTTDrapebotClient::getLastReceivedMessage(cnr::drapebot::drapebot_msg* last_msg)
     {
-      if (msg_decoder_->isNewMessageAvailable())
+      if (drapebot_msg_decoder_->isNewMessageAvailable())
       {
-        msg_decoder_->setNewMessageAvailable(false);
-        last_msg = &mqtt_msg_;
+        drapebot_msg_decoder_->setNewMessageAvailable(false);
+        last_msg = mqtt_msg_dec_;
         return true;
       }
       else
@@ -158,16 +147,16 @@ namespace  cnr
 
     bool MQTTDrapebotClient::isNewMessageAvailable()
     {
-      if (msg_decoder_ != NULL)
-        return msg_decoder_->isNewMessageAvailable();
+      if (drapebot_msg_decoder_ != NULL)
+        return drapebot_msg_decoder_->isNewMessageAvailable();
       else
         return false;
     }
 
     bool MQTTDrapebotClient::isDataValid()
     {
-      if (msg_decoder_ != NULL)
-        return msg_decoder_->isDataValid();
+      if (drapebot_msg_decoder_ != NULL)
+        return drapebot_msg_decoder_->isDataValid();
       else
         return false;
     }    

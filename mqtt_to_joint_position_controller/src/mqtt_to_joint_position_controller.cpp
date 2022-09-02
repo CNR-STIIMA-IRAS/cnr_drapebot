@@ -92,6 +92,7 @@ namespace drapebot_controller
       
       ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
       mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
+      !!! use smart pointer
       ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
           
       cnr::drapebot::drapebot_msg j_pos_feedback; 

@@ -54,24 +54,27 @@ namespace cnr
       double joints_values_[MSG_LENGTH] = {0};    
     }; 
 
+
     class DrapebotMsgDecoder: public cnr::mqtt::MsgDecoder
     {
     public:
-      DrapebotMsgDecoder(cnr::drapebot::drapebot_msg& mqtt_msg): mqtt_msg_(mqtt_msg) {};
+      DrapebotMsgDecoder(cnr::drapebot::drapebot_msg* mqtt_msg): mqtt_msg_(mqtt_msg) {};
+      
       // The method should be reimplemented on the base of the application
-      void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg);
+      void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) override;
     private:
-      cnr::drapebot::drapebot_msg mqtt_msg_;
+      cnr::drapebot::drapebot_msg* mqtt_msg_;
     };
 
     class DrapebotMsgEncoder: public cnr::mqtt::MsgEncoder
     {
     public:
-      DrapebotMsgEncoder(cnr::drapebot::drapebot_msg& mqtt_msg): mqtt_msg_(mqtt_msg) {};
+      DrapebotMsgEncoder(cnr::drapebot::drapebot_msg* mqtt_msg): mqtt_msg_(mqtt_msg) {};
+      
       // The method should be reimplemented on the base of the application
-      void on_publish(struct mosquitto *mosq, void *obj, int mid);
+      void on_publish(struct mosquitto *mosq, void *obj, int mid) override;
     private:
-      cnr::drapebot::drapebot_msg mqtt_msg_;
+      cnr::drapebot::drapebot_msg* mqtt_msg_;
     };
 
     class MQTTDrapebotClient
@@ -87,22 +90,20 @@ namespace cnr
       int unsubscribe(int *mid, const char *sub);
       int publish(const void* payload, int& payload_len, const char* topic_name);
      
-
       bool getLastReceivedMessage(cnr::drapebot::drapebot_msg* last_msg);
       bool isNewMessageAvailable();
       bool isDataValid();    
 
     private:
-      cnr::mqtt::MsgDecoder* msg_decoder_;
-      cnr::mqtt::MsgEncoder* msg_encoder_; 
+      std::mutex mtx_mqtt_;  
 
       cnr::drapebot::DrapebotMsgDecoder* drapebot_msg_decoder_;
       cnr::drapebot::DrapebotMsgEncoder* drapebot_msg_encoder_;
 
-      drapebot_msg mqtt_msg_;      
-      std::mutex mtx_mqtt_;  
-      cnr::mqtt::MQTTClient* mqtt_client_;
+      cnr::drapebot::drapebot_msg* mqtt_msg_enc_;
+      cnr::drapebot::drapebot_msg* mqtt_msg_dec_;            
 
+      cnr::mqtt::MQTTClient* mqtt_client_;
     };
   }
 

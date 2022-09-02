@@ -44,5 +44,7 @@ int main(int argc, char **argv)
         r.sleep();
     }
 
+    free(payload_);
+
     return 0;
 }
