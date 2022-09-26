@@ -92,7 +92,6 @@ namespace drapebot_controller
       
       ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
       mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
-      !!! use smart pointer
       ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
           
       cnr::drapebot::drapebot_msg j_pos_feedback; 
@@ -100,7 +99,7 @@ namespace drapebot_controller
       j_pos_command_.resize(MSG_LENGTH-1); // The seventh axis is not necessary in DrapeCell setup
       j_pos_command_ = *ctrl_.commands_buffer_.readFromNonRT();
       
-      ROS_INFO_STREAM("mqtt_command_topic : "<< mqtt_command_topic_);
+      ROS_INFO_STREAM("mqtt_command_topic : " << mqtt_command_topic_);
               
       first_cycle_ = true;
       
@@ -168,7 +167,7 @@ namespace drapebot_controller
         j_pos_command_[i] =  command_from_mqtt->joints_values_[i]; 
     }
     else
-      ROS_WARN_THROTTLE(5.0,"no new msg available");
+      ROS_WARN_THROTTLE(5.0,"No message available");
     
     ROS_INFO_STREAM_THROTTLE(5.0,"joint command_0 : "<< j_pos_command_[0]);
     ROS_INFO_STREAM_THROTTLE(5.0,"joint command_1 : "<< j_pos_command_[1]);

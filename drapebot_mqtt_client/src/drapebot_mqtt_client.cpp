@@ -44,15 +44,27 @@ namespace  cnr
 
     void DrapebotMsgDecoder::on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
     {
-      setNewMessageAvailable(true);
+      ROS_WARN_STREAM("msg->payloadlen " << msg->payloadlen);
 		  if ( msg->payloadlen/sizeof(double) == MSG_LENGTH )
       {
+        ROS_WARN_STREAM("The message received is: " << mqtt_msg_->joints_values_[0]);
+
         memcpy(&mqtt_msg_, msg->payload, msg->payloadlen);
+
+        ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[0]);        
+        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[1]);
+        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[2]);
+        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[3]);
+        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[4]);
+        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[5]);
+        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[6]);
+        setNewMessageAvailable(true);
         setDataValid(true);
       }
 		  else
       {
         ROS_WARN("The message received from MQTT has a wrong length");
+        setNewMessageAvailable(false);
         setDataValid(false);
       }
     }
@@ -66,13 +78,13 @@ namespace  cnr
     {
       try
       {
-        mqtt_msg_dec_ = new cnr::drapebot::drapebot_msg;
         mqtt_msg_enc_ = new cnr::drapebot::drapebot_msg;
+        mqtt_msg_dec_ = new cnr::drapebot::drapebot_msg;
 
-        drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_dec_);
         drapebot_msg_encoder_ = new cnr::drapebot::DrapebotMsgEncoder(mqtt_msg_enc_);
-      
-        mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, dynamic_cast<cnr::mqtt::MsgDecoder*>(drapebot_msg_decoder_), dynamic_cast<cnr::mqtt::MsgEncoder*>(drapebot_msg_encoder_));
+        drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_dec_);
+
+        mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_encoder_, drapebot_msg_decoder_);
       }
       catch(const std::exception& e)
       {

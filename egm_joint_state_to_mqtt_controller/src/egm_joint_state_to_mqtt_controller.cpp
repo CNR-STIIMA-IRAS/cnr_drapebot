@@ -127,7 +127,6 @@ namespace drapebot_controller
 
       ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
       mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
-      !!! use smart pointer
       ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
       
     
@@ -206,26 +205,22 @@ namespace drapebot_controller
     for (unsigned i=0; i<num_hw_joints_; i++)
       j_pos_feedback.joints_values_[i] = joint_state_[i].getPosition();
       
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
     
     void* payload_ = malloc( sizeof(j_pos_feedback) );        
     memcpy(payload_, &j_pos_feedback, sizeof(j_pos_feedback));  
     int payload_len_ = sizeof(j_pos_feedback);
 
-    ROS_WARN_STREAM("payload_len_  " << payload_len_ );
-    ROS_WARN_STREAM("mqtt_feedback_topic_  " << mqtt_feedback_topic_ );
-
     int rc = mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str() );
     if ( rc != 0)
       ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
       
-    !!! FREE payload?!?
   }
 
   void EgmJointStateToMQTTController::addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg)
