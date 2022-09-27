@@ -44,20 +44,17 @@ namespace  cnr
 
     void DrapebotMsgDecoder::on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
     {
-      ROS_WARN_STREAM("msg->payloadlen " << msg->payloadlen);
 		  if ( msg->payloadlen/sizeof(double) == MSG_LENGTH )
       {
-        ROS_WARN_STREAM("The message received is: " << mqtt_msg_->joints_values_[0]);
-
-        memcpy(&mqtt_msg_, msg->payload, msg->payloadlen);
-
-        ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[0]);        
-        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[1]);
-        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[2]);
-        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[3]);
-        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[4]);
-        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[5]);
-        // ROS_WARN_STREAM("mqtt_msg_ " << mqtt_msg_->joints_values_[6]);
+        // To be verified, the use of char[] cause the loose of 1 digit, 
+        // because it adds the terminator '/0' to the end of the array 
+        char arr_c_[sizeof(double)] = {0};
+        for(size_t idx=0; idx<(msg->payloadlen/sizeof(double)); idx++)        
+        {
+         memcpy(&arr_c_, msg->payload + idx * (sizeof(double)), sizeof(double));
+         mqtt_msg_->joints_values_[idx] = atof(arr_c_);
+         memset(arr_c_,0x0,sizeof(double));
+        }
         setNewMessageAvailable(true);
         setDataValid(true);
       }
