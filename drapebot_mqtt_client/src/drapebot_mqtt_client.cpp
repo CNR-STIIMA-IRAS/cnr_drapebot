@@ -49,7 +49,7 @@ namespace  cnr
         char arr_c_[sizeof(double)] = {0};
         for(size_t id=0; id<(msg->payloadlen/sizeof(double)); id++)        
         {
-          memcpy(&arr_c_, msg->payload + id * (sizeof(double)), sizeof(double));
+          memcpy(&arr_c_, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
           mqtt_msg_->joints_values_[id] = atof(arr_c_);
           memset(arr_c_,0x0,sizeof(double));
         }
