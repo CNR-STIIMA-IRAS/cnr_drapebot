@@ -94,8 +94,6 @@ namespace drapebot_controller
       mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
       ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
           
-      cnr::drapebot::drapebot_msg j_pos_feedback; 
-
       j_pos_command_.resize(MSG_LENGTH-1); // The seventh axis is not necessary in DrapeCell setup
       j_pos_command_ = *ctrl_.commands_buffer_.readFromNonRT();
       
@@ -143,7 +141,6 @@ namespace drapebot_controller
 
   void MQTTToPositionController::update(const ros::Time& time, const ros::Duration& period)
   {
-    
     if (mqtt_drapebot_client_->loop() != 0 )
     {
       ROS_ERROR_STREAM("Error on Mosquitto loop function");
@@ -160,21 +157,27 @@ namespace drapebot_controller
       
     if (mqtt_drapebot_client_->isNewMessageAvailable() && mqtt_drapebot_client_->isDataValid()) 
     {
-      cnr::drapebot::drapebot_msg* command_from_mqtt;
-      mqtt_drapebot_client_->getLastReceivedMessage(command_from_mqtt);
+      memset(&command_from_mqtt_,0x0,sizeof(cnr::drapebot::drapebot_msg));
+
+      if (!mqtt_drapebot_client_->getLastReceivedMessage(command_from_mqtt_))
+      {
+        ROS_ERROR("Can't recover the last received message");
+        return;
+      }
 
       for (size_t i=0; i<(MSG_LENGTH-1); i++)
-        j_pos_command_[i] =  command_from_mqtt->joints_values_[i]; 
+        j_pos_command_[i] =  command_from_mqtt_.joints_values_[i]; 
+
     }
     else
-      ROS_WARN_THROTTLE(5.0,"No message available");
+      ROS_DEBUG_THROTTLE(2.0,"No message available");
     
-    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_0 : "<< j_pos_command_[0]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_1 : "<< j_pos_command_[1]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_2 : "<< j_pos_command_[2]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_3 : "<< j_pos_command_[3]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_4 : "<< j_pos_command_[4]);
-    ROS_INFO_STREAM_THROTTLE(5.0,"joint command_5 : "<< j_pos_command_[5]);
+    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_0 : "<< j_pos_command_[0]);
+    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_1 : "<< j_pos_command_[1]);
+    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_2 : "<< j_pos_command_[2]);
+    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_3 : "<< j_pos_command_[3]);
+    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_4 : "<< j_pos_command_[4]);
+    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_5 : "<< j_pos_command_[5]);
     
     ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
     ctrl_.update(time,period);

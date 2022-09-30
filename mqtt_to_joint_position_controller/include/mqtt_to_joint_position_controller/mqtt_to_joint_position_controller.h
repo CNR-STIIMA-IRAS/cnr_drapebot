@@ -60,14 +60,13 @@ namespace drapebot_controller
 
     private:
 
-        cnr::drapebot::MQTTDrapebotClient* mqtt_drapebot_client_;
-
-        std::vector<double> j_pos_command_;
+        bool first_cycle_;
 
         std::string mqtt_command_topic_;
-        
-        bool first_cycle_;
-        
+        cnr::drapebot::drapebot_msg command_from_mqtt_;
+        cnr::drapebot::MQTTDrapebotClient* mqtt_drapebot_client_;
+
+        std::vector<double> j_pos_command_;               
         position_controllers::JointGroupPositionController ctrl_;
     };
 

@@ -152,34 +152,30 @@ namespace drapebot_controller
     // initialize time
     last_publish_time_ = time;
 
-    if (mqtt_drapebot_client_->subscribe(NULL, mqtt_feedback_topic_.c_str(), 1) != 0)
-    {
-      ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_feedback_topic_);
-      return;
-    }
-    ROS_INFO_STREAM("Subscribing topic: "<< mqtt_feedback_topic_);
+    // if (mqtt_drapebot_client_->subscribe(NULL, mqtt_feedback_topic_.c_str(), 1) != 0)
+    // {
+    //   ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_feedback_topic_);
+    //   return;
+    // }
+    // ROS_INFO_STREAM("Subscribing topic: "<< mqtt_feedback_topic_);
   }
 
   void EgmJointStateToMQTTController::stopping(const ros::Time& /*time*/)
   {
-    if (mqtt_drapebot_client_->unsubscribe(NULL, mqtt_feedback_topic_.c_str()) != 0)
-    {
-      ROS_ERROR_STREAM("Error on Mosquitto unsubscribe topic: " << mqtt_feedback_topic_);
-      return;
-    } 
-    ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_feedback_topic_);
+    // if (mqtt_drapebot_client_->unsubscribe(NULL, mqtt_feedback_topic_.c_str()) != 0)
+    // {
+    //   ROS_ERROR_STREAM("Error on Mosquitto unsubscribe topic: " << mqtt_feedback_topic_);
+    //   return;
+    // } 
+    // ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_feedback_topic_);
   }
 
   void EgmJointStateToMQTTController::update(const ros::Time& time, const ros::Duration& /*period*/)
   {
-    if (mqtt_drapebot_client_->loop() != 0 )
-    {
-      ROS_ERROR_STREAM("Error on Mosquitto loop function");
-      return;
-    }
 
     // limit rate of publishing
-    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
+    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time)
+    {
 
       // try to publish
       if (realtime_pub_->trylock()){
@@ -190,7 +186,8 @@ namespace drapebot_controller
         // - fill only joints that are present in the JointStateInterface, i.e. indices [0, num_hw_joints_)
         // - leave unchanged extra joints, which have static values, i.e. indices from num_hw_joints_ onwards
         realtime_pub_->msg_.header.stamp = time;
-        for (unsigned i=0; i<num_hw_joints_; i++){
+        for (unsigned i=0; i<num_hw_joints_; i++)
+        {
           realtime_pub_->msg_.position[i] = joint_state_[i].getPosition();
           realtime_pub_->msg_.velocity[i] = joint_state_[i].getVelocity();
           realtime_pub_->msg_.effort[i] = joint_state_[i].getEffort();
@@ -205,13 +202,21 @@ namespace drapebot_controller
     for (unsigned i=0; i<num_hw_joints_; i++)
       j_pos_feedback.joints_values_[i] = joint_state_[i].getPosition();
       
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
+    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
+
+    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
+    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
+    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
+    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
+    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
+    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
+    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
     
     void* payload_ = malloc( sizeof(j_pos_feedback) );        
     memcpy(payload_, &j_pos_feedback, sizeof(j_pos_feedback));  
@@ -220,6 +225,12 @@ namespace drapebot_controller
     int rc = mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str() );
     if ( rc != 0)
       ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
+
+    if (mqtt_drapebot_client_->loop() != 0 )
+    {
+      ROS_ERROR_STREAM("Error on Mosquitto loop function");
+      return;
+    }
       
   }
 

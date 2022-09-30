@@ -90,7 +90,7 @@ namespace cnr
       int unsubscribe(int *mid, const char *sub);
       int publish(const void* payload, int& payload_len, const char* topic_name);
      
-      bool getLastReceivedMessage(cnr::drapebot::drapebot_msg* last_msg);
+      bool getLastReceivedMessage(cnr::drapebot::drapebot_msg& last_msg);
       bool isNewMessageAvailable();
       bool isDataValid();    
 

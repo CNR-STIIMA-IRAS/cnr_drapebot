@@ -46,14 +46,12 @@ namespace  cnr
     {
 		  if ( msg->payloadlen/sizeof(double) == MSG_LENGTH )
       {
-        // To be verified, the use of char[] cause the loose of 1 digit, 
-        // because it adds the terminator '/0' to the end of the array 
         char arr_c_[sizeof(double)] = {0};
-        for(size_t idx=0; idx<(msg->payloadlen/sizeof(double)); idx++)        
+        for(size_t id=0; id<(msg->payloadlen/sizeof(double)); id++)        
         {
-         memcpy(&arr_c_, msg->payload + idx * (sizeof(double)), sizeof(double));
-         mqtt_msg_->joints_values_[idx] = atof(arr_c_);
-         memset(arr_c_,0x0,sizeof(double));
+          memcpy(&arr_c_, msg->payload + id * (sizeof(double)), sizeof(double));
+          mqtt_msg_->joints_values_[id] = atof(arr_c_);
+          memset(arr_c_,0x0,sizeof(double));
         }
         setNewMessageAvailable(true);
         setDataValid(true);
@@ -98,7 +96,7 @@ namespace  cnr
       delete mqtt_client_;
     }
 
-   int MQTTDrapebotClient::stop()
+    int MQTTDrapebotClient::stop()
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->stop();      
@@ -138,12 +136,14 @@ namespace  cnr
         return -1;
     }
 
-    bool MQTTDrapebotClient::getLastReceivedMessage(cnr::drapebot::drapebot_msg* last_msg)
+    bool MQTTDrapebotClient::getLastReceivedMessage(cnr::drapebot::drapebot_msg& last_msg)
     {
-      if (drapebot_msg_decoder_->isNewMessageAvailable())
+      if (drapebot_msg_decoder_->isNewMessageAvailable() )
       {
+        for (size_t id=0; id<MSG_LENGTH; id++)
+          last_msg.joints_values_[id] = mqtt_msg_dec_->joints_values_[id];
+
         drapebot_msg_decoder_->setNewMessageAvailable(false);
-        last_msg = mqtt_msg_dec_;
         return true;
       }
       else
