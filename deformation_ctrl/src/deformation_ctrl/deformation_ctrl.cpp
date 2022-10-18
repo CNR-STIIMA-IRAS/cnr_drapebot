@@ -67,7 +67,7 @@ bool DeformationCtrl::doInit()
     this->template add_subscriber<sensor_msgs::JointState>(joint_target,5,boost::bind(&DeformationCtrl::setTargetJointsCallback,this,_1), false);
   }
   
-  this->setPriority(this->Q_PRIORITY);
+  this->setPriority(this->NONE);
   {
       ect::FilteredVectorXd::Value dead_band;
       ect::FilteredVectorXd::Value saturation;

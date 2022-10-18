@@ -32,8 +32,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef CNR_HARDWARE_INTERFACE_CNR_MQTT_ROBOT_HW
-#define CNR_HARDWARE_INTERFACE_CNR_MQTT_ROBOT_HW
+
+#pragma once
 
 #include <mutex>
 
@@ -47,55 +47,10 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-#include <mosquittopp.h>
-
-struct message_struct {
-
-  double J1;
-  double J2;
-  double J3;
-  double J4;
-  double J5;
-  double J6;
-  double E0;
-  unsigned int count;
-  
-} mqtt_msg;   
+#include <cnr_mqtt_hardware_interface/mqtt_client_hw.h>
+// #include <mosquittopp.h>
 
 
-class mqtt_client : public mosqpp::mosquittopp
-{
-public:
-    mqtt_client (const char *id, const char *host, int port, cnr_logger::TraceLogger& logger, int keepalive = 60);
-    ~mqtt_client();
-
-    void on_connect(int rc);
-    void on_message(const struct mosquitto_message *message);
-    void on_subscribe(int mid, int qos_count, const int *granted_qos);
-    bool get_first_message_status();
-
-    double J1;
-    double J2;
-    double J3;
-    double J4;
-    double J5;
-    double J6;
-    double E0;
-    
-    void publish_with_tracking(const std::string& cmd_topic, message_struct& m);
-    int get_msg_count_fb();
-    int get_msg_count_cmd();
-    void set_msg_count_cmd(const int& count);
-    
-    cnr_logger::TraceLogger* logger_;
-    
-private:
-    
-    unsigned int msg_count_fb;
-    unsigned int msg_count_cmd;
-    bool first_message_received;
-    
-};
 
 
 
@@ -161,7 +116,7 @@ protected:
   
   bool first_cycle;
   
-  mqtt_client* m_client;
+  cnr::drapebot::MQTTDrapebotClientHw* mqtt_drapebot_client_;
   
   ros::Publisher cmd_pos_pub_;
   ros::Publisher fb_pos_pub_;
@@ -180,4 +135,3 @@ void setParam(MQTTRobotHW* hw, const std::string& ns);
 
 }  // namespace cnr_hardware_interface
 
-#endif  //  CNR_HARDWARE_INTERFACE_CNR_MQTT_ROBOT_HW

@@ -2,7 +2,8 @@ control_configurations:
   - name: watch
     components:
     - {hardware_interface: "robot1_mqtt_hw",   controller: "js_pub_r1", description: ""}
-    - {hardware_interface: "robot2_mqtt_hw",   controller: "js_pub_r2", description: ""}
+    #- {hardware_interface: "robot2_mqtt_hw",   controller: "js_pub_r2", description: ""}
+    - {hardware_interface: "robot2_fake_hw",   controller: "js_pub_r2", description: ""}
 
   - name: multichain_watch
     depends: [watch]
@@ -15,7 +16,8 @@ control_configurations:
     hidden: true
     components:
       - { hardware_interface: "robot1_mqtt_hw", controller : "p_j_r1"}
-      - { hardware_interface: "robot2_mqtt_hw", controller : "p_j_r2"}
+      #- { hardware_interface: "robot2_mqtt_hw", controller : "p_j_r2"}
+      - { hardware_interface: "robot2_fake_hw", controller : "p_j_r2"}
 
   - name: def_ctrl
     depends: [olp_ctrl]

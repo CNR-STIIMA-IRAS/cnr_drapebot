@@ -65,150 +65,75 @@ static const char* BOLDCYAN     = "\033[1m\033[36m";
 static const char* BOLDWHITE    = "\033[1m\033[37m";
 
 
-mqtt_client::mqtt_client(const char *id, const char *host, int port, cnr_logger::TraceLogger &logger, int keepalive) : mosquittopp(id)
-{ 
-  first_message_received = false;
-  J1 = 0;
-  J2 = 0;
-  J3 = 0;
-  J4 = 0;
-  J5 = 0;
-  J6 = 0;
-  E0 = 0;
-  msg_count_cmd = 0;
-  msg_count_fb  = 0;
-  connect(host, port, keepalive);
-  
-  logger_ = new cnr_logger::TraceLogger(logger);
-  
-}
 
-mqtt_client::~mqtt_client()
+
+void mqtt_to_vector(const cnr::drapebot::MQTTDrapebotClientHw* client,std::vector<double> & ret)
 {
+  if(ret.size()!=7)
+    ret.resize(7,0);
+    
+    ret.at(1) = client->mqtt_msg_dec_->J1;
+    ret.at(2) = client->mqtt_msg_dec_->J2;
+    ret.at(3) = client->mqtt_msg_dec_->J3;
+    ret.at(4) = client->mqtt_msg_dec_->J4;
+    ret.at(5) = client->mqtt_msg_dec_->J5;
+    ret.at(6) = client->mqtt_msg_dec_->J6;
+    ret.at(0) = client->mqtt_msg_dec_->E0;
 }
 
-void mqtt_client::on_connect(int rc)
-{
-    if (!rc)
-    {
-      ROS_INFO_STREAM( "Connected - code " << rc );
-    }
-}
-
-void mqtt_client::on_subscribe(int mid, int qos_count, const int *granted_qos)
-{
-//         std::cout << "Subscription succeeded." << std::endl;
-}
-
-void mqtt_client::on_message(const struct mosquitto_message *message)
-{
-  
-  message_struct* buf = new message_struct;
-  memcpy(buf, message->payload, message->payloadlen);
-  
-  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J1: " << buf->J1);
-  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J2: " << buf->J2);
-  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J3: " << buf->J3);
-  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J4: " << buf->J4);
-  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J5: " << buf->J5);
-  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback J6: " << buf->J6);
-  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "feedback E0: " << buf->E0);
-  CNR_INFO_THROTTLE(logger_, 5.0, CYAN << "count      : " << buf->count);
-  
-  J1 = buf->J1;
-  J2 = buf->J2;
-  J3 = buf->J3;
-  J4 = buf->J4;
-  J5 = buf->J5;
-  J6 = buf->J6;
-  E0 = buf->E0;
-  
-  msg_count_fb = buf->count;
-  
-  first_message_received = true;
-}
-
-bool mqtt_client::get_first_message_status()
-{
-  return first_message_received ;
-}
-
-void mqtt_client::publish_with_tracking(const std::string& cmd_topic, message_struct& m)
-{
-  msg_count_cmd += 1;
-  m.count = msg_count_cmd;
-  
-  size_t message_size_ = sizeof(m);
-  void* payload_ = malloc( message_size_ );
-  memcpy(payload_, &m, message_size_);  
-  
-  int n = cmd_topic.length();
-  char topic[n+ 1];
-  strcpy(topic, cmd_topic.c_str());
-  
-  publish(NULL, topic, message_size_, payload_);
-  
-}
-
-
-int mqtt_client::get_msg_count_cmd()
-{
-  return msg_count_cmd;
-}
-
-int mqtt_client::get_msg_count_fb()
-{
-  return msg_count_fb;
-}
-
-void mqtt_client::set_msg_count_cmd(const int& count)
-{
-  msg_count_cmd = count;
-}
-
-
-
-
-
-void mqtt_to_vector(const mqtt_client * client,std::vector<double> & ret)
+void mqtt_msg_to_vector(const cnr::drapebot::drapebot_msg_hw msg,std::vector<double>& ret)
 {
   if(ret.size()!=7)
     ret.resize(7,0);
   
-  ret.at(1) = client->J1;
-  ret.at(2) = client->J2;
-  ret.at(3) = client->J3;
-  ret.at(4) = client->J4;
-  ret.at(5) = client->J5;
-  ret.at(6) = client->J6;
-  ret.at(0) = client->E0;
+    ret.at(1) = msg.J1;
+    ret.at(2) = msg.J2;
+    ret.at(3) = msg.J3;
+    ret.at(4) = msg.J4;
+    ret.at(5) = msg.J5;
+    ret.at(6) = msg.J6;
+    ret.at(0) = msg.E0;
 }
 
 
-void vector_to_mqtt(const std::vector<double>& v, mqtt_client * client)
-{
-  assert(v.size()==7);
-
-  client->J1 = v.at(1);
-  client->J2 = v.at(2);
-  client->J3 = v.at(3);
-  client->J4 = v.at(4);
-  client->J5 = v.at(5);
-  client->J6 = v.at(6);
-  client->E0 = v.at(0);
+void print_last_msg(cnr_logger::TraceLogger& logger, const cnr::drapebot::drapebot_msg_hw last_msg)
+{    
+    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb count "<< last_msg.count);
+    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J1 "<< last_msg.J1);
+    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J2 "<< last_msg.J2);
+    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J3 "<< last_msg.J3);
+    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J4 "<< last_msg.J4);
+    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J5 "<< last_msg.J5);
+    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J6 "<< last_msg.J6);
+    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb E0 "<< last_msg.E0);
 }
 
-void vector_to_mqtt_msg(const std::vector<double>& v, message_struct& m)
+
+void vector_to_mqtt(const std::vector<double>& v, cnr::drapebot::MQTTDrapebotClientHw* client)
 {
   assert(v.size()==7);
-
-  m.J1 = v.at(1);    
-  m.J2 = v.at(2);    
-  m.J3 = v.at(3);    
-  m.J4 = v.at(4);    
-  m.J5 = v.at(5);    
-  m.J6 = v.at(6);    
-  m.E0 = v.at(0);}
+  
+  client->mqtt_msg_dec_->J1 = v.at(0);
+  client->mqtt_msg_dec_->J2 = v.at(1);
+  client->mqtt_msg_dec_->J3 = v.at(2);
+  client->mqtt_msg_dec_->J4 = v.at(3);
+  client->mqtt_msg_dec_->J5 = v.at(4);
+  client->mqtt_msg_dec_->J6 = v.at(5);
+  client->mqtt_msg_dec_->E0 = v.at(6);
+}
+  
+void vector_to_mqtt_msg(const std::vector<double>& v, cnr::drapebot::drapebot_msg_hw& m)
+{
+  assert(v.size()==7);
+  
+  m.J1 = v.at(1);
+  m.J2 = v.at(2);
+  m.J3 = v.at(3);
+  m.J4 = v.at(4);
+  m.J5 = v.at(5);
+  m.J6 = v.at(6);
+  m.E0 = v.at(0);
+}
 
 void print_vector(cnr_logger::TraceLogger& logger, const std::string& msg, const std::vector<double>& v, const char* color = "\033[0m" )
 {
@@ -233,7 +158,7 @@ void print_vector_throttle(cnr_logger::TraceLogger& logger, const std::string& m
   }
 }
 
-void print_message_struct_throttle(cnr_logger::TraceLogger& logger, const std::string& msg, const message_struct& m, double throttle = 1.0)
+void print_message_struct_throttle(cnr_logger::TraceLogger& logger, const std::string& msg, const cnr::drapebot::drapebot_msg_hw& m, double throttle = 1.0)
 {
   CNR_INFO_THROTTLE(logger,throttle , msg << " J1 : " << m.J1);
   CNR_INFO_THROTTLE(logger,throttle , msg << " J2 : " << m.J2);
@@ -470,6 +395,8 @@ bool MQTTRobotHW::doInit()
     }
   }
   
+  
+  
 //   ---- MQTT params ----
   CNR_TRACE(m_logger," MQTT PARAMS");
   std::string cid;
@@ -515,15 +442,6 @@ bool MQTTRobotHW::doInit()
   }
   
   CNR_TRACE(m_logger," MQTT PARAMS mosquitto_lib_init");
-
-  mosquitto_lib_init();
-  
-  CNR_WARN(m_logger,"connencting mqtt: "<<client_id<<":"<<host);
-  m_client = new mqtt_client(client_id, host, port,m_logger);
-  CNR_INFO(m_logger,"connencted to: "<<client_id<<":"<<host);
-  
-  CNR_TRACE(m_logger," MQTT PARAMS lib_init");
-  mosqpp::lib_init();
   
   if (!m_robothw_nh.getParam("feedback_mqtt_topic",m_mqtt_feedback_topic))
   {
@@ -558,30 +476,52 @@ bool MQTTRobotHW::doInit()
   
   int n = m_mqtt_feedback_topic.length();
   char topic[n+ 1];
-  strcpy(topic, m_mqtt_feedback_topic.c_str());
-  m_client->subscribe(NULL, topic);
-  CNR_INFO(m_logger,"[cnr_mqtt_hardware_interface - "<< m_robothw_nh.getNamespace() << "] Subscribed to : "<<topic);  
+  strcpy(topic, m_mqtt_feedback_topic.c_str());  
+  
+  CNR_INFO(m_logger,"Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
+  
+  mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClientHw(client_id, host, port);
+
+  CNR_INFO(m_logger,"Connencted to: "<< client_id << ": " << host_str);
+
+  CNR_INFO(m_logger,GREEN << "subscribing: "<< client_id << " to: " << m_mqtt_feedback_topic);
+  if (mqtt_drapebot_client_->subscribe(NULL, m_mqtt_feedback_topic.c_str(), 1) != 0)
+  {
+    ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << m_mqtt_feedback_topic );
+    return -1;
+  }
+  
   
   if(USE_REAL_ROBOT)
   {
-    ROS_INFO_STREAM("start waiting");
-    while ( !m_client->get_first_message_status() )
+    CNR_INFO(m_logger,"start waiting");
+    while ( !mqtt_drapebot_client_->isNewMessageAvailable() )
     {
       CNR_WARN_THROTTLE(m_logger,2.0,"waiting for first feedback message");
-      m_client->loop();
+      mqtt_drapebot_client_->loop();
       ros::Duration(0.005).sleep();
     }
-    CNR_INFO(m_logger, GREEN << "FIRST FEEDBACK MSG COUNT : " << m_client->get_msg_count_fb());
-    m_client->set_msg_count_cmd(m_client->get_msg_count_fb());
+    
+    if(mqtt_drapebot_client_->isNewMessageAvailable())
+    {
+      cnr::drapebot::drapebot_msg_hw last_msg;
+      mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
+      print_last_msg(this->m_logger, last_msg);      
+    }
+    
+    CNR_INFO(m_logger, GREEN << "FIRST FEEDBACK MSG COUNT : " << mqtt_drapebot_client_->get_msg_count_fb());
+    mqtt_drapebot_client_->set_msg_count_cmd(mqtt_drapebot_client_->get_msg_count_fb());
+    
   }
   else
   {
-    vector_to_mqtt(m_pos,m_client);
+    vector_to_mqtt(m_pos,mqtt_drapebot_client_);
   }
   
-  mqtt_to_vector(m_client,m_cmd_pos);
-  mqtt_to_vector(m_client,m_pos);
+  mqtt_to_vector(mqtt_drapebot_client_,m_cmd_pos);
+  mqtt_to_vector(mqtt_drapebot_client_,m_pos);
   m_start_pos = m_pos;
+  
   
   if(verbose_)
   {
@@ -611,58 +551,6 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   {
     
     
-    {
-      sensor_msgs::JointState js;
-      
-      js.name.push_back("E0");
-      js.name.push_back("J1");
-      js.name.push_back("J2");
-      js.name.push_back("J3");
-      js.name.push_back("J4");
-      js.name.push_back("J5");
-      js.name.push_back("J6");
-
-      js.position = m_cmd_pos;
-      
-      js.header.stamp = ros::Time::now();
-      
-      cmd_pub_.publish(js);
-    }
-    
-    {
-      sensor_msgs::JointState js;
-      
-      js.name.push_back("E0");
-      js.name.push_back("J1");
-      js.name.push_back("J2");
-      js.name.push_back("J3");
-      js.name.push_back("J4");
-      js.name.push_back("J5");
-      js.name.push_back("J6");
-
-      js.position = m_old_pos;
-      
-      js.header.stamp = ros::Time::now();
-      
-      old_pub_.publish(js);
-    }
-    
-    {
-      sensor_msgs::JointState js;
-      
-      js.name.push_back("E0");
-      js.name.push_back("J1");
-      js.name.push_back("J2");
-      js.name.push_back("J3");
-      js.name.push_back("J4");
-      js.name.push_back("J5");
-      js.name.push_back("J6");
-      
-      js.header.stamp = ros::Time::now();
-      
-      delta_pub_.publish(js);
-    }
-    
     for(int jj=0;jj<m_cmd_pos.size();jj++)
     {
       if (delta_pos_from_start_)
@@ -675,40 +563,42 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     }
     
     
-    message_struct m;
+    cnr::drapebot::drapebot_msg_hw m_;
     
     std::string st = MAGENTA;
     
     if(use_delta_target_pos_)
     {
-      vector_to_mqtt_msg(m_delta_pos,m);
+      vector_to_mqtt_msg(m_delta_pos,m_);
       
       CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using relative cmd position");
       st += " delta command : ";
     }
     else
     {
-      vector_to_mqtt_msg(m_cmd_pos,m);
+      vector_to_mqtt_msg(m_cmd_pos,m_);
       
       CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using absolute cmd position");
       st += " command : "; 
     }
     
+    
+    
+    vector_to_mqtt_msg(m_cmd_pos,m_);
+    
+    CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using absolute cmd position");
+    
     if(verbose_)
     {
-      print_message_struct_throttle(m_logger,st, m);
-      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J1 "<< m_cmd_pos.at(1));
-      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J2 "<< m_cmd_pos.at(2));
-      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J3 "<< m_cmd_pos.at(3));
-      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J4 "<< m_cmd_pos.at(4));
-      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J5 "<< m_cmd_pos.at(5));
-      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd J6 "<< m_cmd_pos.at(6));
-      ROS_INFO_STREAM_THROTTLE(2.0,YELLOW<<"absolute cmd E0 "<< m_cmd_pos.at(0));
+      std::string st = MAGENTA;
+      st += " command : "; 
+      print_message_struct_throttle(m_logger,st, m_);
     }
     
-    m_client->publish_with_tracking(m_mqtt_command_topic,m);
     
-    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<" msg_count : "<< m_client->get_msg_count_cmd());
+    mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
+    
+    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<" msg_count : "<< mqtt_drapebot_client_->get_msg_count_cmd());
     
     int n = m_mqtt_command_topic.length();
     char topic[n+ 1];
@@ -725,13 +615,13 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     js.name.push_back("J5");
     js.name.push_back("J6");
 
-    js.position.push_back(m.E0);
-    js.position.push_back(m.J1);
-    js.position.push_back(m.J2);
-    js.position.push_back(m.J3);
-    js.position.push_back(m.J4);
-    js.position.push_back(m.J5);
-    js.position.push_back(m.J6);
+    js.position.push_back(m_.E0);
+    js.position.push_back(m_.J1);
+    js.position.push_back(m_.J2);
+    js.position.push_back(m_.J3);
+    js.position.push_back(m_.J4);
+    js.position.push_back(m_.J5);
+    js.position.push_back(m_.J6);
     
     js.header.stamp = ros::Time::now();
     
@@ -759,7 +649,10 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     char pl[json_file.length()+1];
     strcpy(pl, json_file.c_str());
     
-    m_client->publish(NULL, topic, sizeof(pl), pl);
+    int size_pl = sizeof(pl);
+    
+    mqtt_drapebot_client_->publish(pl, size_pl, topic);
+    
   }
   
   
@@ -834,17 +727,46 @@ bool MQTTRobotHW::doPrepareSwitch(const std::list< hardware_interface::Controlle
 
 bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*period*/)
 {
-  m_client->loop();  
-  
-  Json::Value root;
-  Json::FastWriter writer;
-  
-  if (USE_REAL_ROBOT)
+  if (mqtt_drapebot_client_->loop() != 0 )
   {
-    mqtt_to_vector(m_client,m_pos);
+      ROS_ERROR_STREAM("Error on Mosquitto loop function");
+      return -1;
+  }
+          
+    if (USE_REAL_ROBOT)
+    {
+      CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<"using real robot -- hope feedback comes");
+      
+      if(mqtt_drapebot_client_->isNewMessageAvailable())   //TODO;: doimanda per enrico non esiste mai il nuovo messaggio
+      {
+        cnr::drapebot::drapebot_msg_hw last_msg;
+        mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
+        print_last_msg(m_logger, last_msg);
+        
+        mqtt_msg_to_vector(last_msg,m_pos);
+        
+        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J1: " << last_msg.J1);
+        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J2: " << last_msg.J2);
+        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J3: " << last_msg.J3);
+        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J4: " << last_msg.J4);
+        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J5: " << last_msg.J5);
+        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J6: " << last_msg.J6);
+        ROS_INFO_STREAM_THROTTLE(1,CYAN << "E0: " << last_msg.E0);    
+        
+        m_pos.at(1) = last_msg.J1;
+        m_pos.at(2) = last_msg.J2;
+        m_pos.at(3) = last_msg.J3;
+        m_pos.at(4) = last_msg.J4;
+        m_pos.at(5) = last_msg.J5;
+        m_pos.at(6) = last_msg.J6;
+        m_pos.at(0) = last_msg.E0;    
+      }
+      else
+        CNR_WARN_THROTTLE(m_logger,1.0,"no new feedback message available ... not good");
   }
   else
   {
+    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<"using fale robot--> m_pos = m_cmd_pos ");
     m_pos = m_cmd_pos;
   }
   
@@ -853,6 +775,10 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   {
     print_vector_throttle(m_logger, "robot state joint ", m_pos,2.0);
   }
+  
+  Json::Value root;
+  Json::FastWriter writer;
+  
   
   for(size_t i=0;i<m_pos.size();i++)
   {
@@ -871,8 +797,11 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   int len = json_file.length();
   char pl[len+1];
   strcpy(pl, json_file.c_str());
-  m_client->publish(NULL, topic, sizeof(pl), pl);
-  CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<" publishing in loop on : "<<topic);
+  int message_size = sizeof(pl);
+  mqtt_drapebot_client_->publish(pl, message_size, topic);
+  
+  if(verbose_)
+    CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<" publishing feedback to in loop on : "<<topic);
   
   sensor_msgs::JointState js;
   js.name.clear();

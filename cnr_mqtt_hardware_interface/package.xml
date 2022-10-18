@@ -23,6 +23,8 @@
   
   <depend>code_coverage</depend>
   <depend>rostest</depend>
+  
+  <depend>cnr_mqtt_client</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

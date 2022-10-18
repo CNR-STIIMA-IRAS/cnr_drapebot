@@ -28,18 +28,19 @@ mqtt_hw:
   robot_description_planning_param: /robot_description_planning
   kin_update_period: 0.004
 
-  initial_position: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  initial_position: [0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0]
   
   use_delta_target_pos: false
   delta_pos_from_start: false
   
-  use_real_robot: false
+  use_real_robot: true
   
   #--- MQTT ---
   
   client_id: "MQTT_HW"
   #host: 192.168.125.7    # drapebot
-  host: localhost
+  host: 192.168.12.204    # drapebot tez ip
+  #host: localhost
   port: 1883
   
   feedback_mqtt_topic: "/robot_1/feedback"

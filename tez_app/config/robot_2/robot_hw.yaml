@@ -25,7 +25,7 @@ robot2_mqtt_hw:
   robot_description_planning_param: /robot_description_planning
   kin_update_period: 0.1
 
-  initial_position: [8.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  initial_position: [1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0]
   
   use_delta_target_pos: false
   delta_pos_from_start: false
@@ -36,8 +36,8 @@ robot2_mqtt_hw:
   #--- MQTT ---
   
   client_id: "robot2/MQTT_HW"
-  host: 192.168.12.211    # drapebot
-  #host: localhost
+  #host: 192.168.12.211    # drapebot
+  host: localhost
   port: 1883
   
   feedback_mqtt_topic: "/robot_2/feedback"
@@ -163,3 +163,54 @@ robot2_plan_hw:
   microint_r2:
     type: "cnr/control/ScaledFJTPosController"
     controlled_joints: all
+    
+    
+    
+    
+    
+    
+    
+    
+    
+robot2_fake_hw:  # name of the hardware interface
+  type           : cnr/control/FakeRobotHW  # type
+  appenders      : [file, screen]  # logging information: the first one is stored in a file, the second one in the screen
+  levels         : [trace, info]  # trace debug info warn error fatal
+  pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%50M:%04L][%24c] %m%n"
+  file_name      : robot2_fake_hw  # name of the file (it is saved in ~/.ros/)
+  sampling_period: 0.004
+  diagnostic_period: 0.1
+  maximum_missing_cycles: 100
+  feedback_joint_state_timeout: 10
+  joint_names:  
+  - kr210_2_linear_axis_joint
+  - kr210_2_joint_1
+  - kr210_2_joint_2
+  - kr210_2_joint_3
+  - kr210_2_joint_4
+  - kr210_2_joint_5
+  - kr210_2_joint_6
+  
+  base_link: "linear_axis"
+  tool_link: "KR210_2_A6"
+  robot_description_param: /robot_description
+  robot_description_planning_param: /robot_description_planning
+
+  initial_position: [5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  
+  remap_source_args:
+  - "/robot2_fake_hw/js_pub_r2/joint_states"
+  
+  remap_target_args:
+  - "/robot2/joint_states"
+  
+  js_pub_r2:
+    type: cnr/control/JointStatePublisher
+    controlled_joints: all
+
+  p_j_r2:
+    type: cnr/control/OpenLoopPositionController
+    setpoint_topic_name: /robot2/joint_pos_target
+    controlled_joints: all
+    kin_update_period : 0.1
+  
