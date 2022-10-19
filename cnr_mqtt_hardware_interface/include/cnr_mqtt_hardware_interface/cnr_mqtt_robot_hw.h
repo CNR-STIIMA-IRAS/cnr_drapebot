@@ -116,6 +116,8 @@ protected:
   
   bool first_cycle;
   
+  int m_maximum_missing_cycle;
+  
   cnr::drapebot::MQTTDrapebotClientHw* mqtt_drapebot_client_;
   
   ros::Publisher cmd_pos_pub_;

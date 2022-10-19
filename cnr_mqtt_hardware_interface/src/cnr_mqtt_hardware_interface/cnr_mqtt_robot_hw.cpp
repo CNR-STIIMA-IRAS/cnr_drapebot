@@ -395,6 +395,11 @@ bool MQTTRobotHW::doInit()
     }
   }
   
+  if (!m_robothw_nh.getParam("max_missing_cycles",m_maximum_missing_cycle))
+  {
+    m_maximum_missing_cycle = 5;
+    CNR_WARN(m_logger,"param: "<<m_robothw_nh.getNamespace()<<"/max_missing_cycles not found . default: m_maximum_missing_cycle = "<< m_maximum_missing_cycle );
+  }
   
   
 //   ---- MQTT params ----
@@ -509,8 +514,6 @@ bool MQTTRobotHW::doInit()
       print_last_msg(this->m_logger, last_msg);      
     }
     
-    CNR_INFO(m_logger, GREEN << "FIRST FEEDBACK MSG COUNT : " << mqtt_drapebot_client_->get_msg_count_fb());
-    mqtt_drapebot_client_->set_msg_count_cmd(mqtt_drapebot_client_->get_msg_count_fb());
     
   }
   else
@@ -598,7 +601,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
     
-    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<" msg_count : "<< mqtt_drapebot_client_->get_msg_count_cmd());
+    CNR_DEBUG_THROTTLE(m_logger,2.0,BLUE<<" msg_count : "<< mqtt_drapebot_client_->get_msg_count_cmd());
     
     int n = m_mqtt_command_topic.length();
     char topic[n+ 1];
@@ -727,54 +730,47 @@ bool MQTTRobotHW::doPrepareSwitch(const std::list< hardware_interface::Controlle
 
 bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*period*/)
 {
-  if (mqtt_drapebot_client_->loop() != 0 )
+  
+  for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
   {
-      ROS_ERROR_STREAM("Error on Mosquitto loop function");
-      return -1;
-  }
-          
-    if (USE_REAL_ROBOT)
+    if (mqtt_drapebot_client_->loop() != 0 )
     {
-      CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<"using real robot -- hope feedback comes");
+        ROS_ERROR_STREAM("Error on Mosquitto loop function");
+        return -1;
+    }
+  }
+  
+  if (USE_REAL_ROBOT)
+  {
+    CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<"using real robot -- hope feedback comes");
+    
+    if(mqtt_drapebot_client_->isNewMessageAvailable())
+    {
+      cnr::drapebot::drapebot_msg_hw last_msg;
+      mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
       
-      if(mqtt_drapebot_client_->isNewMessageAvailable())   //TODO;: doimanda per enrico non esiste mai il nuovo messaggio
-      {
-        cnr::drapebot::drapebot_msg_hw last_msg;
-        mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
+      mqtt_msg_to_vector(last_msg,m_pos);
+      
+      if(verbose_)
         print_last_msg(m_logger, last_msg);
-        
-        mqtt_msg_to_vector(last_msg,m_pos);
-        
-        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J1: " << last_msg.J1);
-        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J2: " << last_msg.J2);
-        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J3: " << last_msg.J3);
-        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J4: " << last_msg.J4);
-        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J5: " << last_msg.J5);
-        ROS_INFO_STREAM_THROTTLE(1,CYAN << "J6: " << last_msg.J6);
-        ROS_INFO_STREAM_THROTTLE(1,CYAN << "E0: " << last_msg.E0);    
-        
-        m_pos.at(1) = last_msg.J1;
-        m_pos.at(2) = last_msg.J2;
-        m_pos.at(3) = last_msg.J3;
-        m_pos.at(4) = last_msg.J4;
-        m_pos.at(5) = last_msg.J5;
-        m_pos.at(6) = last_msg.J6;
-        m_pos.at(0) = last_msg.E0;    
+      
+      int delay = std::fabs(mqtt_drapebot_client_->get_msg_count_cmd() - last_msg.count);
+      if( delay > m_maximum_missing_cycle  )
+      {
+        CNR_WARN_THROTTLE(m_logger,1.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
+                                               << mqtt_drapebot_client_->get_msg_count_cmd() <<", feedback: " << last_msg.count);
       }
-      else
-        CNR_WARN_THROTTLE(m_logger,1.0,"no new feedback message available ... not good");
+      
+    }
+    else
+      CNR_WARN_THROTTLE(m_logger,1.0,"no new feedback message available ... not good");
   }
   else
   {
-    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<"using fale robot--> m_pos = m_cmd_pos ");
+    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<"using fake robot--> m_pos = m_cmd_pos ");
     m_pos = m_cmd_pos;
   }
   
-  
-  if(verbose_)
-  {
-    print_vector_throttle(m_logger, "robot state joint ", m_pos,2.0);
-  }
   
   Json::Value root;
   Json::FastWriter writer;
@@ -801,7 +797,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   mqtt_drapebot_client_->publish(pl, message_size, topic);
   
   if(verbose_)
-    CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<" publishing feedback to in loop on : "<<topic);
+    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<" publishing feedback to in loop on : "<<topic);
   
   sensor_msgs::JointState js;
   js.name.clear();

@@ -30,14 +30,14 @@ robot2_mqtt_hw:
   use_delta_target_pos: false
   delta_pos_from_start: false
   
-  use_real_robot: false
-  verbose: false
+  use_real_robot: true
+  verbose: true
   
   #--- MQTT ---
   
   client_id: "robot2/MQTT_HW"
-  #host: 192.168.12.211    # drapebot
-  host: localhost
+  host: 192.168.12.204    # drapebot
+  #host: localhost
   port: 1883
   
   feedback_mqtt_topic: "/robot_2/feedback"

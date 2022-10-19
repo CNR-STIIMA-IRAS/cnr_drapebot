@@ -76,7 +76,6 @@ namespace  cnr
         mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_hw_encoder_, drapebot_msg_hw_decoder_);
         
         msg_count_cmd = 0;
-        msg_count_fb  = 0;
         first_message_received_ = false;
       }
       catch(const std::exception& e)

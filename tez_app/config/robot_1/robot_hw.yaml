@@ -5,7 +5,7 @@ robot1_mqtt_hw:
   #pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%F:%M:%04L][%24c] %m%n"
   pattern_layout : "[%5p][%d{HH:mm,SSS}][%M:%04L][%24c] %m%n"
   file_name      : robot1_mqtt_hw
-  sampling_period: 0.004
+  sampling_period: 0.02
   diagnostic_period: 0.1
   maximum_missing_cycles: 100
   feedback_joint_state_timeout: 10
@@ -25,8 +25,6 @@ robot1_mqtt_hw:
   robot_description_planning_param: /robot_description_planning
   kin_update_period: 0.1
   
-  max_tracking_error: 1
-
   initial_position: [0.0, 1.57, -1.57, 1.57, 0.0, 0.0, 0.0]
   
   use_delta_target_pos: false
@@ -34,6 +32,8 @@ robot1_mqtt_hw:
   
   use_real_robot: true
   verbose: true
+  
+  max_missing_cycles: 1
   
   #--- MQTT ---
   
@@ -101,7 +101,7 @@ robot1_deformation_hw:
 
   feedback_joint_state_topic: /robot1/joint_states
   command_joint_state_topic:  /robot1/joint_pos_target
-  sampling_period: 0.004
+  sampling_period: 0.04
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100
@@ -143,7 +143,7 @@ robot1_plan_hw:
 
   feedback_joint_state_topic: /robot1/joint_states
   command_joint_state_topic:  /robot1/interp_joint_pos_target
-  sampling_period: 0.004
+  sampling_period: 0.04
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100

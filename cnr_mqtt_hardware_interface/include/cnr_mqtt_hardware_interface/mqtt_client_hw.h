@@ -102,7 +102,6 @@ namespace cnr
       bool isNewMessageAvailable();
       bool isDataValid();    
 
-      int get_msg_count_fb(){return msg_count_fb;};
       int get_msg_count_cmd(){return msg_count_cmd;};
       void set_msg_count_cmd(const int& count){msg_count_cmd = count;};
       
@@ -110,12 +109,11 @@ namespace cnr
       
       
       cnr::drapebot::drapebot_msg_hw* mqtt_msg_enc_;
-      cnr::drapebot::drapebot_msg_hw* mqtt_msg_dec_;                
+      cnr::drapebot::drapebot_msg_hw* mqtt_msg_dec_;
 
     private:
       std::mutex mtx_mqtt_;  
       
-      unsigned long int msg_count_fb;
       unsigned long int msg_count_cmd;
 
       bool first_message_received_;
