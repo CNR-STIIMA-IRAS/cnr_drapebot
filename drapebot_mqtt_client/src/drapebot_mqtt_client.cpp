@@ -1,7 +1,7 @@
 /*
  *  Software License Agreement (New BSD License)
  *
- *  Copyright 2020 National Council of Research of Italy (CNR)
+ *  Copyright 2022 National Council of Research of Italy (CNR)
  *
  *  All rights reserved.
  *
@@ -37,54 +37,139 @@
 
 #include <drapebot_mqtt_client/drapebot_mqtt_client.h>
 
-
-namespace drapebot
+namespace  cnr
 {
-	MQTTClient::MQTTClient(const char *id, const char *host, int port, int keepalive) : mosquittopp(id)
-	{
-			connect(host, port, keepalive);
-	}
+  namespace drapebot
+  {
 
-	MQTTClient::~MQTTClient()
-	{
+    void DrapebotMsgDecoder::on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
+    {
+		  if ( msg->payloadlen/sizeof(double) == MSG_LENGTH )
+      {
+        char arr_c_[sizeof(double)] = {0};
+        for(size_t id=0; id<(msg->payloadlen/sizeof(double)); id++)        
+        {
+          memcpy(&arr_c_, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
+          mqtt_msg_->joints_values_[id] = atof(arr_c_);
+          memset(arr_c_,0x0,sizeof(double));
+        }
+        setNewMessageAvailable(true);
+        setDataValid(true);
+      }
+		  else
+      {
+        ROS_WARN("The message received from MQTT has a wrong length");
+        setNewMessageAvailable(false);
+        setDataValid(false);
+      }
+    }
+    
+    void DrapebotMsgEncoder::on_publish(struct mosquitto *mosq, void *obj, int mid)
+    {
+      // Nothing to do here
+    }
 
-	}
+    MQTTDrapebotClient::MQTTDrapebotClient(const char *id, const char *host, int port, int keepalive)
+    {
+      try
+      {
+        mqtt_msg_enc_ = new cnr::drapebot::drapebot_msg;
+        mqtt_msg_dec_ = new cnr::drapebot::drapebot_msg;
 
-	void MQTTClient::on_connect(int rc)
-	{
-		if (!rc)
-		{
-			ROS_INFO_STREAM( "Connected - code " << rc );
-		}
-	}
+        drapebot_msg_encoder_ = new cnr::drapebot::DrapebotMsgEncoder(mqtt_msg_enc_);
+        drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_dec_);
 
-	void MQTTClient::on_subscribe(int mid, int qos_count, const int *granted_qos)
-	{
-	//         std::cout << "Subscription succeeded." << std::endl;
-	}
+        mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_encoder_, drapebot_msg_decoder_);
+      }
+      catch(const std::exception& e)
+      {
+        ROS_ERROR_STREAM("Exception thrown in MQTTDrapebotClient constructor: " <<  e.what() );
+      }
+    }
 
-	void MQTTClient::on_message(const struct mosquitto_message *message)
-	{
-		
-		message_struct* buf = new message_struct;
-		memcpy(buf, message->payload, message->payloadlen);
-		
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J1: "<< buf->joints_values_[1]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J2: "<< buf->joints_values_[2]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J3: "<< buf->joints_values_[3]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J4: "<< buf->joints_values_[4]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J5: "<< buf->joints_values_[5]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback J6: "<< buf->joints_values_[6]);
-		ROS_INFO_STREAM_THROTTLE(2.0, "feedback E0: "<< buf->joints_values_[0]);
+    MQTTDrapebotClient::~MQTTDrapebotClient()
+    {  
+      delete mqtt_msg_dec_;
+      delete mqtt_msg_enc_;
+      delete drapebot_msg_decoder_;
+      delete drapebot_msg_encoder_;
+      delete mqtt_client_;
+    }
 
-		if ( message->payloadlen/sizeof(double) == 7 )
-			memcpy(&msg_, buf, sizeof(msg_)/sizeof(double));
-		else
-			ROS_WARN("The message received from MQTT has wrong length");
+    int MQTTDrapebotClient::stop()
+    {
+      if (mqtt_client_ != NULL)
+        return mqtt_client_->stop();      
+      else
+        return -1;
+    }
 
-		delete buf;
-			
-	}
+    int MQTTDrapebotClient::loop()
+    {
+      if (mqtt_client_ != NULL)
+        return mqtt_client_->loop();
+      else
+        return -1;
+    }
 
+    int MQTTDrapebotClient::subscribe(int *mid, const char *sub, int qos)
+    {
+      if (mqtt_client_ != NULL)
+        return mqtt_client_->subscribe(mid, sub, qos);
+      else
+        return -1;
+    }
+    
+    int MQTTDrapebotClient::unsubscribe(int *mid, const char *sub)
+    {
+      if (mqtt_client_ != NULL)
+        return mqtt_client_->unsubscribe(mid, sub);
+      else
+        return -1;
+    }
+
+    int MQTTDrapebotClient::publish(const void* payload, int& payload_len, const char* topic_name)
+    {        
+      if (mqtt_client_ != NULL)
+        return mqtt_client_->publish(payload, payload_len, topic_name);
+      else
+        return -1;
+    }
+
+    bool MQTTDrapebotClient::getLastReceivedMessage(cnr::drapebot::drapebot_msg& last_msg)
+    {
+      if (drapebot_msg_decoder_->isNewMessageAvailable() )
+      {
+        for (size_t id=0; id<MSG_LENGTH; id++)
+          last_msg.joints_values_[id] = mqtt_msg_dec_->joints_values_[id];
+
+        drapebot_msg_decoder_->setNewMessageAvailable(false);
+        return true;
+      }
+      else
+      {
+        ROS_WARN("New message not available.");
+        return false;
+      }
+      return true;
+    }
+
+    bool MQTTDrapebotClient::isNewMessageAvailable()
+    {
+      if (drapebot_msg_decoder_ != NULL)
+        return drapebot_msg_decoder_->isNewMessageAvailable();
+      else
+        return false;
+    }
+
+    bool MQTTDrapebotClient::isDataValid()
+    {
+      if (drapebot_msg_decoder_ != NULL)
+        return drapebot_msg_decoder_->isDataValid();
+      else
+        return false;
+    }    
+
+  }
 }
 

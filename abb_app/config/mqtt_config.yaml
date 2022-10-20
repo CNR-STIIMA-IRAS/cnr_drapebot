@@ -1,6 +1,6 @@
 action_name: "/abb_moveit_lab/follow_joint_trajectory"
 mqtt_topic: "/robot_1/joint_trajectory"
-broker_address: "169.254.57.188"
+broker_address: "192.168.125.7"
 port: 1883
 client_id: mqtt_converter
 rate: 100

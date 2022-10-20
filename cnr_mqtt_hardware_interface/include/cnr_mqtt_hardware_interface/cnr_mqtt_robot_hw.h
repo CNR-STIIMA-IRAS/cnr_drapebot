@@ -71,6 +71,7 @@ public:
     void on_connect(int rc);
     void on_message(const struct mosquitto_message *message);
     void on_subscribe(int mid, int qos_count, const int *granted_qos);
+    bool get_first_message_status();
 
     double J1;
     double J2;
@@ -79,6 +80,10 @@ public:
     double J5;
     double J6;
     double E0;
+    
+private:
+    
+    bool first_message_received;
     
 };
 
@@ -141,8 +146,14 @@ protected:
   std::string m_mqtt_feedback_topic;
   std::string m_mqtt_out_feedback_topic;
   
+  bool first_cycle;
+  
   mqtt_client* m_client;
-
+  
+  ros::Publisher cmd_pos_pub_;
+  ros::Publisher fb_pos_pub_;
+  
+  bool USE_REAL_ROBOT;
 
   friend void setParam(MQTTRobotHW* hw, const std::string& ns);
 };

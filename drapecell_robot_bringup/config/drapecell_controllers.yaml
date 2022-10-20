@@ -8,17 +8,33 @@ egm_state_controller:
 
 # These settings must match:
 # - Joint names extracted from the ABB robot controller.
-#joint_group_mqtt_to_position_controller:
-#  type: position_controllers/MQTTToPositionController
-#  joints:
-#    - joint_1
-#    - joint_2
-#    - joint_3
-#    - joint_4
-#    - joint_5
-#    - joint_6
 
-joint_group_position_controller:
+
+egm_joint_state_to_mqtt_controller:
+  type: position_controllers/EgmJointStateToMQTTController
+  publish_rate : 250
+  
+  mqtt_feedback_topic: "/robot_1/feedback"
+  broker_address: 192.168.125.1
+  port: 1883
+  client_id: egm_jnt_state_to_mqtt_ctrl
+
+mqtt_to_joint_position_controller:
+  type: position_controllers/MQTTToPositionController
+  joints:
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
+
+  mqtt_command_topic: "/robot_1/command"
+  broker_address: 192.168.125.1
+  port: 1883
+  client_id: mqtt_to_pos_ctrl
+
+j_pos_ctrl:
   type: position_controllers/JointGroupPositionController
   joints:
     - joint_1
@@ -28,19 +44,8 @@ joint_group_position_controller:
     - joint_5
     - joint_6
 
-joint_group_velocity_controller:
+j_vel_ctrl:
   type: velocity_controllers/JointGroupVelocityController
-  joints:
-    - joint_1
-    - joint_2
-    - joint_3
-    - joint_4
-    - joint_5
-    - joint_6
-
-    
-joint_group_pos_controller:
-  type: position_controllers/JointGroupPositionController
   joints:
     - joint_1
     - joint_2

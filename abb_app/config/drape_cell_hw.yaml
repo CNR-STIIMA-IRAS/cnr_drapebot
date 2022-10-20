@@ -4,7 +4,7 @@ mqtt_hw:
   levels         : [trace, info]
   pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%50M:%04L][%24c] %m%n"
   file_name      : mqtt_hw
-  sampling_period: 0.01
+  sampling_period: 0.004
   diagnostic_period: 0.1
   maximum_missing_cycles: 100
   feedback_joint_state_timeout: 10
@@ -24,21 +24,23 @@ mqtt_hw:
   robot_description_planning_param: /robot_description_planning
   kin_update_period: 0.1
 
-  initial_position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  initial_position: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   
   use_delta_target_pos: false
   delta_pos_from_start: false
   
+  use_real_robot: true
+  
   #--- MQTT ---
   
   client_id: "MQTT_HW"
-  host: 192.168.254.7    # drapebot
+  host: 192.168.125.7    # drapebot
   #host: localhost
   port: 1883
   
-  feedback_mqtt_topic: "robot1/feedback"
-  out_feedback_mqtt_topic: "ITR_feedback"
-  command_mqtt_topic:  "robot1/command"
+  feedback_mqtt_topic: "/robot_1/feedback"
+  out_feedback_mqtt_topic: "/ITR_feedback"
+  command_mqtt_topic:  "/robot_1/command"
   nominal_trajectory_topic: /joint_pos_target
   # --- end ---
   
@@ -52,14 +54,14 @@ mqtt_hw:
   js_pub:
     type: cnr/control/JointStatePublisher
     controlled_joints: all
-    kin_update_period : 0.1
+    kin_update_period : 0.004
 
 
   p_j:
     type: cnr/control/OpenLoopPositionController
     setpoint_topic_name: /joint_pos_target
     controlled_joints: all
-    kin_update_period : 0.1
+    kin_update_period : 0.004
     
     
   cart_impedance_controller:
@@ -108,7 +110,7 @@ deformation_hw:
 
   feedback_joint_state_topic: /joint_states
   command_joint_state_topic:  /joint_pos_target
-  sampling_period: 0.01
+  sampling_period: 0.004
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100
@@ -116,7 +118,7 @@ deformation_hw:
   deformation_ctrl:
     type: "cnr/control/DeformationCtrl"
     controlled_joints: all
-    kin_update_period: 0.008
+    kin_update_period: 0.004
     
     use_cartesian_reference: false                 # are you going to use a reference Pose or JointState?  default: false
     joint_target_topic:     "/interp_joint_pos_target"   # incoming joints setpoint topic 
@@ -151,7 +153,7 @@ plan_hw:
 
   feedback_joint_state_topic: /joint_states
   command_joint_state_topic:  /interp_joint_pos_target
-  sampling_period: 0.01
+  sampling_period: 0.004
   diagnostic_period: 0.1
   feedback_joint_state_timeout: 20
   maximum_missing_cycles: 100
@@ -170,12 +172,17 @@ plan_hw:
   - "abb_moveit_lab/follow_joint_trajectory/result"
   - "abb_moveit_lab/follow_joint_trajectory/status"
 
-  microint:
+  microint____:
     type: "cnr/control/FollowJointTrajectoryPosVelEffController"
     controlled_joints: all
     interpolator: "thor/ThorPrefilter"
     regulator: "regulator/fake_regulator"
     spline_order: 1
+    
+    
+  microint:
+    type: "cnr/control/ScaledFJTPosController"
+    controlled_joints: all
 
 
   
