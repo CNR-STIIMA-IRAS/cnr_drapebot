@@ -18,15 +18,12 @@ int main(int argc, char **argv)
 //     std::string host_str = "192.168.12.204";
     std::string host_str = "localhost";
     int port = 1883;
-    
+   
     std::string mqtt_command_topic_1 = "/robot_1/command";
     std::string mqtt_feedback_topic_1 = "/robot_1/feedback";
     
     std::string mqtt_command_topic_2 = "/robot_2/command";
     std::string mqtt_feedback_topic_2 = "/robot_2/feedback";
-    
-//     std::string mqtt_command_topic_1 = "/robot_1/feedback";
-//     std::string mqtt_feedback_topic_1 = "/robot_1/command";
 
     ROS_INFO_STREAM("Connencting mqtt: "<< client_id_1 << ", host: " << host_str << ", port: " << port);
     cnr::drapebot::MQTTDrapebotClientHw mqtt_drapebot_client_1(client_id_1.c_str(), host_str.c_str(), port);
@@ -36,31 +33,31 @@ int main(int argc, char **argv)
     cnr::drapebot::MQTTDrapebotClientHw mqtt_drapebot_client_2(client_id_2.c_str(), host_str.c_str(), port);
     ROS_INFO_STREAM("Connencted to: "<< client_id_2 << ": " << host_str);
 
-    if (mqtt_drapebot_client_1.subscribe(NULL, mqtt_command_topic_1.c_str(), 1) != 0)
-    {
-      ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_command_topic_1 );
-      return -1;
-    }
-    if (mqtt_drapebot_client_2.subscribe(NULL, mqtt_command_topic_2.c_str(), 1) != 0)
-    {
-      ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_command_topic_2 );
-      return -1;
-    }
+//     if (mqtt_drapebot_client_1.subscribe(NULL, mqtt_command_topic_1.c_str(), 1) != 0)
+//     {
+//       ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_command_topic_1 );
+//       return -1;
+//     }
+//     if (mqtt_drapebot_client_2.subscribe(NULL, mqtt_command_topic_2.c_str(), 1) != 0)
+//     {
+//       ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_command_topic_2 );
+//       return -1;
+//     }
     
     cnr::drapebot::drapebot_msg_hw m_1;
     m_1.E0 = -1.0;
-    m_1.J1 = 0.0;
-    m_1.J2 = -M_PI/2;
-    m_1.J3 = M_PI/2;
+    m_1.J1 = 0;
+    m_1.J2 = -1.57;
+    m_1.J3 = 1.57;
     m_1.J4 = 0.0;
     m_1.J5 = 0.0;
     m_1.J6 = 0.0;
     
     cnr::drapebot::drapebot_msg_hw m_2;
     m_2.E0 = 5.0;
-    m_2.J1 = 0.0;
-    m_2.J2 = -M_PI/2;
-    m_2.J3 = M_PI/2;
+    m_2.J1 = 0;
+    m_2.J2 = -1.57;
+    m_2.J3 = -1.57;
     m_2.J4 = 0.0;
     m_2.J5 = 0.0;
     m_2.J6 = 0.0;
@@ -87,35 +84,35 @@ int main(int argc, char **argv)
           return -1;
       }
       
-      if(mqtt_drapebot_client_1.isNewMessageAvailable())
-        mqtt_drapebot_client_1.getLastReceivedMessage(m_1);
-      else
-        ROS_WARN_THROTTLE(1.0,"no new feedback message available ... not good");
-
-      if(mqtt_drapebot_client_2.isNewMessageAvailable())
-        mqtt_drapebot_client_2.getLastReceivedMessage(m_2);
-      else
-        ROS_WARN_THROTTLE(1.0,"no new feedback message available ... not good");
-      
-//       m_1.J1 = sin(2*M_PI*t);
-//       m_1.J1 = 5.0;
-//       t+=1.0/rate;
-      
-      ROS_INFO_STREAM_THROTTLE(1.,"fb joints: " << m_1.E0  << ", " 
-                                                << m_1.J1  << ", " 
-                                                << m_1.J2  << ", " 
-                                                << m_1.J3  << ", " 
-                                                << m_1.J4  << ", " 
-                                                << m_1.J5  << ", " 
-                                                << m_1.J6  );      
-      
-      ROS_INFO_STREAM_THROTTLE(1.,"fb joints: " << m_2.E0  << ", " 
-                                                << m_2.J1  << ", " 
-                                                << m_2.J2  << ", " 
-                                                << m_2.J3  << ", " 
-                                                << m_2.J4  << ", " 
-                                                << m_2.J5  << ", " 
-                                                << m_2.J6  );
+//       if(mqtt_drapebot_client_1.isNewMessageAvailable())
+//       {
+//         mqtt_drapebot_client_1.getLastReceivedMessage(m_1);
+//         
+//         ROS_INFO_STREAM_THROTTLE(1.,"fb joints: " << m_1.E0  << ", " 
+//                                           << m_1.J1  << ", " 
+//                                           << m_1.J2  << ", " 
+//                                           << m_1.J3  << ", " 
+//                                           << m_1.J4  << ", " 
+//                                           << m_1.J5  << ", " 
+//                                           << m_1.J6  );      
+//       }
+//       else
+//         ROS_WARN_THROTTLE(1.0,"no new feedback message available ... not good");
+// 
+//       if(mqtt_drapebot_client_2.isNewMessageAvailable())
+//       {
+//         mqtt_drapebot_client_2.getLastReceivedMessage(m_2);
+//   
+//         ROS_INFO_STREAM_THROTTLE(1.,"fb joints: " << m_2.E0  << ", " 
+//                                           << m_2.J1  << ", " 
+//                                           << m_2.J2  << ", " 
+//                                           << m_2.J3  << ", " 
+//                                           << m_2.J4  << ", " 
+//                                           << m_2.J5  << ", " 
+//                                           << m_2.J6  );
+//       }
+//       else
+//         ROS_WARN_THROTTLE(1.0,"no new feedback message available ... not good");
       
       mqtt_drapebot_client_1.publish_with_tracking(mqtt_feedback_topic_1, m_1 );
       mqtt_drapebot_client_2.publish_with_tracking(mqtt_feedback_topic_2, m_2 );

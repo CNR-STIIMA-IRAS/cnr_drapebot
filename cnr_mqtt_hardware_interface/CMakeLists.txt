@@ -54,6 +54,12 @@ target_compile_options(${PROJECT_NAME} PUBLIC -Wall -faligned-new
 add_executable(mqtt_listener src/${PROJECT_NAME}/mqtt_listener.cpp)
 target_link_libraries(mqtt_listener ${catkin_LIBRARIES} mqtt_client_hw)
 
+add_executable(mqtt_cmd src/${PROJECT_NAME}/mqtt_cmd.cpp)
+target_link_libraries(mqtt_cmd ${catkin_LIBRARIES} mqtt_client_hw)
+
+add_executable(mqtt_cmd2 src/${PROJECT_NAME}/mqtt_cmd2.cpp)
+target_link_libraries(mqtt_cmd2 ${catkin_LIBRARIES} mqtt_client_hw)
+
 
 
 #############
