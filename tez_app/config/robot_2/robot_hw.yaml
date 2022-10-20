@@ -36,8 +36,8 @@ robot2_mqtt_hw:
   #--- MQTT ---
   
   client_id: "robot2/MQTT_HW"
-  host: 192.168.12.204    # drapebot
-  #host: localhost
+  #host: 192.168.12.204    # drapebot
+  host: localhost
   port: 1883
   
   feedback_mqtt_topic: "/robot_2/feedback"

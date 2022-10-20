@@ -33,42 +33,46 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __MQTT_TO_JOINT_POSITION_CONTROLLER_H__
-#define __MQTT_TO_JOINT_POSITION_CONTROLLER_H__
+#ifndef __EGM_JOINT_STATE_TO_MQTT_CONTROLLER_H__
+#define __EGM_JOINT_STATE_TO_MQTT_CONTROLLER_H__
 
+#include <memory>
+#include <vector>
+#include <ros/ros.h>
+#include <hardware_interface/joint_state_interface.h>
 #include <controller_interface/controller.h>
-#include <hardware_interface/joint_command_interface.h>
-#include <pluginlib/class_list_macros.h>
-#include <position_controllers/joint_group_position_controller.h>
+#include <realtime_tools/realtime_publisher.h>
+#include <sensor_msgs/JointState.h>
+
 #include <drapebot_mqtt_client/drapebot_mqtt_client.h>
 
-
-namespace drapebot_controller 
+namespace drapebot_controller
 {
-    class MQTTToPositionController : public controller_interface::Controller<hardware_interface::PositionJointInterface>
-    {
-    public:
-        MQTTToPositionController();
-        ~MQTTToPositionController();
+  class EgmJointStateToMQTTController: public controller_interface::Controller<hardware_interface::JointStateInterface>
+  {
+  public:
+    EgmJointStateToMQTTController();
+    ~EgmJointStateToMQTTController();
 
-        virtual bool init(hardware_interface::PositionJointInterface* hw, ros::NodeHandle& n) final;
-        void update   (const ros::Time& time, const ros::Duration& period) final;
-        void starting (const ros::Time& time) final;
-        void stopping (const ros::Time& time) final;
-        void waiting  (const ros::Time& time) final;
-        void aborting (const ros::Time& time) final;
+    virtual bool init(hardware_interface::JointStateInterface* hw,
+                      ros::NodeHandle&                         root_nh,
+                      ros::NodeHandle&                         controller_nh);
+    virtual void starting(const ros::Time& time);
+    virtual void update(const ros::Time& time, const ros::Duration& /*period*/);
+    virtual void stopping(const ros::Time& /*time*/);
 
-    private:
+  private:
+    std::vector<hardware_interface::JointStateHandle> joint_state_;
+    std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::JointState> > realtime_pub_;
+    ros::Time last_publish_time_;
+    double publish_rate_;
+    size_t num_hw_joints_; ///< Number of joints present in the JointStateInterface, excluding extra joints
+    
+    cnr::drapebot::MQTTDrapebotClient* mqtt_drapebot_client_;
+    std::string mqtt_feedback_topic_;
 
-        bool first_cycle_;
-
-        std::string mqtt_command_topic_;
-        cnr::drapebot::drapebot_msg command_from_mqtt_;
-        cnr::drapebot::MQTTDrapebotClient* mqtt_drapebot_client_;
-
-        std::vector<double> j_pos_command_;               
-        position_controllers::JointGroupPositionController ctrl_;
-    };
+    void addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg);
+  };
 
 } //end drapebot_controller
 
