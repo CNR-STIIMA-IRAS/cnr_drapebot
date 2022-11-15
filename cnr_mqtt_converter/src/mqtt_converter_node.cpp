@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "cnr_mqtt/mqtt_client.h"
+#include "cnr_mqtt/mqtt_converter_client.h"
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/simple_client_goal_state.h>
@@ -114,21 +114,20 @@ int main(int argc, char **argv)
   ROS_INFO_STREAM(broker_address);
   ROS_INFO_STREAM(client_id);
   
-  mosquitto_lib_init();
-
-  mqtt_client client(client_id, broker_address, port);
-  
-  mosqpp::lib_init();
+  cnr::drapebot_converter::MQTTDrapebotClientHw client(client_id, broker_address, port);
   
   ros::Rate r = rate;
   
   ROS_INFO_STREAM("[mqtt_converter] -> subscribing to "<<topic);
-  client.subscribe(NULL, topic);  
+  
+  if (client.subscribe(NULL, topic, 1) != 0)
+  {
+    ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << topic );
+    return -1;
+  }
+  
   client.set_config(staring_configuration);
-  
   client.set_joint_names(joint_names);
-  
-  client.new_trajectory_available = false;
   
   actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> execute_trajectory ( action_name, true );
   ROS_INFO_STREAM("waitin for server "<<action_name);
@@ -147,9 +146,14 @@ int main(int argc, char **argv)
   {
     ROS_INFO_THROTTLE(5.0,"looping");
     client.loop();
-    
-    if(client.new_trajectory_available)
+
+
+
+
+    if(client.isNewMessageAvailable())
     {
+      control_msgs::FollowJointTrajectoryGoal trajectory_msg;
+      client.getLastReceivedMessage(trajectory_msg);
       
       if (handle_deformation)
       {
@@ -158,19 +162,17 @@ int main(int argc, char **argv)
         start.request.strictness = 1;
         configuration_srv.call(start);
       }
-      
-      client.new_trajectory_available = false;
-      
-      execute_trajectory.sendGoal ( client.trajectory_msg );
-      ROS_INFO_STREAM(BLUE<<"goal trajectory sent:\n"<<client.trajectory_msg);
+            
+      execute_trajectory.sendGoal ( trajectory_msg );
+      ROS_INFO_STREAM(BLUE<<"goal trajectory sent:\n"<<trajectory_msg);
       
       std::vector<double> first_point;
       ROS_INFO_STREAM("first traj point");
-      for (auto p : client.trajectory_msg.trajectory.points[0].positions)
+      for (auto p : trajectory_msg.trajectory.points[0].positions)
         ROS_INFO_STREAM(p);
       
       ROS_INFO_STREAM("last traj point");      
-      for (auto p : client.trajectory_msg.trajectory.points.back().positions)
+      for (auto p : trajectory_msg.trajectory.points.back().positions)
         ROS_INFO_STREAM(p);
       
       ROS_INFO_STREAM("waitin for execution");
@@ -216,11 +218,13 @@ int main(int argc, char **argv)
         
         client.loop();
         
-        if(client.new_trajectory_available)
-        {
+        if(client.isNewMessageAvailable())
+        {   
+          control_msgs::FollowJointTrajectoryGoal trajectory_msg;
+          client.getLastReceivedMessage(trajectory_msg);
           execute_trajectory.cancelGoal();
           execute_trajectory.cancelAllGoals();
-          execute_trajectory.sendGoal ( client.trajectory_msg );
+          execute_trajectory.sendGoal ( trajectory_msg );
           ROS_INFO_STREAM(BOLDGREEN<<"New trajectory received. Goal changed ! ");
           break;
         }  
@@ -238,9 +242,6 @@ int main(int argc, char **argv)
     r.sleep();    
     
   }
-  
-
-  mosqpp::lib_cleanup();
 
   return 0;
 }

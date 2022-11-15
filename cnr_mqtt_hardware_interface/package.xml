@@ -18,7 +18,7 @@
   <depend>cnr_controller_interface_params</depend>
   <depend>nodelet</depend>
   <depend>roscpp</depend>
-  <depend>cnr_mqtt</depend>
+<!--   <depend>cnr_mqtt</depend> -->   <!--tODO:: verificare che non serve con giorgio-->
   <depend> state_space_filters      </depend>
   
   <depend>code_coverage</depend>

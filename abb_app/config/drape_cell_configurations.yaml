@@ -1,8 +1,8 @@
 control_configurations:    
   - name: mqtt_watch
     components:
-    ##- {hardware_interface: "mqtt_hw",   controller: "js_pub", description: ""}
-    - {hardware_interface: "mqtt_hw",   controller: "multichain_js_pub", description: ""}
+    - {hardware_interface: "mqtt_hw",   controller: "js_pub", description: ""}
+    #- {hardware_interface: "mqtt_hw",   controller: "multichain_js_pub", description: ""}
     #- {hardware_interface: "ft_hw", controller : "ft_pub", runtime_check: false}
     
   - name: olp_ctrl

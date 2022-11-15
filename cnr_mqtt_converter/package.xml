@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>cnr_mqtt</name>
+  <name>cnr_mqtt_converter</name>
   <version>0.0.0</version>
   <description>The cnr_mqtt package</description>
 
@@ -10,6 +10,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend> roscpp </depend>
   <depend> configuration_msgs </depend>
+  <depend> cnr_mqtt_client </depend>
   
 
 

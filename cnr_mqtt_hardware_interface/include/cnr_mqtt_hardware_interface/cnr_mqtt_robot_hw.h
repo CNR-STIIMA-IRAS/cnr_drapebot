@@ -105,7 +105,7 @@ protected:
   std::vector<double> m_cmd_vel;   //target velocity
   std::vector<double> m_cmd_eff;   //target effort
   
-  std::vector<double> m_old_command_pos;   // previous setpoint position position
+  //std::vector<double> m_old_command_pos;   // previous setpoint position position
 
   ros::Subscriber m_wrench_sub;
   ros::Subscriber m_traj_sub;

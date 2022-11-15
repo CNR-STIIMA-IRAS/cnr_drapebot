@@ -3,7 +3,7 @@
   
   <arg name="robot_name" default="robot_1"/>
   
-  <node pkg="cnr_mqtt" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/>
+  <node pkg="cnr_mqtt_converter" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/>
   <rosparam command="load" file="$(find tez_app)/config/$(arg robot_name)/mqtt_config.yaml" />
   
 </launch>

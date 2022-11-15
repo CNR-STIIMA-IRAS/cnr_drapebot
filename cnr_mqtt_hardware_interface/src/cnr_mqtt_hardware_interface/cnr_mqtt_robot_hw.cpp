@@ -45,28 +45,6 @@
 
 PLUGINLIB_EXPORT_CLASS(cnr_hardware_interface::MQTTRobotHW, hardware_interface::RobotHW)
 
-static const char* DEFAULT      = "\033[0m";
-static const char* RESET        = "\033[0m";
-static const char* BLACK        = "\033[30m";
-static const char* RED          = "\033[31m";
-static const char* GREEN        = "\033[32m";
-static const char* YELLOW       = "\033[33m";
-static const char* BLUE         = "\033[34m";
-static const char* MAGENTA      = "\033[35m";
-static const char* CYAN         = "\033[36m";
-static const char* WHITE        = "\033[37m";
-static const char* BOLDBLACK    = "\033[1m\033[30m";
-static const char* BOLDRED      = "\033[1m\033[31m";
-static const char* BOLDGREEN    = "\033[1m\033[32m";
-static const char* BOLDYELLOW   = "\033[1m\033[33m";
-static const char* BOLDBLUE     = "\033[1m\033[34m";
-static const char* BOLDMAGENTA  = "\033[1m\033[35m";
-static const char* BOLDCYAN     = "\033[1m\033[36m";
-static const char* BOLDWHITE    = "\033[1m\033[37m";
-
-
-
-
 void mqtt_to_vector(const cnr::drapebot::MQTTDrapebotClientHw* client,std::vector<double> & ret)
 {
   if(ret.size()!=7)
@@ -98,14 +76,14 @@ void mqtt_msg_to_vector(const cnr::drapebot::drapebot_msg_hw msg,std::vector<dou
 
 void print_last_msg(cnr_logger::TraceLogger& logger, const cnr::drapebot::drapebot_msg_hw last_msg)
 {    
-    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb count "<< last_msg.count);
-    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J1 "<< last_msg.J1);
-    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J2 "<< last_msg.J2);
-    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J3 "<< last_msg.J3);
-    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J4 "<< last_msg.J4);
-    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J5 "<< last_msg.J5);
-    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb J6 "<< last_msg.J6);
-    CNR_INFO_THROTTLE(logger,2.0,GREEN<<"last fb E0 "<< last_msg.E0);
+    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb count "<< last_msg.count);
+    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J1 "<< last_msg.J1);
+    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J2 "<< last_msg.J2);
+    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J3 "<< last_msg.J3);
+    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J4 "<< last_msg.J4);
+    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J5 "<< last_msg.J5);
+    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J6 "<< last_msg.J6);
+    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb E0 "<< last_msg.E0);
 }
 
 
@@ -240,31 +218,22 @@ void MQTTRobotHW::trajCb(const sensor_msgs::JointState::ConstPtr &msg)
 bool MQTTRobotHW::doInit()
 {
   CNR_TRACE_START(m_logger);
+  
 
   CNR_WARN(m_logger, "Resources (" << resourceNumber() << ") ");
-  m_pos.resize(resourceNumber());
-  m_vel.resize(resourceNumber());
-  m_eff.resize(resourceNumber());
+  m_pos.resize(resourceNumber(),0);
+  m_vel.resize(resourceNumber(),0);
+  m_eff.resize(resourceNumber(),0);
   
-  m_cmd_pos.resize(resourceNumber());
-  m_old_pos.resize(resourceNumber());
-  m_start_pos.resize(resourceNumber());
-  m_delta_pos.resize(resourceNumber());
-  m_old_delta_pos.resize(resourceNumber());
-  m_cmd_vel.resize(resourceNumber());
-  m_cmd_eff.resize(resourceNumber());
+  m_cmd_pos.resize(resourceNumber(),0);
+  m_old_pos.resize(resourceNumber(),0);
+  m_start_pos.resize(resourceNumber(),0);
+  m_delta_pos.resize(resourceNumber(),0);
+  m_old_delta_pos.resize(resourceNumber(),0);
+  m_cmd_vel.resize(resourceNumber(),0);
+  m_cmd_eff.resize(resourceNumber(),0);
+  m_ft_sensor.resize(6,0);
 
-  std::fill(m_pos.begin(), m_pos.end(), 0.0);
-  std::fill(m_cmd_pos.begin(), m_cmd_pos.end(), 0.0);
-  std::fill(m_old_pos.begin(), m_old_pos.end(), 0.0);
-  std::fill(m_start_pos.begin(), m_start_pos.end(), 0.0);
-  std::fill(m_delta_pos.begin(), m_delta_pos.end(), 0.0);
-  std::fill(m_old_delta_pos.begin(), m_old_delta_pos.end(), 0.0);
-  std::fill(m_vel.begin(), m_vel.end(), 0.0);
-  std::fill(m_eff.begin(), m_eff.end(), 0.0);
-
-  m_ft_sensor.resize(6);
-  std::fill(m_ft_sensor.begin(), m_ft_sensor.end(), 0.0);
 
   if (m_robothw_nh.hasParam("initial_position"))
   {
@@ -299,7 +268,7 @@ bool MQTTRobotHW::doInit()
 
   m_cmd_pos = m_pos;
   m_cmd_vel = m_vel;
-  m_cmd_pos = m_eff;
+  m_cmd_eff = m_eff;
 //   m_delta_pos = m_pos;
   
   for(size_t i=0;i<resourceNumber();i++)
@@ -413,10 +382,6 @@ bool MQTTRobotHW::doInit()
   
   CNR_TRACE(m_logger," MQTT PARAMS 2");
 
-  int n_id = cid.length();
-  char client_id[n_id + 1];
-  strcpy(client_id, cid.c_str());
-  
   std::string host_str;
   if (!m_robothw_nh.getParam("host",host_str))
   {
@@ -426,10 +391,6 @@ bool MQTTRobotHW::doInit()
   
   CNR_TRACE(m_logger," MQTT PARAMS 3");
 
-  int n_host = host_str.length();
-  char host[n_host + 1];
-  strcpy(host, host_str.c_str());
-  
   int port;
   if (!m_robothw_nh.getParam("port",port))
   {
@@ -475,21 +436,21 @@ bool MQTTRobotHW::doInit()
   
   std::string v = USE_REAL_ROBOT ? "ACHTUNG ! ! ! \n USING REAL ROBOT ! \n be careful, be nice please" : "using fake robot." ;
   if (USE_REAL_ROBOT)
-    CNR_INFO(m_logger,RED<<"\n\n ################# \n "<< v <<" \n################# \n\n");
+    CNR_INFO(m_logger,cnr_logger::RED()<<"\n\n ################# \n "<< v <<" \n################# \n\n");
   else
-    CNR_INFO(m_logger,BLUE<<"\n"<<v<<"\n");
+    CNR_INFO(m_logger, cnr_logger::BLUE()<<"\n"<<v<<"\n");
   
   int n = m_mqtt_feedback_topic.length();
   char topic[n+ 1];
   strcpy(topic, m_mqtt_feedback_topic.c_str());  
   
-  CNR_INFO(m_logger,"Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
+  CNR_INFO(m_logger,"Connencting mqtt: "<< cid << ", host: " << host_str << ", port: " << port);
   
-  mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClientHw(client_id, host, port);
+  mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClientHw(cid.c_str(), host_str.c_str(), port);
 
-  CNR_INFO(m_logger,"Connencted to: "<< client_id << ": " << host_str);
+  CNR_INFO(m_logger,"Connencted to: "<< cid << ": " << host_str);
 
-  CNR_INFO(m_logger,GREEN << "subscribing: "<< client_id << " to: " << m_mqtt_feedback_topic);
+  CNR_INFO(m_logger,cnr_logger::GREEN() << "subscribing: "<< cid << " to: " << m_mqtt_feedback_topic);
   if (mqtt_drapebot_client_->subscribe(NULL, m_mqtt_feedback_topic.c_str(), 1) != 0)
   {
     ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << m_mqtt_feedback_topic );
@@ -528,8 +489,8 @@ bool MQTTRobotHW::doInit()
   
   if(verbose_)
   {
-    print_vector(m_logger, "INITIAL POSITION" , m_cmd_pos  , BLUE);
-    print_vector(m_logger, "STARTING POSITION", m_start_pos, CYAN);
+    print_vector(m_logger, "INITIAL POSITION" , m_cmd_pos  , cnr_logger::BLUE().c_str());
+    print_vector(m_logger, "STARTING POSITION", m_start_pos, cnr_logger::CYAN().c_str());
   }
   
   m_start_pos = m_pos;
@@ -549,10 +510,11 @@ bool MQTTRobotHW::doInit()
 bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period)
 {
   CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
-
+  
+  CNR_INFO_THROTTLE(m_logger,2,cnr_logger::BLUE()<<"period: "<<period << " nominal period: " << this->m_sampling_period);
+  
   // ----------- BYTE MQTT MSG -------------------
-  {
-    
+  { 
     
     for(int jj=0;jj<m_cmd_pos.size();jj++)
     {
@@ -568,20 +530,20 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     cnr::drapebot::drapebot_msg_hw m_;
     
-    std::string st = MAGENTA;
+    std::string st = cnr_logger::MAGENTA();
     
     if(use_delta_target_pos_)
     {
       vector_to_mqtt_msg(m_delta_pos,m_);
       
-      CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using relative cmd position");
+      CNR_INFO_THROTTLE(m_logger,10.0, cnr_logger::CYAN()<< "using relative cmd position");
       st += " delta command : ";
     }
     else
     {
       vector_to_mqtt_msg(m_cmd_pos,m_);
       
-      CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using absolute cmd position");
+      CNR_INFO_THROTTLE(m_logger,10.0, cnr_logger::CYAN()    << "using absolute cmd position");
       st += " command : "; 
     }
     
@@ -589,11 +551,11 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     vector_to_mqtt_msg(m_cmd_pos,m_);
     
-    CNR_INFO_THROTTLE(m_logger,10.0, CYAN    << "using absolute cmd position");
+    CNR_INFO_THROTTLE(m_logger,10.0, cnr_logger::CYAN() << "using absolute cmd position");
     
     if(verbose_)
     {
-      std::string st = MAGENTA;
+      std::string st = cnr_logger::MAGENTA();
       st += " command : "; 
       print_message_struct_throttle(m_logger,st, m_);
     }
@@ -601,7 +563,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
     
-    CNR_DEBUG_THROTTLE(m_logger,2.0,BLUE<<" msg_count : "<< mqtt_drapebot_client_->get_msg_count_cmd());
+    CNR_DEBUG_THROTTLE(m_logger,2.0,cnr_logger::BLUE()<<" msg_count : "<< mqtt_drapebot_client_->get_msg_count_cmd());
     
     int n = m_mqtt_command_topic.length();
     char topic[n+ 1];
@@ -657,7 +619,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     mqtt_drapebot_client_->publish(pl, size_pl, topic);
     
   }
-  
+
   
   CNR_RETURN_TRUE_THROTTLE_DEFAULT(m_logger);
 }
@@ -729,20 +691,22 @@ bool MQTTRobotHW::doPrepareSwitch(const std::list< hardware_interface::Controlle
 }
 
 bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*period*/)
-{
-  
-  for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
-  {
-    if (mqtt_drapebot_client_->loop() != 0 )
-    {
-        ROS_ERROR_STREAM("Error on Mosquitto loop function");
-        return -1;
-    }
-  }
-  
+{  
+  CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
+   
   if (USE_REAL_ROBOT)
   {
-    CNR_INFO_THROTTLE(m_logger,2.0,GREEN<<"using real robot -- hope feedback comes");
+    CNR_INFO_THROTTLE(m_logger,2.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
+    
+    for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
+    {
+      if (mqtt_drapebot_client_->loop() != 0 )
+      {
+          ROS_ERROR_STREAM("Error on Mosquitto loop function");
+          return -1;
+      }
+    }
+  
     
     if(mqtt_drapebot_client_->isNewMessageAvailable())
     {
@@ -767,7 +731,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   }
   else
   {
-    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<"using fake robot--> m_pos = m_cmd_pos ");
+    CNR_INFO_THROTTLE(m_logger,2.0,cnr_logger::BLUE()<<"using fake robot--> m_pos = m_cmd_pos ");
     m_pos = m_cmd_pos;
   }
   
@@ -796,8 +760,9 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   int message_size = sizeof(pl);
   mqtt_drapebot_client_->publish(pl, message_size, topic);
   
+  
   if(verbose_)
-    CNR_INFO_THROTTLE(m_logger,2.0,BLUE<<" publishing feedback to in loop on : "<<topic);
+    CNR_INFO_THROTTLE(m_logger,2.0,cnr_logger::BLUE()<<" publishing feedback to in loop on : "<<topic);
   
   sensor_msgs::JointState js;
   js.name.clear();
@@ -814,8 +779,8 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   js.header.stamp = ros::Time::now();
   
   fb_pos_pub_.publish(js);
-  
-  CNR_RETURN_TRUE(m_logger);
+
+  CNR_RETURN_TRUE_THROTTLE_DEFAULT(m_logger);
 }
 
 bool MQTTRobotHW::doCheckForConflict(const std::list< hardware_interface::ControllerInfo >& info)

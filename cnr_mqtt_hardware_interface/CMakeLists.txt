@@ -16,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   roscpp
   roslint 
-  cnr_mqtt
+#   cnr_mqtt    # TODO:: verificare che non serva con giorgio
   state_space_filters
   cnr_mqtt_client
 )

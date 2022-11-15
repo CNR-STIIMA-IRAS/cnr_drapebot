@@ -23,7 +23,7 @@ namespace  cnr
     void DrapebotMsgDecoderHw::on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
     {
       
-      int n_joints = 7;
+      int n_joints = MSG_LENGTH; // TODO::verify
       
       int message_size = n_joints * sizeof(mqtt_msg_->E0) + sizeof(mqtt_msg_->count); 
       

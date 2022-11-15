@@ -30,8 +30,8 @@ robot2_mqtt_hw:
   use_delta_target_pos: false
   delta_pos_from_start: false
   
-  use_real_robot: true
-  verbose: true
+  use_real_robot: false
+  verbose: false
   
   #--- MQTT ---
   

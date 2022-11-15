@@ -2,7 +2,7 @@
 <launch>
   
   <group ns="robot_1">
-    <node pkg="cnr_mqtt" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/>
+    <node pkg="cnr_mqtt_converter" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/>
     <rosparam command="load" file="$(find abb_app)/config/mqtt_config.yaml" />
   </group>
   
