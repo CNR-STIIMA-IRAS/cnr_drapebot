@@ -23,7 +23,7 @@ include_directories( include
 )
 
 if(WIN32)
-  include_directories("C:\\Program Files\\mosquitto\\devel\\")
+  include_directories("C:\\ws\\mosquitto\\include\\")
 endif()
 
 ## Declare a C++ library
@@ -31,9 +31,12 @@ add_library(${PROJECT_NAME}
   src/drapebot_mqtt_client.cpp
 )
 
-## Specify libraries to link a library or executable target against
+if(WIN32)
+  target_link_directories(${PROJECT_NAME} PUBLIC "C:\\ws\\mosquitto-build\\lib\\")
+endif()
 target_link_libraries(${PROJECT_NAME} 
   ${catkin_LIBRARIES}
+  mosquitto
 )
 
 ################################################

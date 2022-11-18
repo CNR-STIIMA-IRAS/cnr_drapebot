@@ -60,11 +60,15 @@ namespace drapebot_controller
                                             ros::NodeHandle&                         root_nh,
                                             ros::NodeHandle&                         controller_nh)
   {
+    size_t l = __LINE__;
+    std::string dd;
+    
     try
     {
+      ROS_WARN_STREAM("EgmJointStateToMQTTController::init");
       // List of joints to be published
       std::vector<std::string> joint_names;
-
+l = __LINE__;
       // Get list of joints: This allows specifying a desired order, or
       // alternatively, only publish states for a subset of joints. If the
       // parameter is not set, all joint states will be published in the order
@@ -78,7 +82,7 @@ namespace drapebot_controller
         // get all joint names from the hardware interface
         joint_names = hw->getNames();
       }
-
+l = __LINE__;
       num_hw_joints_ = joint_names.size();
       for (unsigned i=0; i<num_hw_joints_; i++)
         ROS_DEBUG("Got joint %s", joint_names[i].c_str());
@@ -88,7 +92,7 @@ namespace drapebot_controller
         ROS_ERROR("Parameter 'publish_rate' not set");
         return false;
       }
-
+l = __LINE__;
       // realtime publisher
       realtime_pub_.reset(new realtime_tools::RealtimePublisher<sensor_msgs::JointState>(root_nh, "joint_states", 4));
 
@@ -100,8 +104,9 @@ namespace drapebot_controller
         realtime_pub_->msg_.velocity.push_back(0.0);
         realtime_pub_->msg_.effort.push_back(0.0);
       }
+      l = __LINE__;
       addExtraJoints(controller_nh, realtime_pub_->msg_);
-      
+   l = __LINE__;   
     
       // ---- MQTT params ----
       std::string client_id;
@@ -110,35 +115,41 @@ namespace drapebot_controller
         client_id = "Client_ID";
         ROS_WARN_STREAM("client id not found under " + controller_nh.getNamespace() + "/client_id . Using defalut client ID: " + client_id);
       }
-
+l = __LINE__;
       std::string host_str;
       if (!controller_nh.getParam("broker_address",host_str))
       {
         host_str = "localhost";
         ROS_WARN_STREAM("broker_address not found under " + controller_nh.getNamespace() + "/broker_address . Using defalut broker address: "+ host_str);
       }
-
+l = __LINE__;
       int port;
       if (!controller_nh.getParam("port",port))
       {
         port = 1883;
         ROS_WARN_STREAM("port not found under " + controller_nh.getNamespace() + "/port. Using defalut broker address: "+ std::to_string( port));      
       }    
-
+l = __LINE__;
+dd = "Connencting mqtt: "+ client_id + ", host: " + host_str + ", port: " + std::to_string(port);
       ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
+      std::cout.flush();
+l = __LINE__;
       mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
       ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
       
-    
+l = __LINE__;   
       if (!controller_nh.getParam("mqtt_feedback_topic", mqtt_feedback_topic_))
       {
         mqtt_feedback_topic_ = "mqtt_feedback_topic";
         ROS_WARN_STREAM("mqtt_feedback_topic not found under " + controller_nh.getNamespace() + "/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic_);  
       }
+l = __LINE__;
     }
     catch(const std::exception& e)
     {
-      ROS_ERROR_STREAM( "Thrown exception: " << e.what() );
+      ROS_ERROR_STREAM( "Thrown exception: (line "<< l << ")" << e.what() );
+      ROS_ERROR_STREAM(  dd );
+      ROS_ERROR_STREAM( "########### Thrown exception: (line "<< l << ")" << e.what() );
       return false;
     }
 
@@ -152,22 +163,22 @@ namespace drapebot_controller
     // initialize time
     last_publish_time_ = time;
 
-    // if (mqtt_drapebot_client_->subscribe(NULL, mqtt_feedback_topic_.c_str(), 1) != 0)
-    // {
-    //   ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_feedback_topic_);
-    //   return;
-    // }
-    // ROS_INFO_STREAM("Subscribing topic: "<< mqtt_feedback_topic_);
+    if (mqtt_drapebot_client_->subscribe(NULL, mqtt_feedback_topic_.c_str(), 1) != 0)
+    {
+      ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_feedback_topic_);
+      return;
+    }
+    ROS_INFO_STREAM("Subscribing topic: "<< mqtt_feedback_topic_);
   }
 
   void EgmJointStateToMQTTController::stopping(const ros::Time& /*time*/)
   {
-    // if (mqtt_drapebot_client_->unsubscribe(NULL, mqtt_feedback_topic_.c_str()) != 0)
-    // {
-    //   ROS_ERROR_STREAM("Error on Mosquitto unsubscribe topic: " << mqtt_feedback_topic_);
-    //   return;
-    // } 
-    // ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_feedback_topic_);
+    if (mqtt_drapebot_client_->unsubscribe(NULL, mqtt_feedback_topic_.c_str()) != 0)
+    {
+      ROS_ERROR_STREAM("Error on Mosquitto unsubscribe topic: " << mqtt_feedback_topic_);
+      return;
+    } 
+    ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_feedback_topic_);
   }
 
   void EgmJointStateToMQTTController::update(const ros::Time& time, const ros::Duration& /*period*/)

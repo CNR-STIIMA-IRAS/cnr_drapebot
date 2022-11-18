@@ -42,7 +42,7 @@ namespace  cnr
   namespace drapebot
   {
 
-    void DrapebotMsgDecoder::on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
+    void DrapebotMsgDecoder::on_message(const struct mosquitto_message *msg)
     {
 		  if ( msg->payloadlen/sizeof(double) == MSG_LENGTH )
       {
@@ -64,7 +64,7 @@ namespace  cnr
       }
     }
     
-    void DrapebotMsgEncoder::on_publish(struct mosquitto *mosq, void *obj, int mid)
+    void DrapebotMsgEncoder::on_publish(int mid)
     {
       // Nothing to do here
     }
@@ -73,13 +73,14 @@ namespace  cnr
     {
       try
       {
-        mqtt_msg_enc_ = new cnr::drapebot::drapebot_msg;
-        mqtt_msg_dec_ = new cnr::drapebot::drapebot_msg;
-
-        drapebot_msg_encoder_ = new cnr::drapebot::DrapebotMsgEncoder(mqtt_msg_enc_);
-        drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_dec_);
-
-        mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_encoder_, drapebot_msg_decoder_);
+        ROS_ERROR_STREAM("########## MQTTDrapebotClient constructor: ");
+        // mqtt_msg_enc_ = new cnr::drapebot::drapebot_msg;
+        // mqtt_msg_dec_ = new cnr::drapebot::drapebot_msg;
+        
+        // drapebot_msg_encoder_ = new cnr::drapebot::DrapebotMsgEncoder(mqtt_msg_enc_);
+        // drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_dec_);
+        
+        // mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_encoder_, drapebot_msg_decoder_);
       }
       catch(const std::exception& e)
       {

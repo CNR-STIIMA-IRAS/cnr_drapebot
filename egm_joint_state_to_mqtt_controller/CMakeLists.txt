@@ -40,7 +40,7 @@ include_directories(
 )
 
 if(WIN32)
-  include_directories("C:\\Program Files\\mosquitto\\devel\\")
+  include_directories("C:\\ws\\mosquitto\\include\\")
 endif()
 
 
@@ -49,9 +49,12 @@ add_library(${PROJECT_NAME} src/egm_joint_state_to_mqtt_controller.cpp)
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
-   ${catkin_LIBRARIES}
+if(WIN32)
+  target_link_directories(${PROJECT_NAME} PUBLIC "C:\\ws\\mosquitto-build\\lib\\")
+endif()
+target_link_libraries(${PROJECT_NAME} 
+  ${catkin_LIBRARIES}
+  mosquitto
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
