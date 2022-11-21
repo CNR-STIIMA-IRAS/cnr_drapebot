@@ -90,7 +90,6 @@ namespace drapebot_controller
         ROS_WARN_STREAM("mqtt_command_topic not found under " + n.getNamespace() + "/mqtt_command_topic . Using defalut broker address: "+ mqtt_command_topic_);      
       }
       
-      ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
       mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
       ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
           
@@ -100,6 +99,7 @@ namespace drapebot_controller
       ROS_INFO_STREAM("mqtt_command_topic : " << mqtt_command_topic_);
               
       first_cycle_ = true;
+      topics_subscribed_ = false;
       
     }
     catch(const std::exception& e)
@@ -117,33 +117,39 @@ namespace drapebot_controller
   void MQTTToPositionController::starting(const ros::Time& time)
   { 
     ctrl_.starting(time);
-    if (mqtt_drapebot_client_->subscribe(NULL, mqtt_command_topic_.c_str(), 1) != 0)
+    int rc = mqtt_drapebot_client_->subscribe(NULL, mqtt_command_topic_.c_str(), 1);  
+    if ( rc != 0 )
     {
-      ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_command_topic_ );
+      ROS_ERROR_STREAM("Mosquitto error " << rc << " subscribing topic: " << mqtt_command_topic_ );
       return;
     }
 
-    ROS_INFO_STREAM("Subscribing topic: "<< mqtt_command_topic_);
+    topics_subscribed_ = true;
+    ROS_WARN_STREAM("Subscribing topic: "<< mqtt_command_topic_);
   }
 
 
   void MQTTToPositionController::stopping(const ros::Time& time) 
   {
     ctrl_.stopping(time);
-    if ( mqtt_drapebot_client_->unsubscribe(NULL, mqtt_command_topic_.c_str()) != 0)
+    int rc = mqtt_drapebot_client_->unsubscribe(NULL, mqtt_command_topic_.c_str());
+    if ( rc != 0 )
     {
-      ROS_ERROR_STREAM("Error on Mosquitto unsubscribe topic: " << mqtt_command_topic_);
+      ROS_ERROR_STREAM("Mosquitto error " << rc << " unsubscribeìing topic: " << mqtt_command_topic_);
       return;
     } 
+
+    topics_subscribed_ = false;
     ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_command_topic_);
   }
   
 
   void MQTTToPositionController::update(const ros::Time& time, const ros::Duration& period)
   {
-    if (mqtt_drapebot_client_->loop() != 0 )
+    int rc = mqtt_drapebot_client_->loop();
+    if ( rc != 0 && !topics_subscribed_ )
     {
-      ROS_ERROR_STREAM("Error on Mosquitto loop function");
+      ROS_ERROR_STREAM("Mosquitto error " << rc << " in loop function");
       return;
     }
     

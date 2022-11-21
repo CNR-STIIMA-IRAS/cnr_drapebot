@@ -15,11 +15,11 @@ egm_joint_state_to_mqtt_controller:
   publish_rate : 250
   
   mqtt_feedback_topic: "/robot_1/feedback"
-  broker_address: 192.168.125.1
+  #broker_address: 192.168.125.1
+  broker_address: 127.0.0.1
   port: 1883
-  #client_id: egm_jnt_state_to_mqtt_ctrl
-  client_id: egm_to_mqtt
-
+  client_id: egm_jnt_state_to_mqtt_ctrl
+  
 mqtt_to_joint_position_controller:
   type: position_controllers/MQTTToPositionController
   joints:
@@ -31,7 +31,8 @@ mqtt_to_joint_position_controller:
     - joint_6
 
   mqtt_command_topic: "/robot_1/command"
-  broker_address: 192.168.125.1
+  #broker_address: 192.168.125.1
+  broker_address: 127.0.0.1
   port: 1883
   client_id: mqtt_to_pos_ctrl
 

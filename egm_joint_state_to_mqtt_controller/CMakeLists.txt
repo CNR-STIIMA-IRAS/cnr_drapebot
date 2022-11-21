@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0.2)
 project(egm_joint_state_to_mqtt_controller)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_BUILD_TYPE Release)
+
 
 find_package(catkin REQUIRED COMPONENTS
     roscpp
@@ -52,16 +54,11 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 if(WIN32)
   target_link_directories(${PROJECT_NAME} PUBLIC "C:\\ws\\mosquitto-build\\lib\\")
 endif()
+
 target_link_libraries(${PROJECT_NAME} 
   ${catkin_LIBRARIES}
   mosquitto
 )
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4)
-endif()
 
 # Install
 install(DIRECTORY include/${PROJECT_NAME}/

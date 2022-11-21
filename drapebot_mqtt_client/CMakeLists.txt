@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.0.2)
 project(drapebot_mqtt_client)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
+
 
 find_package(catkin REQUIRED COMPONENTS 
             roscpp
@@ -34,6 +35,7 @@ add_library(${PROJECT_NAME}
 if(WIN32)
   target_link_directories(${PROJECT_NAME} PUBLIC "C:\\ws\\mosquitto-build\\lib\\")
 endif()
+
 target_link_libraries(${PROJECT_NAME} 
   ${catkin_LIBRARIES}
   mosquitto

@@ -73,14 +73,13 @@ namespace  cnr
     {
       try
       {
-        ROS_ERROR_STREAM("########## MQTTDrapebotClient constructor: ");
-        // mqtt_msg_enc_ = new cnr::drapebot::drapebot_msg;
-        // mqtt_msg_dec_ = new cnr::drapebot::drapebot_msg;
+        mqtt_msg_enc_ = new cnr::drapebot::drapebot_msg;
+        mqtt_msg_dec_ = new cnr::drapebot::drapebot_msg;
         
-        // drapebot_msg_encoder_ = new cnr::drapebot::DrapebotMsgEncoder(mqtt_msg_enc_);
-        // drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_dec_);
+        drapebot_msg_encoder_ = new cnr::drapebot::DrapebotMsgEncoder(mqtt_msg_enc_);
+        drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_dec_);
         
-        // mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_encoder_, drapebot_msg_decoder_);
+        mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_encoder_, drapebot_msg_decoder_);
       }
       catch(const std::exception& e)
       {
@@ -101,40 +100,40 @@ namespace  cnr
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->stop();      
-      else
-        return -1;
+
+      return -1;
     }
 
     int MQTTDrapebotClient::loop()
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->loop();
-      else
-        return -1;
+      
+      return -1;
     }
 
     int MQTTDrapebotClient::subscribe(int *mid, const char *sub, int qos)
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->subscribe(mid, sub, qos);
-      else
-        return -1;
+      
+      return -1;
     }
     
     int MQTTDrapebotClient::unsubscribe(int *mid, const char *sub)
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->unsubscribe(mid, sub);
-      else
-        return -1;
+      
+      return -1;
     }
 
     int MQTTDrapebotClient::publish(const void* payload, int& payload_len, const char* topic_name)
     {        
       if (mqtt_client_ != NULL)
         return mqtt_client_->publish(payload, payload_len, topic_name);
-      else
-        return -1;
+      
+      return -1;
     }
 
     bool MQTTDrapebotClient::getLastReceivedMessage(cnr::drapebot::drapebot_msg& last_msg)
@@ -147,28 +146,25 @@ namespace  cnr
         drapebot_msg_decoder_->setNewMessageAvailable(false);
         return true;
       }
-      else
-      {
-        ROS_WARN("New message not available.");
-        return false;
-      }
-      return true;
+    
+      ROS_WARN("New message not available.");
+      return false;
     }
 
     bool MQTTDrapebotClient::isNewMessageAvailable()
     {
       if (drapebot_msg_decoder_ != NULL)
         return drapebot_msg_decoder_->isNewMessageAvailable();
-      else
-        return false;
+
+      return false;
     }
 
     bool MQTTDrapebotClient::isDataValid()
     {
       if (drapebot_msg_decoder_ != NULL)
         return drapebot_msg_decoder_->isDataValid();
-      else
-        return false;
+
+      return false;
     }    
 
   }

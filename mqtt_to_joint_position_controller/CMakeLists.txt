@@ -3,6 +3,8 @@ project(mqtt_to_joint_position_controller)
 
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_BUILD_TYPE Release)
+
 
 find_package(catkin REQUIRED COMPONENTS
 	  position_controllers
@@ -55,13 +57,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
    ${catkin_LIBRARIES}
    mosquitto
 )
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4)
-endif()
-
 
 #############
 ## Install ##

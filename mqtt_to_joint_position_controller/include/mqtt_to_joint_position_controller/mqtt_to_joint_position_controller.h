@@ -61,6 +61,7 @@ namespace drapebot_controller
     private:
 
         bool first_cycle_;
+        bool topics_subscribed_;
 
         std::string mqtt_command_topic_;
         cnr::drapebot::drapebot_msg command_from_mqtt_;
