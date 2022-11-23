@@ -93,7 +93,7 @@ namespace drapebot_controller
       mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
       ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
           
-      j_pos_command_.resize(MSG_LENGTH-1); // The seventh axis is not necessary in DrapeCell setup
+      j_pos_command_.resize(MSG_AXES_LENGTH-1); // The seventh axis is not necessary in DrapeCell setup
       j_pos_command_ = *ctrl_.commands_buffer_.readFromNonRT();
       
       ROS_INFO_STREAM("mqtt_command_topic : " << mqtt_command_topic_);
@@ -125,7 +125,7 @@ namespace drapebot_controller
     }
 
     topics_subscribed_ = true;
-    ROS_WARN_STREAM("Subscribing topic: "<< mqtt_command_topic_);
+    ROS_INFO_STREAM("Subscribing topic: "<< mqtt_command_topic_);
   }
 
 
@@ -171,7 +171,7 @@ namespace drapebot_controller
         return;
       }
 
-      for (size_t i=0; i<(MSG_LENGTH-1); i++)
+      for (size_t i=0; i<(MSG_AXES_LENGTH-1); i++)
         j_pos_command_[i] =  command_from_mqtt_.joints_values_[i]; 
 
     }

@@ -67,6 +67,7 @@ namespace drapebot_controller
     ros::Time last_publish_time_;
     double publish_rate_;
     size_t num_hw_joints_; ///< Number of joints present in the JointStateInterface, excluding extra joints
+    unsigned long int counter_; //number of packages sent through MQTT
     
     cnr::drapebot::MQTTDrapebotClient* mqtt_drapebot_client_;
     std::string mqtt_feedback_topic_;

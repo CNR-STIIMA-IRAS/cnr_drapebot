@@ -44,15 +44,26 @@ namespace  cnr
 
     void DrapebotMsgDecoder::on_message(const struct mosquitto_message *msg)
     {
-		  if ( msg->payloadlen/sizeof(double) == MSG_LENGTH )
+		  if ( msg->payloadlen == sizeof(mqtt_msg_) )
       {
         char arr_c_[sizeof(double)] = {0};
-        for(size_t id=0; id<(msg->payloadlen/sizeof(double)); id++)        
+        for(size_t id=0; id<MSG_AXES_LENGTH; id++)        
         {
           memcpy(&arr_c_, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
           mqtt_msg_->joints_values_[id] = atof(arr_c_);
           memset(arr_c_,0x0,sizeof(double));
         }
+
+        char cnt_[sizeof(unsigned long int)] = {0};
+        memcpy(&cnt_, (char *)msg->payload + MSG_AXES_LENGTH * (sizeof(double)), sizeof(unsigned long int));
+        mqtt_msg_->counter_ = atof(cnt_);
+        
+        unsigned long int delta_package = std::fabs(mqtt_msg_->counter_ - counter_);
+        if (delta_package > 1)
+          ROS_WARN_STREAM("Missed " << delta_package << " packages." );
+
+        counter_ = mqtt_msg_->counter_;
+        
         setNewMessageAvailable(true);
         setDataValid(true);
       }
@@ -140,7 +151,7 @@ namespace  cnr
     {
       if (drapebot_msg_decoder_->isNewMessageAvailable() )
       {
-        for (size_t id=0; id<MSG_LENGTH; id++)
+        for (size_t id=0; id<MSG_AXES_LENGTH; id++)
           last_msg.joints_values_[id] = mqtt_msg_dec_->joints_values_[id];
 
         drapebot_msg_decoder_->setNewMessageAvailable(false);

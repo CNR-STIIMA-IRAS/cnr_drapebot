@@ -25,6 +25,7 @@ include_directories( include
 
 if(WIN32)
   include_directories("C:\\ws\\mosquitto\\include\\")
+  #include_directories("C:\\Program Files\\mosquitto\\devel\\")
 endif()
 
 ## Declare a C++ library
@@ -34,6 +35,7 @@ add_library(${PROJECT_NAME}
 
 if(WIN32)
   target_link_directories(${PROJECT_NAME} PUBLIC "C:\\ws\\mosquitto-build\\lib\\")
+  #target_link_directories(${PROJECT_NAME} PUBLIC "C:\\Program Files\\mosquitto\\")
 endif()
 
 target_link_libraries(${PROJECT_NAME} 

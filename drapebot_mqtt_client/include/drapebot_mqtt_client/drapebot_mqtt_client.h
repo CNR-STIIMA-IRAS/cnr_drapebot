@@ -42,7 +42,7 @@
 #include <cnr_mqtt_client/cnr_mqtt_client.h>
 
 #define MAX_PAYLOAD_SIZE 1024
-#define MSG_LENGTH 7 // The length is given by 6 axes robot + linear axis
+#define MSG_AXES_LENGTH 7 // The length is given by 6 axes robot + linear axis
 #define DEFAULT_KEEP_ALIVE 60
 
 namespace cnr
@@ -51,19 +51,21 @@ namespace cnr
   {
     struct drapebot_msg 
     {
-      double joints_values_[MSG_LENGTH] = {0};    
+      double joints_values_[MSG_AXES_LENGTH] = {0};    
+      unsigned long int counter_ = 0;
     }; 
 
 
     class DrapebotMsgDecoder: public cnr::mqtt::MsgDecoder
     {
     public:
-      DrapebotMsgDecoder(cnr::drapebot::drapebot_msg* mqtt_msg): mqtt_msg_(mqtt_msg) {};
+      DrapebotMsgDecoder(cnr::drapebot::drapebot_msg* mqtt_msg): mqtt_msg_(mqtt_msg), counter_(0) {};
       
       // The method should be reimplemented on the base of the application
       void on_message(const struct mosquitto_message *msg) override;
     private:
       cnr::drapebot::drapebot_msg* mqtt_msg_;
+      unsigned long int counter_;
     };
 
     class DrapebotMsgEncoder: public cnr::mqtt::MsgEncoder
