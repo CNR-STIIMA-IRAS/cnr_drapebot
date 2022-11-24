@@ -41,28 +41,59 @@ namespace  cnr
 {
   namespace drapebot
   {
+    void tic(int mode) 
+    {
+      static std::chrono::high_resolution_clock::time_point t_start;
+    
+      if (mode==0)
+          t_start = std::chrono::high_resolution_clock::now();
+      else 
+      {
+        auto t_end = std::chrono::high_resolution_clock::now();
+        ROS_WARN_STREAM_THROTTLE(1.0, "Elapsed time is " << (t_end-t_start).count()*1E-9 << "  seconds" );
+      }
+    }
+
+    void toc() 
+    { 
+      tic(1); 
+    }
+
 
     void DrapebotMsgDecoder::on_message(const struct mosquitto_message *msg)
     {
-		  if ( msg->payloadlen == sizeof(mqtt_msg_) )
+		  if ( msg->payloadlen == sizeof(drapebot_msg) )
       {
         char arr_c_[sizeof(double)] = {0};
         for(size_t id=0; id<MSG_AXES_LENGTH; id++)        
         {
           memcpy(&arr_c_, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
           mqtt_msg_->joints_values_[id] = atof(arr_c_);
+          ROS_WARN_STREAM_THROTTLE(2.0,"idx: "<< id << "   " << atof(arr_c_));
           memset(arr_c_,0x0,sizeof(double));
         }
 
-        char cnt_[sizeof(unsigned long int)] = {0};
-        memcpy(&cnt_, (char *)msg->payload + MSG_AXES_LENGTH * (sizeof(double)), sizeof(unsigned long int));
+        char cnt_[sizeof(unsigned long long int)] = {0};
+        memcpy(&cnt_, (char *)msg->payload + MSG_AXES_LENGTH * (sizeof(double)), sizeof(unsigned long long int));
         mqtt_msg_->counter_ = atof(cnt_);
-        
-        unsigned long int delta_package = std::fabs(mqtt_msg_->counter_ - counter_);
-        if (delta_package > 1)
-          ROS_WARN_STREAM("Missed " << delta_package << " packages." );
 
-        counter_ = mqtt_msg_->counter_;
+       
+        ROS_WARN_STREAM("on_message joint_1: "<< mqtt_msg_->joints_values_[0]);
+        ROS_WARN_STREAM("on_message joint_2: "<< mqtt_msg_->joints_values_[1]);
+        ROS_WARN_STREAM("on_message joint_3: "<< mqtt_msg_->joints_values_[2]);
+        ROS_WARN_STREAM("on_message joint_4: "<< mqtt_msg_->joints_values_[3]);
+        ROS_WARN_STREAM("on_message joint_5: "<< mqtt_msg_->joints_values_[4]);
+        ROS_WARN_STREAM("on_message joint_6: "<< mqtt_msg_->joints_values_[5]);
+        ROS_WARN_STREAM("on_message lin axis: "<< mqtt_msg_->joints_values_[6]);
+        ROS_WARN_STREAM("on_message counter: "<< mqtt_msg_->counter_);
+        
+        // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_1: "<< mqtt_msg_->joints_values_[0]);
+        // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_2: "<< mqtt_msg_->joints_values_[1]);
+        // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_3: "<< mqtt_msg_->joints_values_[2]);
+        // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_4: "<< mqtt_msg_->joints_values_[3]);
+        // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_5: "<< mqtt_msg_->joints_values_[4]);
+        // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_6: "<< mqtt_msg_->joints_values_[5]);
+        // ROS_WARN_STREAM_THROTTLE(2.0,"on_message lin axis: "<< mqtt_msg_->joints_values_[6]);
         
         setNewMessageAvailable(true);
         setDataValid(true);
@@ -115,10 +146,10 @@ namespace  cnr
       return -1;
     }
 
-    int MQTTDrapebotClient::loop()
+    int MQTTDrapebotClient::loop(int timeout)
     {
       if (mqtt_client_ != NULL)
-        return mqtt_client_->loop();
+        return mqtt_client_->loop(timeout);
       
       return -1;
     }
@@ -153,6 +184,8 @@ namespace  cnr
       {
         for (size_t id=0; id<MSG_AXES_LENGTH; id++)
           last_msg.joints_values_[id] = mqtt_msg_dec_->joints_values_[id];
+
+        last_msg.counter_ = mqtt_msg_dec_->counter_;
 
         drapebot_msg_decoder_->setNewMessageAvailable(false);
         return true;

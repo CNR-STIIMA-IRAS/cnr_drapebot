@@ -33,6 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <chrono>
 #include <algorithm>
 #include <cstddef>
 #include <pluginlib/class_list_macros.hpp>
@@ -43,7 +44,6 @@
 
 namespace drapebot_controller
 {
-
   EgmJointStateToMQTTController::EgmJointStateToMQTTController() :  publish_rate_(0.0),
                                                                     counter_(0) 
   {
@@ -164,11 +164,11 @@ namespace drapebot_controller
 
   void EgmJointStateToMQTTController::update(const ros::Time& time, const ros::Duration& /*period*/)
   {
+    //tic();
 
     // limit rate of publishing
     if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time)
     {
-
       // try to publish
       if (realtime_pub_->trylock()){
         // we're actually publishing, so increment time
@@ -190,7 +190,7 @@ namespace drapebot_controller
     
     
     cnr::drapebot::drapebot_msg j_pos_feedback;
-    
+
     for (unsigned i=0; i<num_hw_joints_; i++)
       j_pos_feedback.joints_values_[i] = joint_state_[i].getPosition();
 
@@ -205,13 +205,14 @@ namespace drapebot_controller
     // ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
     // ROS_DEBUG_STREAM_THROTTLE(5.0,"Cycle counter : " <<  j_pos_feedback.counter_);
 
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_1 : " << j_pos_feedback.joints_values_[0]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_2 : " << j_pos_feedback.joints_values_[1]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_3 : " << j_pos_feedback.joints_values_[2]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_4 : " << j_pos_feedback.joints_values_[3]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_5 : " << j_pos_feedback.joints_values_[4]);
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_6 : " << j_pos_feedback.joints_values_[5]);  
+    ROS_WARN_STREAM_THROTTLE(5.0,"Reading linax   : " << j_pos_feedback.joints_values_[6]);
+
     ROS_WARN_STREAM_THROTTLE(5.0,"Cycle counter : " <<  j_pos_feedback.counter_);
     
     void* payload_ = malloc( sizeof(j_pos_feedback) );        
@@ -222,12 +223,8 @@ namespace drapebot_controller
     if ( rc != 0)
       ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
 
-    if (mqtt_drapebot_client_->loop() != 0 )
-    {
-      ROS_ERROR_STREAM("Error on Mosquitto loop function");
-      return;
-    }
     counter_++;
+    //toc(counter_); 
   }
 
   void EgmJointStateToMQTTController::addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg)

@@ -49,23 +49,26 @@ namespace cnr
 {
   namespace drapebot
   {
+
+    void tic(int mode=0);
+    void toc();
+
     struct drapebot_msg 
     {
       double joints_values_[MSG_AXES_LENGTH] = {0};    
-      unsigned long int counter_ = 0;
+      unsigned long long int counter_ = 0;
     }; 
 
 
     class DrapebotMsgDecoder: public cnr::mqtt::MsgDecoder
     {
     public:
-      DrapebotMsgDecoder(cnr::drapebot::drapebot_msg* mqtt_msg): mqtt_msg_(mqtt_msg), counter_(0) {};
+      DrapebotMsgDecoder(cnr::drapebot::drapebot_msg* mqtt_msg): mqtt_msg_(mqtt_msg) {};
       
       // The method should be reimplemented on the base of the application
       void on_message(const struct mosquitto_message *msg) override;
     private:
       cnr::drapebot::drapebot_msg* mqtt_msg_;
-      unsigned long int counter_;
     };
 
     class DrapebotMsgEncoder: public cnr::mqtt::MsgEncoder
@@ -86,7 +89,7 @@ namespace cnr
       ~MQTTDrapebotClient();
 
       int stop();
-      int loop();
+      int loop(int timeout=2000);
       // int reconnect(unsigned int reconnect_delay, unsigned int reconnect_delay_max, bool reconnect_exponential_backoff);  
       int subscribe(int *mid, const char *sub, int qos);
       int unsubscribe(int *mid, const char *sub);
