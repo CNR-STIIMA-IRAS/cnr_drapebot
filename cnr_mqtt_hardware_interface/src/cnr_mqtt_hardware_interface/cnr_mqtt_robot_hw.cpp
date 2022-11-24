@@ -562,7 +562,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     }
     
     
-   mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
+    mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
     
     CNR_DEBUG_THROTTLE(m_logger,2.0,cnr_logger::BLUE()<<" msg_count : "<< mqtt_drapebot_client_->get_msg_count_cmd());
     

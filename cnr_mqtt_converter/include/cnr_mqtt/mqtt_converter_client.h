@@ -50,7 +50,7 @@ namespace cnr
     {
     public:
       DrapebotMsgDecoderHw(control_msgs::FollowJointTrajectoryGoal* trajectory_msg): trajectory_msg_(trajectory_msg) {};
-      void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) override;
+      void on_message(const struct mosquitto_message *msg) override;
       control_msgs::FollowJointTrajectoryGoal *trajectory_msg_;
       void setJointParams(const std::vector<std::string>& joint_names);
     private:
@@ -65,7 +65,7 @@ namespace cnr
     {
     public:
       DrapebotMsgEncoderHw() {};
-      void on_publish(struct mosquitto *mosq, void *obj, int mid) override;
+      void on_publish(int mid) override;
     private:
     };
 

@@ -42,7 +42,7 @@ namespace  cnr
   namespace drapebot
   {
 
-    void DrapebotMsgDecoder::on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
+    void DrapebotMsgDecoder::on_message(const struct mosquitto_message *msg)
     {
 		  if ( msg->payloadlen/sizeof(double) == MSG_LENGTH )
       {
@@ -64,7 +64,7 @@ namespace  cnr
       }
     }
     
-    void DrapebotMsgEncoder::on_publish(struct mosquitto *mosq, void *obj, int mid)
+    void DrapebotMsgEncoder::on_publish(int mid)
     {
       // Nothing to do here
     }

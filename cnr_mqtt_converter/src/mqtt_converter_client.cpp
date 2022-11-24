@@ -24,7 +24,7 @@ namespace  cnr
   namespace drapebot_converter
   {
     
-    void DrapebotMsgDecoderHw::on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message)
+    void DrapebotMsgDecoderHw::on_message(const struct mosquitto_message *message)
     {
       char buf[message->payloadlen];
       memcpy(buf, message->payload, message->payloadlen);
@@ -102,7 +102,7 @@ namespace  cnr
     }
     
     
-    void DrapebotMsgEncoderHw::on_publish(struct mosquitto *mosq, void *obj, int mid)
+    void DrapebotMsgEncoderHw::on_publish(int mid)
     {
       // Nothing to do here
     }

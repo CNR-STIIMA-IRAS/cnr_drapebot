@@ -67,7 +67,7 @@ namespace cnr
       DrapebotMsgDecoderHw(cnr::drapebot::drapebot_msg_hw* mqtt_msg): mqtt_msg_(mqtt_msg) {};
       
       // The method should be reimplemented on the base of the application
-      void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) override;
+      void on_message(const struct mosquitto_message *msg) override;
     private:
       cnr::drapebot::drapebot_msg_hw* mqtt_msg_;
       void vec_to_msg(std::vector<double> v, cnr::drapebot::drapebot_msg_hw* msg);
@@ -79,7 +79,7 @@ namespace cnr
       DrapebotMsgEncoderHw(cnr::drapebot::drapebot_msg_hw* mqtt_msg): mqtt_msg_(mqtt_msg) {};
       
       // The method should be reimplemented on the base of the application
-      void on_publish(struct mosquitto *mosq, void *obj, int mid) override;
+      void on_publish(int mid) override;
     private:
       cnr::drapebot::drapebot_msg_hw* mqtt_msg_;
     };

@@ -20,7 +20,7 @@ namespace  cnr
     
     
     
-    void DrapebotMsgDecoderHw::on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
+    void DrapebotMsgDecoderHw::on_message(const struct mosquitto_message *msg)
     {
       
       int n_joints = MSG_LENGTH; // TODO::verify
@@ -57,7 +57,7 @@ namespace  cnr
                   
     }
     
-    void DrapebotMsgEncoderHw::on_publish(struct mosquitto *mosq, void *obj, int mid)
+    void DrapebotMsgEncoderHw::on_publish(int mid)
     {
       // Nothing to do here
     }
