@@ -33,13 +33,13 @@ mqtt_hw:
   use_delta_target_pos: false
   delta_pos_from_start: false
   
-  use_real_robot: false
+  use_real_robot: true
   
   #--- MQTT ---
   
   client_id: "MQTT_HW"
-  #host: 192.168.125.7    # drapebot
-  host: 172.31.1.11    # test with loris pc
+  host: 192.168.125.7    # drapebot
+  #host: 172.31.1.11    # test with loris pc
   #host: localhost
   port: 1883
   
@@ -69,63 +69,6 @@ mqtt_hw:
     controlled_joints: all
     kin_update_period : 0.004
     
-    
-  cart_impedance_controller:
-    # REQUIRED:
-    type                  : "cnr_control/CartImpedanceController"
-    inertia               : [ 10, 10, 10, 1, 1, 1]      
-    stiffness             : [100,100,100,10,10,10]   
-    damping               : [.9,.9,.9, .9,.9,.9]    
-    joint_target_topic    : /interp_joint_pos_target              
-    base_frame            : "fake_linear_axis"
-    tool_frame            : "link_6"
-    sensor_frame          : "link_6"
-
-    # OPTIONAL:
-    base_is_reference     : true
-    wrench_deadband       : [0.1, 0.1, 0.1, 0.1, 0.1, 0.1] 
-    external_wrench_topic : /robotiq_ft_wrench 
-    controlled_joints     : all
-    damping_ratio         : [.9,.9,.9,.9,.9,.9]
-  
-  multichain_js_pub:
-    type: cnr/control/MultiChainStatePublisher
-    controlled_joint: all
-  
-  
-  
-  
-  
-multichain_hw:
-  type: cnr/control/FakeRobotHW
-  appenders: [file, screen]
-  levels: [trace, info]
-  file_name: "multichain_hw"
-
-  joint_names:    
-  - joint_0
-  - joint_1
-  - joint_2
-  - joint_3
-  - joint_4
-  - joint_5
-  - joint_6
-  
-  chain_ids: [ABB]
-  base_links: [ fake_linear_axis]
-  tool_links: [ link_6]
-  
-  robot_description_param: /robot_description
-  robot_description_planning_param: /robot_description_planning
-  sampling_period: 0.004
-
-  initial_position: [0,0,0,0,0,0,0]
-  
-  remap_source_args:
-  - "/multichain_hw/multichain_js_pub/joint_states"
-  remap_target_args:
-  - "/joint_states"
-  
   multichain_js_pub:
     type: cnr/control/MultiChainStatePublisher
     controlled_joint: all
@@ -221,13 +164,6 @@ plan_hw:
   - "abb_moveit_lab/follow_joint_trajectory/goal"
   - "abb_moveit_lab/follow_joint_trajectory/result"
   - "abb_moveit_lab/follow_joint_trajectory/status"
-
-  #microint_:
-    #type: "cnr/control/FollowJointTrajectoryPosVelEffController"
-    #controlled_joints: all
-    #interpolator: "thor/ThorPrefilter"
-    #regulator: "regulator/fake_regulator"
-    #spline_order: 1
     
     
   microint:

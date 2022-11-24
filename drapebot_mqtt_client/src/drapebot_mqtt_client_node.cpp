@@ -11,11 +11,12 @@ int main(int argc, char **argv)
 
     // ---- MQTT params ----
     std::string client_id = "egm_joint_state_to_mqtt_controller";
-    std::string host_str = "192.168.125.1";
+    std::string host_str = "192.168.250.200";
     //std::string host_str = "127.0.0.1";
     int port = 1883;
     std::string mqtt_command_topic = "/robot_1/command";
-    std::string mqtt_feedback_topic = "/robot_1/feedback";
+    std::string mqtt_feedback_topic = "/robot_1/feedback_test";
+    std::string mqtt_feedback_topic2 = "/robot_1/feedback_test2";
 
     ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
     cnr::drapebot::MQTTDrapebotClient mqtt_drapebot_client_(client_id.c_str(), host_str.c_str(), port);
@@ -27,7 +28,7 @@ int main(int argc, char **argv)
       return -1;
     }
 
-    char data[] = "a";
+    char data[] = "cd";
     int payload_len_ = sizeof(data);
     void* payload_ = malloc(payload_len_);
     memcpy(payload_,data,payload_len_);
@@ -37,6 +38,10 @@ int main(int argc, char **argv)
         int rc = mqtt_drapebot_client_.publish(payload_, payload_len_, mqtt_feedback_topic.c_str() );
         if ( rc != 0)
             ROS_ERROR_STREAM("returned " << rc);
+        
+        int rc2 = mqtt_drapebot_client_.publish(payload_, payload_len_, mqtt_feedback_topic2.c_str() );
+        if ( rc2 != 0)
+            ROS_ERROR_STREAM("returned " << rc2);
 
         if (mqtt_drapebot_client_.loop() != 0 )
         {
@@ -44,7 +49,10 @@ int main(int argc, char **argv)
             return -1;
         }
         r.sleep();
+    ROS_INFO_STREAM_THROTTLE(2.0,"publishing to: "<< mqtt_feedback_topic);
+    ROS_INFO_STREAM_THROTTLE(2.0,"publishing to: "<< mqtt_feedback_topic2);
     }
+
 
     free(payload_);
 

@@ -464,7 +464,9 @@ bool MQTTRobotHW::doInit()
     while ( !mqtt_drapebot_client_->isNewMessageAvailable() )
     {
       CNR_WARN_THROTTLE(m_logger,2.0,"waiting for first feedback message");
-      mqtt_drapebot_client_->loop();
+      if (mqtt_drapebot_client_->loop() != MOSQ_ERR_SUCCESS)
+        CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
+      
       ros::Duration(0.005).sleep();
     }
     
@@ -475,7 +477,8 @@ bool MQTTRobotHW::doInit()
       print_last_msg(this->m_logger, last_msg);      
     }
     
-    
+    CNR_INFO(m_logger,cnr_logger::BOLDMAGENTA()<<"PRESs enter if pose ok");
+//     std::cin.get();
   }
   else
   {
@@ -511,10 +514,8 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
 {
   CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
   
-  CNR_INFO_THROTTLE(m_logger,2,cnr_logger::BLUE()<<"period: "<<period << " nominal period: " << this->m_sampling_period);
-  
   // ----------- BYTE MQTT MSG -------------------
-  { 
+  {
     
     for(int jj=0;jj<m_cmd_pos.size();jj++)
     {
@@ -561,7 +562,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     }
     
     
-    mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
+   mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
     
     CNR_DEBUG_THROTTLE(m_logger,2.0,cnr_logger::BLUE()<<" msg_count : "<< mqtt_drapebot_client_->get_msg_count_cmd());
     
@@ -610,16 +611,14 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     Json::StreamWriterBuilder builder;
     const std::string json_file = Json::writeString(builder, root);
     
-    char topic[] = "mqtt_command";
+    char topic[] = "/mqtt_command";
     char pl[json_file.length()+1];
     strcpy(pl, json_file.c_str());
     
     int size_pl = sizeof(pl);
-    
     mqtt_drapebot_client_->publish(pl, size_pl, topic);
-    
+        
   }
-
   
   CNR_RETURN_TRUE_THROTTLE_DEFAULT(m_logger);
 }
@@ -693,18 +692,16 @@ bool MQTTRobotHW::doPrepareSwitch(const std::list< hardware_interface::Controlle
 bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*period*/)
 {  
   CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
-   
+  
   if (USE_REAL_ROBOT)
   {
     CNR_INFO_THROTTLE(m_logger,2.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
     
     for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
     {
-      if (mqtt_drapebot_client_->loop() != 0 )
-      {
-          ROS_ERROR_STREAM("Error on Mosquitto loop function");
-          return -1;
-      }
+      
+      if (mqtt_drapebot_client_->loop() != MOSQ_ERR_SUCCESS)
+        CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
     }
   
     
@@ -724,7 +721,6 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
         CNR_WARN_THROTTLE(m_logger,1.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
                                                << mqtt_drapebot_client_->get_msg_count_cmd() <<", feedback: " << last_msg.count);
       }
-      
     }
     else
       CNR_WARN_THROTTLE(m_logger,1.0,"no new feedback message available ... not good");
@@ -779,7 +775,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   js.header.stamp = ros::Time::now();
   
   fb_pos_pub_.publish(js);
-
+  
   CNR_RETURN_TRUE_THROTTLE_DEFAULT(m_logger);
 }
 

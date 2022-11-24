@@ -99,16 +99,18 @@ namespace  cnr
       m.count = msg_count_cmd;
     
       int message_size_ = sizeof(m);
-            
+      
       void* payload_ = malloc( message_size_ );
       memcpy(payload_, &m, message_size_);  
-      
       
       int n = cmd_topic.length();
       char topic[n+ 1];
       strcpy(topic, cmd_topic.c_str());
-            
-      publish(payload_, message_size_, topic);
+      
+      int rc = publish(payload_, message_size_, topic);
+      if ( rc != 0)
+        ROS_ERROR_STREAM("MQTTDrapebotClientHw::publish_with_tracking returned code:" << rc);
+        
     }
 
     int MQTTDrapebotClientHw::stop()
