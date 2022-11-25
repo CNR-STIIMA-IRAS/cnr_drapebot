@@ -33,6 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <json.h>
 #include <chrono>
 #include <algorithm>
 #include <cstddef>
@@ -205,23 +206,43 @@ namespace drapebot_controller
     // ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
     // ROS_DEBUG_STREAM_THROTTLE(5.0,"Cycle counter : " <<  j_pos_feedback.counter_);
 
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_1 : " << j_pos_feedback.joints_values_[0]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_2 : " << j_pos_feedback.joints_values_[1]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_3 : " << j_pos_feedback.joints_values_[2]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_4 : " << j_pos_feedback.joints_values_[3]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_5 : " << j_pos_feedback.joints_values_[4]);
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading EGM Joint_6 : " << j_pos_feedback.joints_values_[5]);  
-    ROS_WARN_STREAM_THROTTLE(5.0,"Reading linax   : " << j_pos_feedback.joints_values_[6]);
-
-    ROS_WARN_STREAM_THROTTLE(5.0,"Cycle counter : " <<  j_pos_feedback.counter_);
+    /////////
+    Json::Value root;
     
-    void* payload_ = malloc( sizeof(j_pos_feedback) );        
-    memcpy(payload_, &j_pos_feedback, sizeof(j_pos_feedback));  
-    int payload_len_ = sizeof(j_pos_feedback);
+    root["J0"] =  j_pos_feedback.joints_values_[0];
+    root["J1"] =  j_pos_feedback.joints_values_[1];
+    root["J2"] =  j_pos_feedback.joints_values_[2];
+    root["J3"] =  j_pos_feedback.joints_values_[3];
+    root["J4"] =  j_pos_feedback.joints_values_[4];
+    root["J5"] =  j_pos_feedback.joints_values_[5];
+    root["E0"] =  j_pos_feedback.joints_values_[6];
+    root["count"] = j_pos_feedback.counter_;
+    
+    Json::StreamWriterBuilder builder;
+    const std::string json_file = Json::writeString(builder, root);
+    
+    int payload_len_ = json_file.length() + 1;
+    char* payload_ = new char[ payload_len_ ];
+    strcpy(payload_, json_file.c_str());
 
-    int rc = mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str() );
+    int rc = mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str());
+
     if ( rc != 0)
       ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
+
+    ROS_WARN_STREAM_THROTTLE(5.0,"JSON feedback message : " <<  json_file );
+
+
+    delete payload_;
+
+    // void* payload_ = malloc( sizeof(j_pos_feedback) );        
+    // memcpy(payload_, &j_pos_feedback, sizeof(j_pos_feedback));  
+    // int payload_len_ = sizeof(j_pos_feedback);
+
+    // int rc = mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str() );
+    // if ( rc != 0)
+    //   ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
+    /////////
 
     counter_++;
     //toc(counter_); 

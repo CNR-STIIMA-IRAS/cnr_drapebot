@@ -33,6 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <json.h>
 #include <ros/ros.h>
 
 #include <drapebot_mqtt_client/drapebot_mqtt_client.h>
@@ -62,30 +63,47 @@ namespace  cnr
 
     void DrapebotMsgDecoder::on_message(const struct mosquitto_message *msg)
     {
-		  if ( msg->payloadlen == sizeof(drapebot_msg) )
-      {
-        char arr_c_[sizeof(double)] = {0};
-        for(size_t id=0; id<MSG_AXES_LENGTH; id++)        
-        {
-          memcpy(&arr_c_, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
-          mqtt_msg_->joints_values_[id] = atof(arr_c_);
-          ROS_WARN_STREAM_THROTTLE(2.0,"idx: "<< id << "   " << atof(arr_c_));
-          memset(arr_c_,0x0,sizeof(double));
-        }
+		  // if ( msg->payloadlen == MQTT_COMMAND_MSG_SIZE )
+      // {
+        char* buffer = new char[msg->payloadlen];
+        memcpy(buffer, msg->payload, msg->payloadlen);
+      
+        Json::Reader reader;
+        Json::Value root;
+      
+        reader.parse(buffer,root);
+        
+        mqtt_msg_->joints_values_[0] = root["J0"].asDouble();
+        mqtt_msg_->joints_values_[1] = root["J1"].asDouble();
+        mqtt_msg_->joints_values_[2] = root["J2"].asDouble();
+        mqtt_msg_->joints_values_[3] = root["J3"].asDouble();
+        mqtt_msg_->joints_values_[4] = root["J4"].asDouble();
+        mqtt_msg_->joints_values_[5] = root["J5"].asDouble();
+        mqtt_msg_->joints_values_[6] = root["E0"].asDouble();
+        mqtt_msg_->counter_ = root["count"].asInt();
 
-        char cnt_[sizeof(unsigned long long int)] = {0};
-        memcpy(&cnt_, (char *)msg->payload + MSG_AXES_LENGTH * (sizeof(double)), sizeof(unsigned long long int));
-        mqtt_msg_->counter_ = atof(cnt_);
+        // char arr_c_[sizeof(double)] = {0};
+        // for(size_t id=0; id<MSG_AXES_LENGTH; id++)        
+        // {
+        //   memcpy(&arr_c_, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
+        //   mqtt_msg_->joints_values_[id] = atof(arr_c_);
+        //   ROS_WARN_STREAM_THROTTLE(2.0,"idx: "<< id << "   " << atof(arr_c_));
+        //   memset(arr_c_,0x0,sizeof(double));
+        // }
+
+        // char cnt_[sizeof(unsigned long long int)] = {0};
+        // memcpy(&cnt_, (char *)msg->payload + MSG_AXES_LENGTH * (sizeof(double)), sizeof(unsigned long long int));
+        // mqtt_msg_->counter_ = atof(cnt_);
 
        
-        ROS_WARN_STREAM("on_message joint_1: "<< mqtt_msg_->joints_values_[0]);
-        ROS_WARN_STREAM("on_message joint_2: "<< mqtt_msg_->joints_values_[1]);
-        ROS_WARN_STREAM("on_message joint_3: "<< mqtt_msg_->joints_values_[2]);
-        ROS_WARN_STREAM("on_message joint_4: "<< mqtt_msg_->joints_values_[3]);
-        ROS_WARN_STREAM("on_message joint_5: "<< mqtt_msg_->joints_values_[4]);
-        ROS_WARN_STREAM("on_message joint_6: "<< mqtt_msg_->joints_values_[5]);
-        ROS_WARN_STREAM("on_message lin axis: "<< mqtt_msg_->joints_values_[6]);
-        ROS_WARN_STREAM("on_message counter: "<< mqtt_msg_->counter_);
+        // ROS_WARN_STREAM("on_message joint_1: "<< mqtt_msg_->joints_values_[0]);
+        // ROS_WARN_STREAM("on_message joint_2: "<< mqtt_msg_->joints_values_[1]);
+        // ROS_WARN_STREAM("on_message joint_3: "<< mqtt_msg_->joints_values_[2]);
+        // ROS_WARN_STREAM("on_message joint_4: "<< mqtt_msg_->joints_values_[3]);
+        // ROS_WARN_STREAM("on_message joint_5: "<< mqtt_msg_->joints_values_[4]);
+        // ROS_WARN_STREAM("on_message joint_6: "<< mqtt_msg_->joints_values_[5]);
+        // ROS_WARN_STREAM("on_message lin axis: "<< mqtt_msg_->joints_values_[6]);
+        // ROS_WARN_STREAM("on_message counter: "<< mqtt_msg_->counter_);
         
         // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_1: "<< mqtt_msg_->joints_values_[0]);
         // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_2: "<< mqtt_msg_->joints_values_[1]);
@@ -94,16 +112,18 @@ namespace  cnr
         // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_5: "<< mqtt_msg_->joints_values_[4]);
         // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_6: "<< mqtt_msg_->joints_values_[5]);
         // ROS_WARN_STREAM_THROTTLE(2.0,"on_message lin axis: "<< mqtt_msg_->joints_values_[6]);
-        
+        // ROS_WARN_STREAM_THROTTLE(2.0,"message_len: "<< msg->payloadlen);
+
         setNewMessageAvailable(true);
         setDataValid(true);
-      }
-		  else
-      {
-        ROS_WARN("The message received from MQTT has a wrong length");
-        setNewMessageAvailable(false);
-        setDataValid(false);
-      }
+        delete buffer;
+      // }
+		  // else
+      // {
+      //   ROS_WARN("The message received from MQTT has a wrong length");
+      //   setNewMessageAvailable(false);
+      //   setDataValid(false);
+      // }
     }
     
     void DrapebotMsgEncoder::on_publish(int mid)
@@ -186,6 +206,15 @@ namespace  cnr
           last_msg.joints_values_[id] = mqtt_msg_dec_->joints_values_[id];
 
         last_msg.counter_ = mqtt_msg_dec_->counter_;
+
+        ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_1: "<< last_msg.joints_values_[0]);
+        ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_2: "<< last_msg.joints_values_[1]);
+        ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_3: "<< last_msg.joints_values_[2]);
+        ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_4: "<< last_msg.joints_values_[3]);
+        ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_5: "<< last_msg.joints_values_[4]);
+        ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_6: "<< last_msg.joints_values_[5]);
+        ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage lin axis: "<< last_msg.joints_values_[6]);
+        ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage counter: "<< last_msg.counter_);
 
         drapebot_msg_decoder_->setNewMessageAvailable(false);
         return true;

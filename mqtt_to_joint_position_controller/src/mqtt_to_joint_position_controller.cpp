@@ -155,10 +155,16 @@ namespace drapebot_controller
       j_pos_command_  = *ctrl_.commands_buffer_.readFromNonRT();
     }
     
-    int rc = mqtt_drapebot_client_->loop(4);
-    if ( rc != 0 && !topics_subscribed_ )
+    int rc = mqtt_drapebot_client_->loop(100);
+    if ( rc != 0 || !topics_subscribed_ )
     {
       ROS_WARN_STREAM("Mosquitto error " << rc << " in loop function");
+      ROS_WARN_STREAM("Mosquitto loop error command joint_1: "<< j_pos_command_[0]);
+      ROS_WARN_STREAM("Mosquitto loop error command joint_2: "<< j_pos_command_[1]);
+      ROS_WARN_STREAM("Mosquitto loop error command joint_3: "<< j_pos_command_[2]);
+      ROS_WARN_STREAM("Mosquitto loop error command joint_4: "<< j_pos_command_[3]);
+      ROS_WARN_STREAM("Mosquitto loop error command joint_5: "<< j_pos_command_[4]);
+      ROS_WARN_STREAM("Mosquitto loop error command joint_6: "<< j_pos_command_[5]);
       ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
       ctrl_.update(time,period);
       return;
@@ -192,14 +198,14 @@ namespace drapebot_controller
       counter_ = command_from_mqtt_.counter_;
     }
     else
-      ROS_DEBUG_THROTTLE(2.0,"No message available");
+      ROS_WARN_THROTTLE(2.0,"No message available");
     
-    // ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_1: "<< j_pos_command_[0]);
-    // ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_2: "<< j_pos_command_[1]);
-    // ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_3: "<< j_pos_command_[2]);
-    // ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_4: "<< j_pos_command_[3]);
-    // ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_5: "<< j_pos_command_[4]);
-    // ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_6: "<< j_pos_command_[5]);
+    ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_1: "<< j_pos_command_[0]);
+    ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_2: "<< j_pos_command_[1]);
+    ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_3: "<< j_pos_command_[2]);
+    ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_4: "<< j_pos_command_[3]);
+    ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_5: "<< j_pos_command_[4]);
+    ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_6: "<< j_pos_command_[5]);
     
     ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
     ctrl_.update(time,period);
