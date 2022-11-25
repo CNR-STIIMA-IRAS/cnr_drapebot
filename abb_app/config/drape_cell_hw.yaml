@@ -34,6 +34,7 @@ mqtt_hw:
   delta_pos_from_start: false
   
   use_real_robot: true
+  use_json: true
   
   #--- MQTT ---
   

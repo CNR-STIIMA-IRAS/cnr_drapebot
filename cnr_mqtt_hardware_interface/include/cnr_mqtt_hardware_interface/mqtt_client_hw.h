@@ -64,12 +64,13 @@ namespace cnr
     class DrapebotMsgDecoderHw: public cnr::mqtt::MsgDecoder
     {
     public:
-      DrapebotMsgDecoderHw(cnr::drapebot::drapebot_msg_hw* mqtt_msg): mqtt_msg_(mqtt_msg) {};
+      DrapebotMsgDecoderHw(cnr::drapebot::drapebot_msg_hw* mqtt_msg, bool use_json): mqtt_msg_(mqtt_msg), use_json_(use_json) {};
       
       // The method should be reimplemented on the base of the application
       void on_message(const struct mosquitto_message *msg) override;
     private:
       cnr::drapebot::drapebot_msg_hw* mqtt_msg_;
+      bool use_json_;
       void vec_to_msg(std::vector<double> v, cnr::drapebot::drapebot_msg_hw* msg);
     };
 
@@ -87,11 +88,11 @@ namespace cnr
     class MQTTDrapebotClientHw
     {
     public:
-      MQTTDrapebotClientHw (const char *id, const char *host, int port, int keepalive = 60);
+      MQTTDrapebotClientHw (const char *id, const char *host, int port, int keepalive = 60, bool use_json = false);
       ~MQTTDrapebotClientHw();
 
       int stop();
-      int loop();
+      int loop(int timeout = 4);
       // int reconnect(unsigned int reconnect_delay, unsigned int reconnect_delay_max, bool reconnect_exponential_backoff);  
       int subscribe(int *mid, const char *sub, int qos);
       int unsubscribe(int *mid, const char *sub);

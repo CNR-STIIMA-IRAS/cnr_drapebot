@@ -129,6 +129,9 @@ protected:
   
   bool USE_REAL_ROBOT;
   bool verbose_;
+  bool use_json_;
+  
+  int command_count_ = 0;
 
   friend void setParam(MQTTRobotHW* hw, const std::string& ns);
 };

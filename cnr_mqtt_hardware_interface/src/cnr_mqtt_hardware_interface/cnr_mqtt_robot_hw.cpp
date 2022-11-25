@@ -434,6 +434,13 @@ bool MQTTRobotHW::doInit()
     CNR_TRACE(m_logger,"default verbose: true");
   }
   
+  if (!m_robothw_nh.getParam("use_json",use_json_))
+  {
+    use_json_= false;
+    CNR_TRACE(m_logger,"default use_json: "<< use_json_);
+  }
+  
+  
   std::string v = USE_REAL_ROBOT ? "ACHTUNG ! ! ! \n USING REAL ROBOT ! \n be careful, be nice please" : "using fake robot." ;
   if (USE_REAL_ROBOT)
     CNR_INFO(m_logger,cnr_logger::RED()<<"\n\n ################# \n "<< v <<" \n################# \n\n");
@@ -446,7 +453,7 @@ bool MQTTRobotHW::doInit()
   
   CNR_INFO(m_logger,"Connencting mqtt: "<< cid << ", host: " << host_str << ", port: " << port);
   
-  mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClientHw(cid.c_str(), host_str.c_str(), port);
+  mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClientHw(cid.c_str(), host_str.c_str(), port, 60, use_json_);
 
   CNR_INFO(m_logger,"Connencted to: "<< cid << ": " << host_str);
 
@@ -514,63 +521,29 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
 {
   CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
   
-  // ----------- BYTE MQTT MSG -------------------
-  {
     
-    for(int jj=0;jj<m_cmd_pos.size();jj++)
-    {
-      if (delta_pos_from_start_)
-        m_delta_pos.at(jj)=m_cmd_pos.at(jj)-m_start_pos.at(jj);
-      else
-        m_delta_pos.at(jj)=m_cmd_pos.at(jj)-m_old_pos.at(jj);   
-        
-      m_old_delta_pos.at(jj)=m_delta_pos.at(jj);
-      m_old_pos.at(jj)=m_cmd_pos.at(jj);
-    }
-    
-    
-    cnr::drapebot::drapebot_msg_hw m_;
-    
-    std::string st = cnr_logger::MAGENTA();
-    
-    if(use_delta_target_pos_)
-    {
-      vector_to_mqtt_msg(m_delta_pos,m_);
-      
-      CNR_INFO_THROTTLE(m_logger,10.0, cnr_logger::CYAN()<< "using relative cmd position");
-      st += " delta command : ";
-    }
-    else
-    {
-      vector_to_mqtt_msg(m_cmd_pos,m_);
-      
-      CNR_INFO_THROTTLE(m_logger,10.0, cnr_logger::CYAN()    << "using absolute cmd position");
-      st += " command : "; 
-    }
-    
-    
-    
-    vector_to_mqtt_msg(m_cmd_pos,m_);
-    
-    CNR_INFO_THROTTLE(m_logger,10.0, cnr_logger::CYAN() << "using absolute cmd position");
-    
+    CNR_INFO_THROTTLE(m_logger,10.0,"[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] publishing command on : "<<m_mqtt_command_topic);
+       
     if(verbose_)
     {
+      cnr::drapebot::drapebot_msg_hw m_;
+      vector_to_mqtt_msg(m_cmd_pos,m_);
       std::string st = cnr_logger::MAGENTA();
       st += " command : "; 
       print_message_struct_throttle(m_logger,st, m_);
     }
     
+    if(!use_json_)
+  {
+  // ----------- BYTE MQTT MSG -------------------
+      
+    cnr::drapebot::drapebot_msg_hw m_;
+    vector_to_mqtt_msg(m_cmd_pos,m_);
     
     mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
-    
-    CNR_DEBUG_THROTTLE(m_logger,2.0,cnr_logger::BLUE()<<" msg_count : "<< mqtt_drapebot_client_->get_msg_count_cmd());
-    
-    int n = m_mqtt_command_topic.length();
-    char topic[n+ 1];
-    strcpy(topic, m_mqtt_command_topic.c_str());
-    ROS_INFO_STREAM_THROTTLE(10.0,"[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] publishing command on : "<<topic);
-    
+      
+    {
+    //---------------------------- debug rostopic ------------------------------
     sensor_msgs::JointState js;
     
     js.name.push_back("E0");
@@ -592,11 +565,11 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     js.header.stamp = ros::Time::now();
     
     cmd_pos_pub_.publish(js);
-    
+    }
   }
-    
-  // ----------- JSON MQTT MSG -------------------
+  else
   {
+  // ----------- JSON MQTT MSG -------------------
     Json::Value root;
     Json::FastWriter writer;
     
@@ -608,17 +581,22 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     root["J5"] = m_cmd_pos.at(6);
     root["E0"] = m_cmd_pos.at(0);
     
+    command_count_++;
+    
+    root["count"] = command_count_;
+    
     Json::StreamWriterBuilder builder;
     const std::string json_file = Json::writeString(builder, root);
     
-    char topic[] = "/mqtt_command";
     char pl[json_file.length()+1];
     strcpy(pl, json_file.c_str());
     
     int size_pl = sizeof(pl);
-    mqtt_drapebot_client_->publish(pl, size_pl, topic);
+    mqtt_drapebot_client_->publish(pl, size_pl, m_mqtt_command_topic.c_str());
         
   }
+  
+
   
   CNR_RETURN_TRUE_THROTTLE_DEFAULT(m_logger);
 }
@@ -697,12 +675,12 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   {
     CNR_INFO_THROTTLE(m_logger,2.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
     
-    for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
-    {
+//     for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
+//     {
       
-      if (mqtt_drapebot_client_->loop() != MOSQ_ERR_SUCCESS)
+      if (mqtt_drapebot_client_->loop(4) != MOSQ_ERR_SUCCESS)
         CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
-    }
+//     }
   
     
     if(mqtt_drapebot_client_->isNewMessageAvailable())

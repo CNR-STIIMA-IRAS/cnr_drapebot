@@ -40,7 +40,7 @@ include_directories(
 )
 
 add_library           (mqtt_client_hw src/${PROJECT_NAME}/mqtt_client_hw.cpp )
-target_link_libraries (mqtt_client_hw ${catkin_LIBRARIES} )
+target_link_libraries (mqtt_client_hw ${catkin_LIBRARIES} jsoncpp)
 
 add_library           (${PROJECT_NAME} src/${PROJECT_NAME}/cnr_mqtt_robot_hw.cpp )
 add_dependencies      (${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

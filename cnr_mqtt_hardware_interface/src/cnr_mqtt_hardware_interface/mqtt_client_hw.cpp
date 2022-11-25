@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <cnr_mqtt_hardware_interface/mqtt_client_hw.h>
 
+#include <jsoncpp/json/json.h>
 
 namespace  cnr
 {
@@ -23,38 +24,68 @@ namespace  cnr
     void DrapebotMsgDecoderHw::on_message(const struct mosquitto_message *msg)
     {
       
-      int n_joints = MSG_LENGTH; // TODO::verify
-      
-      int message_size = n_joints * sizeof(mqtt_msg_->E0) + sizeof(mqtt_msg_->count); 
-      
-      std::vector<double> joints;
-      
-      if ( msg->payloadlen == message_size )
+      if(use_json_)
       {
         
-        for(size_t id=0; id< n_joints*sizeof(mqtt_msg_->E0)/sizeof(double); id++)        
-        {
-          double j;
-          memcpy(&j, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
-          joints.push_back(j);
-        }
+        ROS_INFO_STREAM_THROTTLE(2.0,"using JSON to decode message");
         
-        vec_to_msg(joints,mqtt_msg_);
+        char buf[msg->payloadlen];
+        memcpy(buf, msg->payload, msg->payloadlen);
         
-        unsigned long int count;
-        memcpy(&count, (char *)msg->payload + n_joints * sizeof(mqtt_msg_->E0), sizeof(unsigned long int));  
-        mqtt_msg_->count = count;
+        Json::Reader reader;
+        Json::Value root;
+        
+        reader.parse(buf,root);
+        
+        mqtt_msg_->J1 = root["J0"].asDouble();// = m_cmd_pos.at(1);
+        mqtt_msg_->J2 = root["J1"].asDouble();// = m_cmd_pos.at(2);
+        mqtt_msg_->J3 = root["J2"].asDouble();// = m_cmd_pos.at(3);
+        mqtt_msg_->J4 = root["J3"].asDouble();// = m_cmd_pos.at(4);
+        mqtt_msg_->J5 = root["J4"].asDouble();// = m_cmd_pos.at(5);
+        mqtt_msg_->J6 = root["J5"].asDouble();// = m_cmd_pos.at(6);
+        mqtt_msg_->E0 = root["E0"].asDouble();// = m_cmd_pos.at(0);
+        
+        mqtt_msg_-> count = root["count"].asInt();
         
         setNewMessageAvailable(true); 
         setDataValid(true);
       }
       else
       {
-        ROS_WARN("The message received from MQTT has a wrong length");
-        setNewMessageAvailable(false);
-        setDataValid(false);
+        ROS_INFO_STREAM_THROTTLE(2.0,"using basic mqtt to decode message");
+        
+        int n_joints = MSG_LENGTH; // TODO::verify
+        
+        int message_size = n_joints * sizeof(mqtt_msg_->E0) + sizeof(mqtt_msg_->count); 
+        
+        std::vector<double> joints;
+        
+        if ( msg->payloadlen == message_size )
+        {
+          
+          for(size_t id=0; id< n_joints*sizeof(mqtt_msg_->E0)/sizeof(double); id++)        
+          {
+            double j;
+            memcpy(&j, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
+            joints.push_back(j);
+          }
+          
+          vec_to_msg(joints,mqtt_msg_);
+          
+          unsigned long int count;
+          memcpy(&count, (char *)msg->payload + n_joints * sizeof(mqtt_msg_->E0), sizeof(unsigned long int));  
+          mqtt_msg_->count = count;
+          
+          setNewMessageAvailable(true); 
+          setDataValid(true);
+        }
+        else
+        {
+          ROS_WARN("The message received from MQTT has a wrong length");
+          setNewMessageAvailable(false);
+          setDataValid(false);
+        }
       }
-                  
     }
     
     void DrapebotMsgEncoderHw::on_publish(int mid)
@@ -63,7 +94,7 @@ namespace  cnr
     }
     
 
-    MQTTDrapebotClientHw::MQTTDrapebotClientHw(const char *id, const char *host, int port, int keepalive)
+    MQTTDrapebotClientHw::MQTTDrapebotClientHw(const char *id, const char *host, int port, int keepalive, bool use_json)
     {
       try
       {
@@ -71,7 +102,7 @@ namespace  cnr
         mqtt_msg_dec_ = new cnr::drapebot::drapebot_msg_hw;
 
         drapebot_msg_hw_encoder_ = new cnr::drapebot::DrapebotMsgEncoderHw(mqtt_msg_enc_);
-        drapebot_msg_hw_decoder_ = new cnr::drapebot::DrapebotMsgDecoderHw(mqtt_msg_dec_);
+        drapebot_msg_hw_decoder_ = new cnr::drapebot::DrapebotMsgDecoderHw(mqtt_msg_dec_, use_json);
 
         mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_hw_encoder_, drapebot_msg_hw_decoder_);
         
@@ -112,6 +143,7 @@ namespace  cnr
         ROS_ERROR_STREAM("MQTTDrapebotClientHw::publish_with_tracking returned code:" << rc);
         
     }
+    
 
     int MQTTDrapebotClientHw::stop()
     {
@@ -121,10 +153,10 @@ namespace  cnr
         return -1;
     }
 
-    int MQTTDrapebotClientHw::loop()
+    int MQTTDrapebotClientHw::loop(int timeout)
     {
       if (mqtt_client_ != NULL)
-        return mqtt_client_->loop();
+        return mqtt_client_->loop(timeout);
       else
         return -1;
     }

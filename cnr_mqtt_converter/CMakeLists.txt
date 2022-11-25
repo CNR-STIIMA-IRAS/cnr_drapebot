@@ -25,7 +25,7 @@ include_directories(
 )
 
 add_library(
-mqtt src/mqtt_converter_client.cpp
+mqtt src/mqtt_converter_client.cpp 
 )
 
 #add_library(
@@ -37,7 +37,7 @@ mqtt src/mqtt_converter_client.cpp
 #add_dependencies(main  ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} )
 
 add_executable(mqtt_converter src/mqtt_converter_node.cpp)
-target_link_libraries(mqtt_converter mqtt ${catkin_LIBRARIES} mosquittopp mosquitto jsoncpp)
+target_link_libraries(mqtt_converter mqtt ${catkin_LIBRARIES} mosquitto jsoncpp)
 
 #target_link_libraries (${PROJECT_NAME} ${catkin_LIBRARIES} PkgConfig::Mosquittopp PkgConfig::Mosquitto jsoncpp)
 
