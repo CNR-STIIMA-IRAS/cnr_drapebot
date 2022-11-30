@@ -197,16 +197,6 @@ namespace drapebot_controller
 
     j_pos_feedback.counter_ = counter_;
 
-    // ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
-    // ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
-    // ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
-    // ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
-    // ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
-    // ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);   
-    // ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
-    // ROS_DEBUG_STREAM_THROTTLE(5.0,"Cycle counter : " <<  j_pos_feedback.counter_);
-
-    /////////
     Json::Value root;
     
     root["J0"] =  j_pos_feedback.joints_values_[0];
@@ -230,22 +220,14 @@ namespace drapebot_controller
     if ( rc != 0)
       ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
 
-    ROS_WARN_STREAM_THROTTLE(5.0,"JSON feedback message : " <<  json_file );
-
-
-    delete payload_;
-
-    // void* payload_ = malloc( sizeof(j_pos_feedback) );        
-    // memcpy(payload_, &j_pos_feedback, sizeof(j_pos_feedback));  
-    // int payload_len_ = sizeof(j_pos_feedback);
-
-    // int rc = mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str() );
-    // if ( rc != 0)
-    //   ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
-    /////////
+    //ROS_WARN_STREAM_THROTTLE(5.0,"JSON feedback message : " <<  json_file );
+    ROS_WARN_STREAM_THROTTLE(5.0,"EgmJointStateToMQTTController counter_ : " <<  j_pos_feedback.counter_ );
 
     counter_++;
     //toc(counter_); 
+
+    delete payload_;
+
   }
 
   void EgmJointStateToMQTTController::addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg)
