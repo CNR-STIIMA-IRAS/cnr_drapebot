@@ -152,7 +152,7 @@ namespace drapebot_controller
       j_pos_command_  = *ctrl_.commands_buffer_.readFromNonRT();
     }
     
-    int rc = mqtt_drapebot_client_->loop(4);
+    int rc = mqtt_drapebot_client_->loop(1000);
     if ( rc != 0 || !topics_subscribed_ )
     {
       ROS_WARN_STREAM("Mosquitto error " << rc << " in loop function");
@@ -162,42 +162,29 @@ namespace drapebot_controller
     }
        
     // Read the new MQTT message and send the command to the robot
-      
-    // if (mqtt_drapebot_client_->isNewMessageAvailable() && mqtt_drapebot_client_->isDataValid()) 
-    // {
-      memset(&command_from_mqtt_,0x0,sizeof(cnr::drapebot::drapebot_msg));
+    memset(&command_from_mqtt_,0x0,sizeof(cnr::drapebot::drapebot_msg));
 
-      if (!mqtt_drapebot_client_->getLastReceivedMessage(command_from_mqtt_))
-      {
-        ROS_ERROR_THROTTLE(2.0,"Can't recover the last received message");
-        return;
-      }
+    if (!mqtt_drapebot_client_->getLastReceivedMessage(command_from_mqtt_))
+    {
+      ROS_ERROR_THROTTLE(2.0,"Can't recover the last received message");
+      return;
+    }
 
-      for (size_t i=0; i<(MSG_AXES_LENGTH-1); i++)
-        j_pos_command_[i] =  command_from_mqtt_.joints_values_[i]; 
+    for (size_t i=0; i<(MSG_AXES_LENGTH-1); i++)
+      j_pos_command_[i] =  command_from_mqtt_.joints_values_[i]; 
 
-      unsigned long int delta_package = std::fabs(command_from_mqtt_.counter_ - counter_);
+    unsigned long int delta_package = std::fabs(command_from_mqtt_.counter_ - counter_);
 
-      if (delta_package > 1)
-      {
-        ROS_WARN_STREAM("Missed " << delta_package << " packages." );
-        loss_packages_ += delta_package;
-      }
-      
-      ROS_WARN_STREAM_THROTTLE(10.0, "Loss packages: " << loss_packages_ );
-
-      counter_ = command_from_mqtt_.counter_;
-    // }
-    // else
-    //   ROS_WARN("No message available");
-      //ROS_WARN_THROTTLE(2.0,"No message available");
+    if (delta_package > 1)
+    {
+      ROS_WARN_STREAM("Missed " << delta_package << " packages." );
+      loss_packages_ += delta_package;
+    }
     
-    //ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_1: "<< j_pos_command_[0]);
-    //ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_2: "<< j_pos_command_[1]);
-    //ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_3: "<< j_pos_command_[2]);
-    //ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_4: "<< j_pos_command_[3]);
-    //ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_5: "<< j_pos_command_[4]);
-    //ROS_WARN_STREAM_THROTTLE(2.0,"Command joint_6: "<< j_pos_command_[5]);
+    ROS_WARN_STREAM_THROTTLE(10.0, "Loss packages: " << loss_packages_ );
+
+    counter_ = command_from_mqtt_.counter_;
+  
     
     ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
     ctrl_.update(time,period);

@@ -99,11 +99,9 @@ namespace  cnr
       ROS_WARN_STREAM_THROTTLE(2.0,"on_message lin axis: "<< mqtt_msg_->joints_values_[6]);
       ROS_WARN_STREAM_THROTTLE(2.0,"counter: "<< mqtt_msg_->counter_);
 
-      ROS_WARN_STREAM_THROTTLE(0.1,"OnMessage this address: " << this);
       setNewMessageAvailable(true);
       setDataValid(true);   // Should be checked the length of the received data, but the length is not constant
 
-      ROS_WARN_STREAM_THROTTLE(0.1,"OnMessage newMessageAvailable: "<< isNewMessageAvailable() << "    dataIsvalid: " << isDataValid() );
       mtx_.unlock();
 
       delete buffer;
@@ -125,8 +123,6 @@ namespace  cnr
         drapebot_msg_decoder_ = new cnr::drapebot::DrapebotMsgDecoder(mqtt_msg_dec_);
 
         mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_encoder_, drapebot_msg_decoder_);
-
-        //ROS_WARN_STREAM("MQTTDrapebotClient created." << mqtt_client_->enc_dec_counter_);
       }
       catch(const std::exception& e)
       {
@@ -187,8 +183,6 @@ namespace  cnr
     {
       if (drapebot_msg_decoder_ != NULL)
       {
-        ROS_WARN_STREAM_THROTTLE(0.1,"getLastReceivedMessage address: " << drapebot_msg_decoder_ );
-        ROS_WARN_STREAM_THROTTLE(0.1,"newMessageAvailable: "<< drapebot_msg_decoder_->isNewMessageAvailable() << "    dataIsvalid: " << drapebot_msg_decoder_->isDataValid() );
         if (drapebot_msg_decoder_->isNewMessageAvailable() && drapebot_msg_decoder_->isDataValid() )
         {
           drapebot_msg_decoder_->mtx_.lock();
@@ -197,14 +191,14 @@ namespace  cnr
 
           last_msg.counter_ = mqtt_msg_dec_->counter_;
 
-          ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_1: "<< last_msg.joints_values_[0]);
-          ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_2: "<< last_msg.joints_values_[1]);
-          ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_3: "<< last_msg.joints_values_[2]);
-          ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_4: "<< last_msg.joints_values_[3]);
-          ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_5: "<< last_msg.joints_values_[4]);
-          ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_6: "<< last_msg.joints_values_[5]);
-          ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage lin axis: "<< last_msg.joints_values_[6]);
-          ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage counter: "<< last_msg.counter_);
+          // ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_1: "<< last_msg.joints_values_[0]);
+          // ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_2: "<< last_msg.joints_values_[1]);
+          // ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_3: "<< last_msg.joints_values_[2]);
+          // ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_4: "<< last_msg.joints_values_[3]);
+          // ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_5: "<< last_msg.joints_values_[4]);
+          // ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage joint_6: "<< last_msg.joints_values_[5]);
+          // ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage lin axis: "<< last_msg.joints_values_[6]);
+          // ROS_WARN_STREAM_THROTTLE(2.0,"getLastReceivedMessage counter: "<< last_msg.counter_);
 
           drapebot_msg_decoder_->setNewMessageAvailable(false);
           drapebot_msg_decoder_->mtx_.unlock();
