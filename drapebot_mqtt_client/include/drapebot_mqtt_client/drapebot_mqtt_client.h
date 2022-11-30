@@ -96,12 +96,8 @@ namespace cnr
       int publish(const void* payload, int& payload_len, const char* topic_name);
      
       bool getLastReceivedMessage(cnr::drapebot::drapebot_msg& last_msg);
-      bool isNewMessageAvailable();
-      bool isDataValid();    
-
+    
     private:
-      std::mutex mtx_mqtt_;  
-
       cnr::drapebot::DrapebotMsgDecoder* drapebot_msg_decoder_;
       cnr::drapebot::DrapebotMsgEncoder* drapebot_msg_encoder_;
 
