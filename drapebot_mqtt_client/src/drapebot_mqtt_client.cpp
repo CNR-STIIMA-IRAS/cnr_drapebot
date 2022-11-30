@@ -99,11 +99,9 @@ namespace  cnr
       ROS_WARN_STREAM_THROTTLE(2.0,"on_message lin axis: "<< mqtt_msg_->joints_values_[6]);
       ROS_WARN_STREAM_THROTTLE(2.0,"counter: "<< mqtt_msg_->counter_);
 
-      ROS_WARN_STREAM_THROTTLE(0.1,"OnMessage this address: " << this);
       setNewMessageAvailable(true);
       setDataValid(true);   // Should be checked the length of the received data, but the length is not constant
 
-      ROS_WARN_STREAM_THROTTLE(0.1,"OnMessage newMessageAvailable: "<< isNewMessageAvailable() << "    dataIsvalid: " << isDataValid() );
       mtx_.unlock();
 
       delete buffer;
