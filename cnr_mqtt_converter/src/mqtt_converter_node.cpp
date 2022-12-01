@@ -148,23 +148,14 @@ int main(int argc, char **argv)
     client.loop();
 
 
-
-
     if(client.isNewMessageAvailable())
-    {
+    {   
       control_msgs::FollowJointTrajectoryGoal trajectory_msg;
       client.getLastReceivedMessage(trajectory_msg);
-      
-      if (handle_deformation)
-      {
-        configuration_msgs::StartConfiguration start;
-        start.request.start_configuration = client.get_config();
-        start.request.strictness = 1;
-        configuration_srv.call(start);
-      }
-            
+      execute_trajectory.cancelGoal();
+      execute_trajectory.cancelAllGoals();
       execute_trajectory.sendGoal ( trajectory_msg );
-      ROS_INFO_STREAM(BLUE<<"goal trajectory sent:\n"<<trajectory_msg);
+      ROS_INFO_STREAM(BOLDGREEN<<"New trajectory received. Goal changed ! ");
       
       std::vector<double> first_point;
       ROS_INFO_STREAM("first traj point");
@@ -175,69 +166,97 @@ int main(int argc, char **argv)
       for (auto p : trajectory_msg.trajectory.points.back().positions)
         ROS_INFO_STREAM(p);
       
-      ROS_INFO_STREAM("waitin for execution");
-      
-      actionlib::SimpleClientGoalState as = execute_trajectory.getState();
-      
-      while(as != actionlib::SimpleClientGoalState::SUCCEEDED )
-      {
-        as = execute_trajectory.getState();
-        
-        if(as == actionlib::SimpleClientGoalState::ACTIVE) 
-          ROS_INFO_STREAM_THROTTLE(2.0,GREEN<<"executing trajectory. State :  ACTIVE !" );
-        else if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
-          ROS_INFO_STREAM(RED<<"executing trajectory. State :  SUCCEEDED !" );
-        else if(as == actionlib::SimpleClientGoalState::ABORTED) 
-        {
-          ROS_INFO_STREAM(YELLOW<<"executing trajectory. State :  ABORTED !" );
-          ROS_ERROR("Trajectory not completely executed . Aborting");
-          break;
-        }
-        else if(as == actionlib::SimpleClientGoalState::LOST) 
-        {
-          ROS_INFO_STREAM(BLUE<<"executing trajectory. State :  LOST !" );
-          break;
-        }
-        else if(as == actionlib::SimpleClientGoalState::PENDING) 
-          ROS_INFO_STREAM(MAGENTA<<"executing trajectory. State :  PENDING !" );
-        else if(as == actionlib::SimpleClientGoalState::RECALLED) 
-        {
-          ROS_INFO_STREAM(CYAN<<"executing trajectory. State :  RECALLED !" );
-          break;
-        }
-        else if(as == actionlib::SimpleClientGoalState::REJECTED)
-        {
-          ROS_INFO_STREAM(WHITE<<"executing trajectory. State :  REJECTED!" );
-          break;
-        }
-        else if(as == actionlib::SimpleClientGoalState::PREEMPTED)
-        {
-          ROS_INFO_STREAM(CYAN<<"executing trajectory. State :  PREEMPTED!" );
-          break;
-        }
-        
-        client.loop();
-        
-        if(client.isNewMessageAvailable())
-        {   
-          control_msgs::FollowJointTrajectoryGoal trajectory_msg;
-          client.getLastReceivedMessage(trajectory_msg);
-          execute_trajectory.cancelGoal();
-          execute_trajectory.cancelAllGoals();
-          execute_trajectory.sendGoal ( trajectory_msg );
-          ROS_INFO_STREAM(BOLDGREEN<<"New trajectory received. Goal changed ! ");
-          break;
-        }  
-      }
-
-      if ( !execute_trajectory.getResult() )
-      {
-        ROS_ERROR("some error in trajectory execution. Return!");
-        return -1;
-      }
-      ROS_INFO_STREAM(GREEN << "Trajectory executed correctly ! ");
-      
+//       break;
     }
+
+//     if(client.isNewMessageAvailable())
+//     {
+//       control_msgs::FollowJointTrajectoryGoal trajectory_msg;
+//       client.getLastReceivedMessage(trajectory_msg);
+//       
+//       if (handle_deformation)
+//       {
+//         configuration_msgs::StartConfiguration start;
+//         start.request.start_configuration = client.get_config();
+//         start.request.strictness = 1;
+//         configuration_srv.call(start);
+//       }
+//             
+//       execute_trajectory.sendGoal ( trajectory_msg );
+//       ROS_INFO_STREAM(BLUE<<"goal trajectory sent:\n"<<trajectory_msg);
+//       
+//       std::vector<double> first_point;
+//       ROS_INFO_STREAM("first traj point");
+//       for (auto p : trajectory_msg.trajectory.points[0].positions)
+//         ROS_INFO_STREAM(p);
+//       
+//       ROS_INFO_STREAM("last traj point");      
+//       for (auto p : trajectory_msg.trajectory.points.back().positions)
+//         ROS_INFO_STREAM(p);
+//       
+//       ROS_INFO_STREAM("waitin for execution");
+//       
+//       actionlib::SimpleClientGoalState as = execute_trajectory.getState();
+//       
+//       while(as != actionlib::SimpleClientGoalState::SUCCEEDED )
+//       {
+//         as = execute_trajectory.getState();
+//         
+//         if(as == actionlib::SimpleClientGoalState::ACTIVE) 
+//           ROS_INFO_STREAM_THROTTLE(2.0,GREEN<<"executing trajectory. State :  ACTIVE !" );
+//         else if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
+//           ROS_INFO_STREAM(RED<<"executing trajectory. State :  SUCCEEDED !" );
+//         else if(as == actionlib::SimpleClientGoalState::ABORTED) 
+//         {
+//           ROS_INFO_STREAM(YELLOW<<"executing trajectory. State :  ABORTED !" );
+//           ROS_ERROR("Trajectory not completely executed . Aborting");
+//           break;
+//         }
+//         else if(as == actionlib::SimpleClientGoalState::LOST) 
+//         {
+//           ROS_INFO_STREAM(BLUE<<"executing trajectory. State :  LOST !" );
+//           break;
+//         }
+//         else if(as == actionlib::SimpleClientGoalState::PENDING) 
+//           ROS_INFO_STREAM(MAGENTA<<"executing trajectory. State :  PENDING !" );
+//         else if(as == actionlib::SimpleClientGoalState::RECALLED) 
+//         {
+//           ROS_INFO_STREAM(CYAN<<"executing trajectory. State :  RECALLED !" );
+//           break;
+//         }
+//         else if(as == actionlib::SimpleClientGoalState::REJECTED)
+//         {
+//           ROS_INFO_STREAM(WHITE<<"executing trajectory. State :  REJECTED!" );
+//           break;
+//         }
+//         else if(as == actionlib::SimpleClientGoalState::PREEMPTED)
+//         {
+//           ROS_INFO_STREAM(CYAN<<"executing trajectory. State :  PREEMPTED!" );
+//           break;
+//         }
+//         
+//         client.loop();
+//         
+//         if(client.isNewMessageAvailable())
+//         {   
+//           control_msgs::FollowJointTrajectoryGoal trajectory_msg;
+//           client.getLastReceivedMessage(trajectory_msg);
+//           execute_trajectory.cancelGoal();
+//           execute_trajectory.cancelAllGoals();
+//           execute_trajectory.sendGoal ( trajectory_msg );
+//           ROS_INFO_STREAM(BOLDGREEN<<"New trajectory received. Goal changed ! ");
+//           break;
+//         }
+//       }
+// 
+//       if ( !execute_trajectory.getResult() )
+//       {
+//         ROS_ERROR("some error in trajectory execution. Return!");
+//         return -1;
+//       }
+//       ROS_INFO_STREAM(GREEN << "Trajectory executed correctly ! ");
+//       
+//     }
     
     r.sleep();    
     
