@@ -125,7 +125,7 @@ namespace drapebot_controller
       topics_subscribed_ = true;
     
     ROS_INFO_STREAM("Subscribing topic: "<< mqtt_command_topic_);
-
+    ROS_INFO_STREAM("Starting controller: MQTTToPositionController." );
   }
 
 
@@ -139,23 +139,29 @@ namespace drapebot_controller
       
     topics_subscribed_ = false;    
     ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_command_topic_);
+    ROS_INFO_STREAM("Stopping controller: MQTTToPositionController." );
   }
   
-
   void MQTTToPositionController::update(const ros::Time& time, const ros::Duration& period)
   {
-    cnr::drapebot::tic();
-
     if (first_cycle_)
     {
       first_cycle_ = false;
       j_pos_command_  = *ctrl_.commands_buffer_.readFromNonRT();
     }
     
-    int rc = mqtt_drapebot_client_->loop(1000);
-    if ( rc != 0 || !topics_subscribed_ )
+    if ( !topics_subscribed_)
     {
-      ROS_WARN_STREAM("Mosquitto error " << rc << " in loop function");
+      ROS_WARN_STREAM("Topic " <<  mqtt_command_topic_ << " not subscribed.");
+      ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
+      ctrl_.update(time,period);
+      return;
+    }
+
+    int rc = mqtt_drapebot_client_->loop(4);
+    if ( rc != 0 )
+    {
+      ROS_WARN_STREAM("Mosquitto error " << rc << " in loop function.");
       ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
       ctrl_.update(time,period);
       return;
@@ -181,15 +187,12 @@ namespace drapebot_controller
       loss_packages_ += delta_package;
     }
     
-    ROS_WARN_STREAM_THROTTLE(10.0, "Loss packages: " << loss_packages_ );
+    ROS_WARN_STREAM_THROTTLE(2.0, "Loss packages: " << loss_packages_ );
 
     counter_ = command_from_mqtt_.counter_;
   
-    
     ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
     ctrl_.update(time,period);
-
-    cnr::drapebot::toc();
   }
     
 
