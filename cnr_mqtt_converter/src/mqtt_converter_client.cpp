@@ -57,10 +57,12 @@ namespace  cnr
       //set_config(traj["configuration"])
       
       msg->trajectory.points.resize(traj.size());
+      msg->trajectory.joint_names.resize(joint_names_.size());
       msg->trajectory.header.frame_id = joint_names_[0];
-      for(auto n : joint_names_)
+      
+      for(int i=0; i<joint_names_.size();i++)
       {
-        msg->trajectory.joint_names.push_back(n);
+        msg->trajectory.joint_names.at(i) = joint_names_.at(i);
         ROS_DEBUG_STREAM(msg->trajectory.joint_names.back());
       }
       for (int i=0; i<traj.size();i++)
@@ -86,7 +88,7 @@ namespace  cnr
           msg->trajectory.points[i].accelerations[jj]=0;
         }
       }
-      ROS_DEBUG_STREAM("goal trajectory: \n"<<&msg);
+      ROS_DEBUG_STREAM(YELLOW<<"goal trajectory: \n"<<&msg);
       
       return true;
     }

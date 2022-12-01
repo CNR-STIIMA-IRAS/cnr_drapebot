@@ -33,14 +33,14 @@ mqtt_hw:
   use_delta_target_pos: false
   delta_pos_from_start: false
   
-  use_real_robot: true
+  use_real_robot: false
   use_json: true
   
   #--- MQTT ---
   
   client_id: "MQTT_HW"
-  host: 192.168.125.117    # drapebot
-  #host: 172.31.1.11    # test with loris pc
+  #host: 192.168.125.117    # drapebot
+  host: 172.31.1.11    # test with loris pc
   #host: localhost
   port: 1883
   
