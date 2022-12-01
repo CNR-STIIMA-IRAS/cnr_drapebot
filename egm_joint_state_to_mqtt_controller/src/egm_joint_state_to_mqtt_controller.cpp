@@ -33,6 +33,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <json.h>
+#include <chrono>
 #include <algorithm>
 #include <cstddef>
 #include <pluginlib/class_list_macros.hpp>
@@ -43,8 +45,8 @@
 
 namespace drapebot_controller
 {
-
-  EgmJointStateToMQTTController::EgmJointStateToMQTTController() : publish_rate_(0.0) 
+  EgmJointStateToMQTTController::EgmJointStateToMQTTController() :  publish_rate_(0.0),
+                                                                    counter_(0) 
   {
 
   }
@@ -59,9 +61,10 @@ namespace drapebot_controller
   bool EgmJointStateToMQTTController::init( hardware_interface::JointStateInterface* hw,
                                             ros::NodeHandle&                         root_nh,
                                             ros::NodeHandle&                         controller_nh)
-  {
+  { 
     try
     {
+      ROS_WARN_STREAM("EgmJointStateToMQTTController::init");
       // List of joints to be published
       std::vector<std::string> joint_names;
 
@@ -93,15 +96,16 @@ namespace drapebot_controller
       realtime_pub_.reset(new realtime_tools::RealtimePublisher<sensor_msgs::JointState>(root_nh, "joint_states", 4));
 
       // get joints and allocate message
-      for (unsigned i=0; i<num_hw_joints_; i++){
+      for (unsigned i=0; i<num_hw_joints_; i++)
+      {
         joint_state_.push_back(hw->getHandle(joint_names[i]));
         realtime_pub_->msg_.name.push_back(joint_names[i]);
         realtime_pub_->msg_.position.push_back(0.0);
         realtime_pub_->msg_.velocity.push_back(0.0);
         realtime_pub_->msg_.effort.push_back(0.0);
       }
+
       addExtraJoints(controller_nh, realtime_pub_->msg_);
-      
     
       // ---- MQTT params ----
       std::string client_id;
@@ -129,12 +133,12 @@ namespace drapebot_controller
       mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
       ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
       
-    
       if (!controller_nh.getParam("mqtt_feedback_topic", mqtt_feedback_topic_))
       {
         mqtt_feedback_topic_ = "mqtt_feedback_topic";
         ROS_WARN_STREAM("mqtt_feedback_topic not found under " + controller_nh.getNamespace() + "/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic_);  
       }
+
     }
     catch(const std::exception& e)
     {
@@ -151,32 +155,21 @@ namespace drapebot_controller
   {
     // initialize time
     last_publish_time_ = time;
-
-    // if (mqtt_drapebot_client_->subscribe(NULL, mqtt_feedback_topic_.c_str(), 1) != 0)
-    // {
-    //   ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_feedback_topic_);
-    //   return;
-    // }
-    // ROS_INFO_STREAM("Subscribing topic: "<< mqtt_feedback_topic_);
+    ROS_INFO_STREAM("Starting controller: EgmJointStateToMQTTController " );
   }
 
   void EgmJointStateToMQTTController::stopping(const ros::Time& /*time*/)
   {
-    // if (mqtt_drapebot_client_->unsubscribe(NULL, mqtt_feedback_topic_.c_str()) != 0)
-    // {
-    //   ROS_ERROR_STREAM("Error on Mosquitto unsubscribe topic: " << mqtt_feedback_topic_);
-    //   return;
-    // } 
-    // ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_feedback_topic_);
+    ROS_INFO_STREAM("Stopping controller: EgmJointStateToMQTTController " );
   }
 
   void EgmJointStateToMQTTController::update(const ros::Time& time, const ros::Duration& /*period*/)
   {
+    //cnr::drapebot::toc();
 
     // limit rate of publishing
     if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time)
     {
-
       // try to publish
       if (realtime_pub_->trylock()){
         // we're actually publishing, so increment time
@@ -196,42 +189,44 @@ namespace drapebot_controller
       }
     }
     
-    
     cnr::drapebot::drapebot_msg j_pos_feedback;
-    
+
     for (unsigned i=0; i<num_hw_joints_; i++)
       j_pos_feedback.joints_values_[i] = joint_state_[i].getPosition();
-      
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
-    ROS_DEBUG_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
 
-    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_1 : " << j_pos_feedback.joints_values_[0]);
-    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_2 : " << j_pos_feedback.joints_values_[1]);
-    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_3 : " << j_pos_feedback.joints_values_[2]);
-    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_4 : " << j_pos_feedback.joints_values_[3]);
-    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_5 : " << j_pos_feedback.joints_values_[4]);
-    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state Joint_6 : " << j_pos_feedback.joints_values_[5]);  
-    // ROS_WARN_STREAM_THROTTLE(5.0,"Reading from robot state linax   : " << j_pos_feedback.joints_values_[6]);
+    j_pos_feedback.counter_ = counter_;
+
+    Json::Value root;
     
-    void* payload_ = malloc( sizeof(j_pos_feedback) );        
-    memcpy(payload_, &j_pos_feedback, sizeof(j_pos_feedback));  
-    int payload_len_ = sizeof(j_pos_feedback);
+    root["J0"] =  j_pos_feedback.joints_values_[0];
+    root["J1"] =  j_pos_feedback.joints_values_[1];
+    root["J2"] =  j_pos_feedback.joints_values_[2];
+    root["J3"] =  j_pos_feedback.joints_values_[3];
+    root["J4"] =  j_pos_feedback.joints_values_[4];
+    root["J5"] =  j_pos_feedback.joints_values_[5];
+    root["E0"] =  j_pos_feedback.joints_values_[6];
+    root["count"] = j_pos_feedback.counter_;
+    
+    Json::StreamWriterBuilder builder;
+    const std::string json_file = Json::writeString(builder, root);
+    
+    int payload_len_ = json_file.length() + 1;
+    char* payload_ = new char[ payload_len_ ];
+    strcpy(payload_, json_file.c_str());
 
-    int rc = mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str() );
+    int rc = mqtt_drapebot_client_->publish(payload_, payload_len_, mqtt_feedback_topic_.c_str());
+
     if ( rc != 0)
       ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
 
-    if (mqtt_drapebot_client_->loop() != 0 )
-    {
-      ROS_ERROR_STREAM("Error on Mosquitto loop function");
-      return;
-    }
-      
+    //ROS_WARN_STREAM_THROTTLE(5.0,"JSON feedback message : " <<  json_file );
+    //ROS_WARN_STREAM_THROTTLE(5.0,"EgmJointStateToMQTTController counter_ : " <<  j_pos_feedback.counter_ );
+
+    counter_++;
+    //cnr::drapebot::tic(); 
+
+    delete payload_;
+
   }
 
   void EgmJointStateToMQTTController::addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg)

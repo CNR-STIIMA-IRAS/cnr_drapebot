@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.0.2)
 project(drapebot_mqtt_client)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
+
 
 find_package(catkin REQUIRED COMPONENTS 
             roscpp
@@ -23,7 +24,8 @@ include_directories( include
 )
 
 if(WIN32)
-  include_directories("C:\\Program Files\\mosquitto\\devel\\")
+  include_directories("C:\\ws\\mosquitto\\include\\")
+  include_directories("C:\\ws\\jsoncpp\\include\\json\\")
 endif()
 
 ## Declare a C++ library
@@ -31,9 +33,15 @@ add_library(${PROJECT_NAME}
   src/drapebot_mqtt_client.cpp
 )
 
-## Specify libraries to link a library or executable target against
+if(WIN32)
+  target_link_directories(${PROJECT_NAME} PUBLIC "C:\\ws\\mosquitto-build\\lib\\")
+  target_link_directories(${PROJECT_NAME} PUBLIC "C:\\ws\\jsoncpp-build\\build\\lib\\Release\\")
+endif()
+
 target_link_libraries(${PROJECT_NAME} 
   ${catkin_LIBRARIES}
+  mosquitto
+  jsoncpp
 )
 
 ################################################

@@ -6,7 +6,7 @@
   <arg if="$(arg debug)" name="launch_prefix" default="xterm -e gdb -ex run  --args" />
   <!-- Set output verbosity level -->
   
-  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find drapecell_robot_bringup)/config/rosconsole.conf"/>
+  <!-- <env name="ROSCONSOLE_CONFIG_FILE" value="$(find drapecell_robot_bringup)/config/rosconsole.conf"/> -->
 
   <!-- ============================================================================================================= -->
   <!-- Robot Web Services (RWS) related components.                                                                  -->
@@ -37,8 +37,8 @@
 <!--     <rosparam file="$(find mqtt_to_joint_position_controller)/config/mqtt_config.yaml" command="load"/> -->
 
     <!-- Two 'ros_control' controller spawners (stopped for the controller that command motions) -->
-    <node pkg="controller_manager" type="spawner" name="started" args="egm_joint_state_to_mqtt_controller egm_state_controller  joint_state_controller" output="screen"/>
-    <node pkg="controller_manager" type="spawner" name="stopped_mqtt_to_pos_ctrl" args="--stopped mqtt_to_joint_position_controller" output="screen"/>
+    <node pkg="controller_manager" type="spawner" name="started" args="egm_joint_state_to_mqtt_controller egm_state_controller  joint_state_controller" output="screen"/>   
+	<node pkg="controller_manager" type="spawner" name="stopped_mqtt_to_pos_ctrl" args="--stopped mqtt_to_joint_position_controller" output="screen"/> 
     <node pkg="controller_manager" type="spawner" name="stopped_pos_ctrl" args="--stopped j_pos_ctrl" output="screen"/>
     <node pkg="controller_manager" type="spawner" name="stopped_vel_ctrl" args="--stopped j_vel_ctrl" output="screen"/>
   </group>

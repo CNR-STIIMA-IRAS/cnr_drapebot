@@ -42,16 +42,21 @@
 #include <cnr_mqtt_client/cnr_mqtt_client.h>
 
 #define MAX_PAYLOAD_SIZE 1024
-#define MSG_LENGTH 7 // The length is given by 6 axes robot + linear axis
+#define MSG_AXES_LENGTH 7 // The length is given by 6 axes robot + linear axis
 #define DEFAULT_KEEP_ALIVE 60
 
 namespace cnr
 {
   namespace drapebot
   {
+
+    void tic(int mode=0);
+    void toc();
+
     struct drapebot_msg 
     {
-      double joints_values_[MSG_LENGTH] = {0};    
+      double joints_values_[MSG_AXES_LENGTH] = {0};    
+      unsigned long long int counter_ = 0;
     }; 
 
 
@@ -61,7 +66,7 @@ namespace cnr
       DrapebotMsgDecoder(cnr::drapebot::drapebot_msg* mqtt_msg): mqtt_msg_(mqtt_msg) {};
       
       // The method should be reimplemented on the base of the application
-      void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) override;
+      void on_message(const struct mosquitto_message *msg) override;
     private:
       cnr::drapebot::drapebot_msg* mqtt_msg_;
     };
@@ -72,7 +77,7 @@ namespace cnr
       DrapebotMsgEncoder(cnr::drapebot::drapebot_msg* mqtt_msg): mqtt_msg_(mqtt_msg) {};
       
       // The method should be reimplemented on the base of the application
-      void on_publish(struct mosquitto *mosq, void *obj, int mid) override;
+      void on_publish(int mid) override;
     private:
       cnr::drapebot::drapebot_msg* mqtt_msg_;
     };
@@ -84,19 +89,15 @@ namespace cnr
       ~MQTTDrapebotClient();
 
       int stop();
-      int loop();
+      int loop(int timeout=2000);
       // int reconnect(unsigned int reconnect_delay, unsigned int reconnect_delay_max, bool reconnect_exponential_backoff);  
       int subscribe(int *mid, const char *sub, int qos);
       int unsubscribe(int *mid, const char *sub);
       int publish(const void* payload, int& payload_len, const char* topic_name);
      
       bool getLastReceivedMessage(cnr::drapebot::drapebot_msg& last_msg);
-      bool isNewMessageAvailable();
-      bool isDataValid();    
-
+    
     private:
-      std::mutex mtx_mqtt_;  
-
       cnr::drapebot::DrapebotMsgDecoder* drapebot_msg_decoder_;
       cnr::drapebot::DrapebotMsgEncoder* drapebot_msg_encoder_;
 

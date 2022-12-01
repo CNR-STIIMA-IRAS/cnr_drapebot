@@ -43,7 +43,7 @@
 namespace drapebot_controller
 {
   
-  MQTTToPositionController::MQTTToPositionController()
+  MQTTToPositionController::MQTTToPositionController(): counter_(0), loss_packages_(0)
   {
 
   }
@@ -90,17 +90,14 @@ namespace drapebot_controller
         ROS_WARN_STREAM("mqtt_command_topic not found under " + n.getNamespace() + "/mqtt_command_topic . Using defalut broker address: "+ mqtt_command_topic_);      
       }
       
-      ROS_INFO_STREAM("Connencting mqtt: "<< client_id << ", host: " << host_str << ", port: " << port);
       mqtt_drapebot_client_ = new cnr::drapebot::MQTTDrapebotClient(client_id.c_str(), host_str.c_str(), port);
       ROS_INFO_STREAM("Connencted to: "<< client_id << ": " << host_str);
           
-      j_pos_command_.resize(MSG_LENGTH-1); // The seventh axis is not necessary in DrapeCell setup
+      j_pos_command_.resize(MSG_AXES_LENGTH-1); // The seventh axis is not necessary in DrapeCell setup
       j_pos_command_ = *ctrl_.commands_buffer_.readFromNonRT();
       
-      ROS_INFO_STREAM("mqtt_command_topic : " << mqtt_command_topic_);
-              
       first_cycle_ = true;
-      
+
     }
     catch(const std::exception& e)
     {
@@ -117,68 +114,83 @@ namespace drapebot_controller
   void MQTTToPositionController::starting(const ros::Time& time)
   { 
     ctrl_.starting(time);
-    if (mqtt_drapebot_client_->subscribe(NULL, mqtt_command_topic_.c_str(), 1) != 0)
+    
+    int rc = mqtt_drapebot_client_->subscribe(NULL, mqtt_command_topic_.c_str(), 1);  
+    if ( rc != 0 )
     {
-      ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << mqtt_command_topic_ );
-      return;
+      ROS_ERROR_STREAM("Mosquitto error " << rc << " subscribing topic: " << mqtt_command_topic_ );
+      topics_subscribed_ = false;
     }
-
+    else
+      topics_subscribed_ = true;
+    
     ROS_INFO_STREAM("Subscribing topic: "<< mqtt_command_topic_);
+    ROS_INFO_STREAM("Starting controller: MQTTToPositionController." );
   }
 
 
   void MQTTToPositionController::stopping(const ros::Time& time) 
   {
     ctrl_.stopping(time);
-    if ( mqtt_drapebot_client_->unsubscribe(NULL, mqtt_command_topic_.c_str()) != 0)
-    {
-      ROS_ERROR_STREAM("Error on Mosquitto unsubscribe topic: " << mqtt_command_topic_);
-      return;
-    } 
+    
+    int rc = mqtt_drapebot_client_->unsubscribe(NULL, mqtt_command_topic_.c_str());  
+    if ( rc != 0 )
+      ROS_ERROR_STREAM("Mosquitto error " << rc << " unsubscribing topic: " << mqtt_command_topic_ );
+      
+    topics_subscribed_ = false;    
     ROS_INFO_STREAM("Unsubscribing topic: "<< mqtt_command_topic_);
+    ROS_INFO_STREAM("Stopping controller: MQTTToPositionController." );
   }
   
-
   void MQTTToPositionController::update(const ros::Time& time, const ros::Duration& period)
   {
-    if (mqtt_drapebot_client_->loop() != 0 )
-    {
-      ROS_ERROR_STREAM("Error on Mosquitto loop function");
-      return;
-    }
-    
     if (first_cycle_)
     {
       first_cycle_ = false;
       j_pos_command_  = *ctrl_.commands_buffer_.readFromNonRT();
     }
-      
-    // Read the new MQTT message and send the command to the robot
-      
-    if (mqtt_drapebot_client_->isNewMessageAvailable() && mqtt_drapebot_client_->isDataValid()) 
+    
+    if ( !topics_subscribed_)
     {
-      memset(&command_from_mqtt_,0x0,sizeof(cnr::drapebot::drapebot_msg));
-
-      if (!mqtt_drapebot_client_->getLastReceivedMessage(command_from_mqtt_))
-      {
-        ROS_ERROR("Can't recover the last received message");
-        return;
-      }
-
-      for (size_t i=0; i<(MSG_LENGTH-1); i++)
-        j_pos_command_[i] =  command_from_mqtt_.joints_values_[i]; 
-
+      ROS_WARN_STREAM("Topic " <<  mqtt_command_topic_ << " not subscribed.");
+      ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
+      ctrl_.update(time,period);
+      return;
     }
-    else
-      ROS_DEBUG_THROTTLE(2.0,"No message available");
+
+    int rc = mqtt_drapebot_client_->loop(4);
+    if ( rc != 0 )
+    {
+      ROS_WARN_STREAM("Mosquitto error " << rc << " in loop function.");
+      ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
+      ctrl_.update(time,period);
+      return;
+    }
+       
+    // Read the new MQTT message and send the command to the robot
+    memset(&command_from_mqtt_,0x0,sizeof(cnr::drapebot::drapebot_msg));
+
+    if (!mqtt_drapebot_client_->getLastReceivedMessage(command_from_mqtt_))
+    {
+      ROS_ERROR_THROTTLE(2.0,"Can't recover the last received message");
+      return;
+    }
+
+    for (size_t i=0; i<(MSG_AXES_LENGTH-1); i++)
+      j_pos_command_[i] =  command_from_mqtt_.joints_values_[i]; 
+
+    unsigned long int delta_package = std::fabs(command_from_mqtt_.counter_ - counter_);
+
+    if (delta_package > 1)
+    {
+      ROS_WARN_STREAM("Missed " << delta_package << " packages." );
+      loss_packages_ += delta_package;
+    }
     
-    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_0 : "<< j_pos_command_[0]);
-    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_1 : "<< j_pos_command_[1]);
-    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_2 : "<< j_pos_command_[2]);
-    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_3 : "<< j_pos_command_[3]);
-    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_4 : "<< j_pos_command_[4]);
-    ROS_DEBUG_STREAM_THROTTLE(2.0,"joint command_5 : "<< j_pos_command_[5]);
-    
+    ROS_WARN_STREAM_THROTTLE(2.0, "Loss packages: " << loss_packages_ );
+
+    counter_ = command_from_mqtt_.counter_;
+  
     ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
     ctrl_.update(time,period);
   }
