@@ -90,7 +90,7 @@ namespace cnr
 
       int stop();
       int loop(int timeout=2000);
-      // int reconnect(unsigned int reconnect_delay, unsigned int reconnect_delay_max, bool reconnect_exponential_backoff);  
+      int reconnect();  
       int subscribe(int *mid, const char *sub, int qos);
       int unsubscribe(int *mid, const char *sub);
       int publish(const void* payload, int& payload_len, const char* topic_name);

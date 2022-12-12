@@ -80,15 +80,6 @@ namespace  cnr
       mqtt_msg_->joints_values_[5] = root["J5"].asDouble();
       mqtt_msg_->joints_values_[6] = root["E0"].asDouble();
       mqtt_msg_->counter_ = root["count"].asInt();
-      
-      // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_1: "<< mqtt_msg_->joints_values_[0]);
-      // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_2: "<< mqtt_msg_->joints_values_[1]);
-      // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_3: "<< mqtt_msg_->joints_values_[2]);
-      // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_4: "<< mqtt_msg_->joints_values_[3]);
-      // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_5: "<< mqtt_msg_->joints_values_[4]);
-      // ROS_WARN_STREAM_THROTTLE(2.0,"on_message joint_6: "<< mqtt_msg_->joints_values_[5]);
-      // ROS_WARN_STREAM_THROTTLE(2.0,"on_message lin axis: "<< mqtt_msg_->joints_values_[6]);
-      // ROS_WARN_STREAM_THROTTLE(2.0,"counter: "<< mqtt_msg_->counter_);
 
       setNewMessageAvailable(true);
       setDataValid(true);   // Should be checked the length of the received data, but the length is not constant
@@ -142,6 +133,14 @@ namespace  cnr
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->loop(timeout);
+      
+      return -1;
+    }
+
+    int MQTTDrapebotClient::reconnect()
+    {
+      if (mqtt_client_ != NULL)
+        return mqtt_client_->reconnect();
       
       return -1;
     }

@@ -13,8 +13,8 @@ int main(int argc, char **argv)
     std::string client_id = "egm_joint_state_to_mqtt_controller";
     std::string client_id2 = "egm_joint_state_to_mqtt_controller2";
 
-    std::string host_str = "192.168.125.9";
-    //std::string host_str = "127.0.0.1";
+    //std::string host_str = "192.168.125.9";
+    std::string host_str = "127.0.0.1";
     int port = 1883;
     std::string mqtt_command_topic = "/robot_1/command";
     std::string mqtt_feedback_topic = "/robot_1/feedback";

@@ -152,7 +152,7 @@ namespace drapebot_controller
     
     if ( !topics_subscribed_)
     {
-      ROS_WARN_STREAM("Topic " <<  mqtt_command_topic_ << " not subscribed.");
+      ROS_WARN_STREAM_THROTTLE(2.0,"Topic " <<  mqtt_command_topic_ << " not subscribed.");
       ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
       ctrl_.update(time,period);
       return;
@@ -161,10 +161,34 @@ namespace drapebot_controller
     int rc = mqtt_drapebot_client_->loop(4);
     if ( rc != 0 )
     {
-      ROS_WARN_STREAM("Mosquitto error " << rc << " in loop function.");
-      ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
-      ctrl_.update(time,period);
-      return;
+      ROS_WARN_STREAM_THROTTLE(2.0,"Mosquitto error " << rc << " in loop function.");
+      if ( rc == MOSQ_ERR_CONN_LOST )
+      {
+        rc = mqtt_drapebot_client_->reconnect();
+        if ( rc != 0 )
+        {
+          ROS_WARN_STREAM_THROTTLE(2.0,"Mosquitto error " << rc << " trying to reconnect to the broker.");
+          ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
+          ctrl_.update(time,period);
+          return;
+        }
+
+        rc = mqtt_drapebot_client_->subscribe(NULL, mqtt_command_topic_.c_str(), 1); 
+        if ( rc != 0 )
+        {
+          ROS_WARN_STREAM_THROTTLE(2.0,"Mosquitto error " << rc << " subscribing the topic " << mqtt_command_topic_ << " after reconnecting to the broker.");
+          ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
+          ctrl_.update(time,period);
+          return;
+        }
+
+      }
+      else
+      {
+        ctrl_.commands_buffer_.writeFromNonRT(j_pos_command_);
+        ctrl_.update(time,period);
+        return;
+      }
     }
        
     // Read the new MQTT message and send the command to the robot
