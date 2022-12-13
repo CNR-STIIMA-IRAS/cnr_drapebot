@@ -181,7 +181,6 @@ namespace drapebot_controller
           ctrl_.update(time,period);
           return;
         }
-
       }
       else
       {
@@ -211,7 +210,7 @@ namespace drapebot_controller
       loss_packages_ += delta_package;
     }
     
-    ROS_WARN_STREAM_THROTTLE(2.0, "Loss packages: " << loss_packages_ );
+    ROS_WARN_STREAM_THROTTLE(2.0, "Lost packages: " << loss_packages_ );
 
     counter_ = command_from_mqtt_.counter_;
   

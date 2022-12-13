@@ -165,13 +165,14 @@ namespace drapebot_controller
 
   void EgmJointStateToMQTTController::update(const ros::Time& time, const ros::Duration& /*period*/)
   {
-    //cnr::drapebot::toc();
-
+    //cnr::drapebot::tic();
+  
     // limit rate of publishing
     if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time)
     {
       // try to publish
-      if (realtime_pub_->trylock()){
+      if (realtime_pub_->trylock())
+      {
         // we're actually publishing, so increment time
         last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
 
@@ -219,11 +220,10 @@ namespace drapebot_controller
     if ( rc != 0)
       ROS_ERROR_STREAM("MQTT publish function returned: " << rc);
 
-    //ROS_WARN_STREAM_THROTTLE(5.0,"JSON feedback message : " <<  json_file );
-    //ROS_WARN_STREAM_THROTTLE(5.0,"EgmJointStateToMQTTController counter_ : " <<  j_pos_feedback.counter_ );
-
     counter_++;
-    //cnr::drapebot::tic(); 
+    
+    //ROS_WARN_STREAM_THROTTLE(2.0,"counter:  " << counter_);
+    //cnr::drapebot::toc(); 
 
     delete payload_;
 

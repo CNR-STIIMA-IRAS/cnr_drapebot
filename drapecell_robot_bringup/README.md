@@ -25,7 +25,7 @@ rosservice call /egm/controller_manager/switch_controller {"start_controllers: [
 
 5. **[Terminal 4]** To send a control command through MQTT (optional only for testing the mqtt_to_joint_position_controller):
 ```
-mosquitto_pub -h <BROKER_IP_ADDRESS> -t /robot_1/command -m "{\"J0\" : 0.0, \"J1\" : 0.0, \"J2\" : 0.0, \"J3\" : 0.0, \"J4\" : 0.0, \"J5\" : 0.0, \"E0\" : 0.0, \"count\" : 1}"
+mosquitto_pub -h <BROKER_IP_ADDRESS> -t /robot_1/command -m "{\"J0\" : 0.0, \"J1\" : 0.0, \"J2\" : 0.0, \"J3\" : 0.0, \"J4\" : 0.0, \"J5\" : 0.0, \"E0\" : 0.0, \"count\" : 1}"  --repeat NUMB_REPETITIONS --repeat-delay DELAY_IN_MS
 ```
 
 6. **[Terminal 3]** Use `rosservice` to stop the `EGM` session:
