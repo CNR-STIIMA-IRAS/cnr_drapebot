@@ -34,7 +34,7 @@ namespace  cnr
       
       reader.parse(buf,root);
       
-      ROS_INFO_STREAM(GREEN<<"Json Trajectory from ITR MotionPlanner: \n" << buf);
+//       ROS_INFO_STREAM(GREEN<<"Json Trajectory from ITR MotionPlanner: \n" << buf);
       
       if ( !JsonToMsg(root, trajectory_msg_))
       {

@@ -551,75 +551,75 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     
     
-    bool last_point_available;
-    if (!m_robothw_nh.getParam("last_point_available",last_point_available))
-    {
-      last_point_available = false;
-      check_last_ = false;
-    }
-      
-    if (last_point_available)
-    {
-      for(size_t i=0; i<m_pos.size(); i++)
-        hold_pos_.at(i) = false;
-      m_robothw_nh.setParam("last_point_available", false);
-      check_last_ = true;
-    }
-    
-    if (check_last_)
-    {
-      std::vector<double> last_traj_point;
-      m_robothw_nh.getParam("last_traj_point",last_traj_point);
-      
-      for(size_t i=0; i<m_pos.size(); i++)
-      {
-        if (std::fabs( m_pos.at(i) - last_traj_point.at(i) ) < goal_toll_.at(i) && hold_pos_.at(i) == false) 
-        {
-          cmd_pos_holder_.at(i) = m_pos.at(i);
-          hold_pos_.at(i) = true;
-          
-          CNR_INFO(m_logger,cnr_logger::CYAN()<<"holding joint: "<<i);
-          CNR_INFO(m_logger,cnr_logger::CYAN()<<"holding position of joint "<<i<<".\nm_pos    : "  << m_pos.at(i) 
-                                                  << "\ngoal_pos : " << last_traj_point.at(i)
-                                                  << "\ndelta pos: "<< std::fabs( m_pos.at(i) - last_traj_point.at(i) )
-                                                  << "\ntollerance" << goal_toll_.at(i));
-        }
-      }
-
-      for(size_t i=0; i<m_pos.size(); i++)
-      {
-        if(hold_pos_.at(i))
-        {
-          m_cmd_pos.at(i) = cmd_pos_holder_.at(i);
-        }
-      }
-      
-      if( !( std::find(hold_pos_.begin(), hold_pos_.end(), false) != hold_pos_.end() ) )
-      {
-        CNR_INFO(m_logger, cnr_logger::GREEN() << "all joints in tolerance ! ");
-        
-        for(size_t i=0; i<m_pos.size(); i++)
-        {
-          CNR_INFO(m_logger, cnr_logger::GREEN() << "holding position of joint "<<i<<".\nm_pos    : "  << m_pos.at(i) 
-                                                                                   << "\ngoal_pos : " << last_traj_point.at(i)
-                                                                                   << "\ndelta pos: "<< std::fabs( m_pos.at(i) - last_traj_point.at(i) )
-                                                                                   << "\ntollerance" << goal_toll_.at(i));
-        }
-        
-        check_last_ = false;
-      }
-    }
-    else
-    {
-      for(size_t i=0; i<m_pos.size(); i++)
-      {
-        if(hold_pos_.at(i))
-        {
-          m_cmd_pos.at(i) = cmd_pos_holder_.at(i);
-        }
-      }
-//       print_vector_throttle(m_logger,"holding position: ",m_cmd_pos);
-    }
+//     bool last_point_available;
+//     if (!m_robothw_nh.getParam("last_point_available",last_point_available))
+//     {
+//       last_point_available = false;
+//       check_last_ = false;
+//     }
+//       
+//     if (last_point_available)
+//     {
+//       for(size_t i=0; i<m_pos.size(); i++)
+//         hold_pos_.at(i) = false;
+//       m_robothw_nh.setParam("last_point_available", false);
+//       check_last_ = true;
+//     }
+//     
+//     if (check_last_)
+//     {
+//       std::vector<double> last_traj_point;
+//       m_robothw_nh.getParam("last_traj_point",last_traj_point);
+//       
+//       for(size_t i=0; i<m_pos.size(); i++)
+//       {
+//         if (std::fabs( m_pos.at(i) - last_traj_point.at(i) ) < goal_toll_.at(i) && hold_pos_.at(i) == false) 
+//         {
+//           cmd_pos_holder_.at(i) = m_pos.at(i);
+//           hold_pos_.at(i) = true;
+//           
+//           CNR_INFO(m_logger,cnr_logger::CYAN()<<"holding joint: "<<i);
+//           CNR_INFO(m_logger,cnr_logger::CYAN()<<"holding position of joint "<<i<<".\nm_pos    : "  << m_pos.at(i) 
+//                                                   << "\ngoal_pos : " << last_traj_point.at(i)
+//                                                   << "\ndelta pos: "<< std::fabs( m_pos.at(i) - last_traj_point.at(i) )
+//                                                   << "\ntollerance" << goal_toll_.at(i));
+//         }
+//       }
+// 
+//       for(size_t i=0; i<m_pos.size(); i++)
+//       {
+//         if(hold_pos_.at(i))
+//         {
+//           m_cmd_pos.at(i) = cmd_pos_holder_.at(i);
+//         }
+//       }
+//       
+//       if( !( std::find(hold_pos_.begin(), hold_pos_.end(), false) != hold_pos_.end() ) )
+//       {
+//         CNR_INFO(m_logger, cnr_logger::GREEN() << "all joints in tolerance ! ");
+//         
+//         for(size_t i=0; i<m_pos.size(); i++)
+//         {
+//           CNR_INFO(m_logger, cnr_logger::GREEN() << "holding position of joint "<<i<<".\nm_pos    : "  << m_pos.at(i) 
+//                                                                                    << "\ngoal_pos : " << last_traj_point.at(i)
+//                                                                                    << "\ndelta pos: "<< std::fabs( m_pos.at(i) - last_traj_point.at(i) )
+//                                                                                    << "\ntollerance" << goal_toll_.at(i));
+//         }
+//         
+//         check_last_ = false;
+//       }
+//     }
+//     else
+//     {
+//       for(size_t i=0; i<m_pos.size(); i++)
+//       {
+//         if(hold_pos_.at(i))
+//         {
+//           m_cmd_pos.at(i) = cmd_pos_holder_.at(i);
+//         }
+//       }
+// //       print_vector_throttle(m_logger,"holding position: ",m_cmd_pos);
+//     }
     
     
     

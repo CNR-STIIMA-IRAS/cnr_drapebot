@@ -1,9 +1,10 @@
 robot1_mqtt_hw:
   type: "cnr/control/MQTTRobotHW"
   appenders      : [file, screen]
-  levels         : [trace, error]
+  levels         : [trace, debug]
   #pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%F:%M:%04L][%24c] %m%n"
   #pattern_layout : "[%5p][%d{HH:mm,SSS}][%M:%04L][%24c] %m%n"
+  pattern_layout : "[%5p][%d{HH:mm,SSS}][:%04L][%24c] %m%n"
   file_name      : robot1_mqtt_hw
   sampling_period: 0.004 
   diagnostic_period: 0.1
@@ -31,7 +32,7 @@ robot1_mqtt_hw:
   delta_pos_from_start: false
   
   use_real_robot: true
-  verbose: false
+  verbose: true
   
   max_missing_cycles: 5
   

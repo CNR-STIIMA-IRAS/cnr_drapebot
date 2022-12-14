@@ -107,15 +107,6 @@ int main(int argc, char **argv)
     ROS_WARN_STREAM("staring_configuration  not found on namespace: "<<nh.getNamespace()<<". default!: "<<staring_configuration);
   }
   
-  ROS_INFO_STREAM(joint_names[0]);
-  ROS_INFO_STREAM(std::to_string(port));
-  ROS_INFO_STREAM(topic);
-  ROS_INFO_STREAM(action_name);
-  ROS_INFO_STREAM(broker_address);
-  ROS_INFO_STREAM(client_id);
-  
-  cnr::drapebot_converter::MQTTDrapebotClientHw client(client_id, broker_address, port);
-  
   std::string robot_hw_ns;
   if(!nh.getParam("robot_hw_ns",robot_hw_ns))
   {
@@ -124,14 +115,21 @@ int main(int argc, char **argv)
   }
   nh.setParam(robot_hw_ns+"/last_point_available",false);
   
+  ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << std::to_string(port));
+  ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << topic);
+  ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << action_name);
+  ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << broker_address);
+  ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << client_id);
+  
+  cnr::drapebot_converter::MQTTDrapebotClientHw client(client_id, broker_address, port);
   
   ros::Rate r = rate;
   
-  ROS_INFO_STREAM("[mqtt_converter] -> subscribing to "<<topic);
+  ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << "[mqtt_converter] -> subscribing to "<<topic);
   
   if (client.subscribe(NULL, topic, 1) != 0)
   {
-    ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << topic );
+    ROS_ERROR_STREAM("[ " << robot_hw_ns << " ]" << "Error on Mosquitto subscribe topic: " << topic );
     return -1;
   }
   
@@ -139,25 +137,22 @@ int main(int argc, char **argv)
   client.set_joint_names(joint_names);
   
   actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> execute_trajectory ( action_name, true );
-  ROS_INFO_STREAM("waitin for server "<<action_name);
+  ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << "waitin for server "<<action_name);
   execute_trajectory.waitForServer();
-  ROS_INFO_STREAM(action_name<<" connected ! ");
+  ROS_INFO_STREAM("[ " << robot_hw_ns << " ] - " << action_name<<" connected ! ");
   
   ros::ServiceClient configuration_srv = nh.serviceClient<configuration_msgs::StartConfiguration>("/configuration_manager/start_configuration");
   if (handle_deformation)
   {
-    ROS_INFO_STREAM("waitin for server /configuration_manager/start_configuration");
+    ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waitin for server /configuration_manager/start_configuration");
     configuration_srv.waitForExistence();
-    ROS_INFO_STREAM("/configuration_manager/start_configuration connected ! ");
+    ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /configuration_manager/start_configuration connected ! ");
   }
   
   while(ros::ok())
   {
-    ROS_INFO_THROTTLE(5.0,"looping");
+    ROS_INFO_STREAM_THROTTLE(5.0,"[ " << robot_hw_ns << " ]" << " - looping");
     client.loop();
-
-
-
 
     if(client.isNewMessageAvailable())
     {
@@ -173,20 +168,20 @@ int main(int argc, char **argv)
       }
             
       execute_trajectory.sendGoal ( trajectory_msg );
-//       ROS_INFO_STREAM(BLUE<<"goal trajectory sent:\n"<<trajectory_msg);
+      ros::Duration(0.1).sleep();
       
       std::vector<double> first_point;
-      ROS_INFO_STREAM("first traj point");
+      ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " - first traj point");
       for (auto p : trajectory_msg.trajectory.points[0].positions)
         ROS_INFO_STREAM(p);
       
-      ROS_INFO_STREAM("last traj point");      
+      ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " - last traj point");      
       for (auto p : trajectory_msg.trajectory.points.back().positions)
         ROS_INFO_STREAM(p);
       nh.setParam(robot_hw_ns+"/last_traj_point",trajectory_msg.trajectory.points.back().positions);
       nh.setParam(robot_hw_ns+"/last_point_available",true);
       
-      ROS_INFO_STREAM("waitin for execution");
+      ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " - waitin for execution");
       
       actionlib::SimpleClientGoalState as = execute_trajectory.getState();
       
@@ -195,58 +190,60 @@ int main(int argc, char **argv)
         as = execute_trajectory.getState();
         
         if(as == actionlib::SimpleClientGoalState::ACTIVE) 
-          ROS_INFO_STREAM_THROTTLE(5.0,GREEN<<"executing trajectory. State :  ACTIVE !" );
+          ROS_INFO_STREAM_THROTTLE(5.0,YELLOW<<"executing trajectory. State :  ACTIVE !" );
         else if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
-          ROS_INFO_STREAM(RED<<"executing trajectory. State :  SUCCEEDED !" );
+        {
+          ROS_INFO_STREAM(GREEN<< "[ " << robot_hw_ns << " ]executing trajectory. State :  SUCCEEDED !" );
+          ROS_INFO_STREAM(GREEN << "[ " << robot_hw_ns << " ]Trajectory executed correctly ! ");
+        }
         else if(as == actionlib::SimpleClientGoalState::ABORTED) 
         {
-          ROS_INFO_STREAM(YELLOW<<"executing trajectory. State :  ABORTED !" );
+          ROS_INFO_STREAM(YELLOW<< "[ " << robot_hw_ns << " ]executing trajectory. State :  ABORTED !" );
           ROS_ERROR("Trajectory not completely executed . Aborting");
           break;
         }
         else if(as == actionlib::SimpleClientGoalState::LOST) 
         {
-          ROS_INFO_STREAM(BLUE<<"executing trajectory. State :  LOST !" );
+          ROS_INFO_STREAM(BLUE<< "[ " << robot_hw_ns << " ]executing trajectory. State :  LOST !" );
           break;
         }
         else if(as == actionlib::SimpleClientGoalState::PENDING) 
-          ROS_INFO_STREAM(MAGENTA<<"executing trajectory. State :  PENDING !" );
+          ROS_INFO_STREAM(MAGENTA<< "[ " << robot_hw_ns << " ]executing trajectory. State :  PENDING !" );
         else if(as == actionlib::SimpleClientGoalState::RECALLED) 
         {
-          ROS_INFO_STREAM(CYAN<<"executing trajectory. State :  RECALLED !" );
+          ROS_INFO_STREAM(CYAN<< "[ " << robot_hw_ns << " ]executing trajectory. State :  RECALLED !" );
           break;
         }
         else if(as == actionlib::SimpleClientGoalState::REJECTED)
         {
-          ROS_INFO_STREAM(WHITE<<"executing trajectory. State :  REJECTED!" );
+          ROS_INFO_STREAM(WHITE<< "[ " << robot_hw_ns << " ]executing trajectory. State :  REJECTED!" );
           break;
         }
         else if(as == actionlib::SimpleClientGoalState::PREEMPTED)
         {
-          ROS_INFO_STREAM(CYAN<<"executing trajectory. State :  PREEMPTED!" );
+          ROS_INFO_STREAM(CYAN<< "[ " << robot_hw_ns << " ]executing trajectory. State :  PREEMPTED!" );
           break;
         }
         
         client.loop();
         
         if(client.isNewMessageAvailable())
-        {   
-          control_msgs::FollowJointTrajectoryGoal trajectory_msg;
-          client.getLastReceivedMessage(trajectory_msg);
+        {
+//           control_msgs::FollowJointTrajectoryGoal trajectory_msg;
+//           client.getLastReceivedMessage(trajectory_msg);
           execute_trajectory.cancelGoal();
           execute_trajectory.cancelAllGoals();
-          execute_trajectory.sendGoal ( trajectory_msg );
-          ROS_INFO_STREAM(BOLDGREEN<<"New trajectory received. Goal changed ! ");
+//           execute_trajectory.sendGoal ( trajectory_msg );
+          ROS_INFO_STREAM(BOLDGREEN<< "[ " << robot_hw_ns << " ]New trajectory received. Goal changed ! ");
           break;
-        }  
+        }
       }
 
       if ( !execute_trajectory.getResult() )
       {
-        ROS_ERROR("some error in trajectory execution. Return!");
+        ROS_ERROR_STREAM("[ " << robot_hw_ns << " ]some error in trajectory execution. Return!");
         return -1;
       }
-      ROS_INFO_STREAM(GREEN << "Trajectory executed correctly ! ");
       
     }
     
