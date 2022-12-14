@@ -171,7 +171,7 @@ bool DeformationCtrl::doUpdate(const ros::Time& time, const ros::Duration& perio
     
     q_=q_sp_;
     
-    CNR_INFO_THROTTLE(this->logger(), 2.0, "cmd pos: "<< q_sp_.transpose());
+    CNR_DEBUG_THROTTLE(this->logger(), 2.0, "cmd pos: "<< q_sp_.transpose());
     this->setCommandPosition( q_sp_ );
     
     CNR_RETURN_TRUE_THROTTLE_DEFAULT(this->logger());

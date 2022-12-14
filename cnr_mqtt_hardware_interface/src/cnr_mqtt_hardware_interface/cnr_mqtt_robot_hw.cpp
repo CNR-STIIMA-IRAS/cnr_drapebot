@@ -76,23 +76,14 @@ void mqtt_msg_to_vector(const cnr::drapebot::drapebot_msg_hw msg,std::vector<dou
 
 void print_last_msg(cnr_logger::TraceLogger& logger, const cnr::drapebot::drapebot_msg_hw last_msg)
 {    
-    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb count "<< last_msg.count);
-    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J1 "<< last_msg.J1);
-    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J2 "<< last_msg.J2);
-    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J3 "<< last_msg.J3);
-    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J4 "<< last_msg.J4);
-    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J5 "<< last_msg.J5);
-    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J6 "<< last_msg.J6);
-    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb E0 "<< last_msg.E0);
-
-//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb count "<< last_msg.count);
-//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J1 "<< last_msg.J1);
-//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J2 "<< last_msg.J2);
-//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J3 "<< last_msg.J3);
-//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J4 "<< last_msg.J4);
-//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J5 "<< last_msg.J5);
-//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J6 "<< last_msg.J6);
-//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb E0 "<< last_msg.E0);
+    CNR_DEBUG_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb count "<< last_msg.count);
+    CNR_DEBUG_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J1 "<< last_msg.J1);
+    CNR_DEBUG_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J2 "<< last_msg.J2);
+    CNR_DEBUG_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J3 "<< last_msg.J3);
+    CNR_DEBUG_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J4 "<< last_msg.J4);
+    CNR_DEBUG_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J5 "<< last_msg.J5);
+    CNR_DEBUG_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J6 "<< last_msg.J6);
+    CNR_DEBUG_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb E0 "<< last_msg.E0);
 }
 
 
@@ -127,7 +118,7 @@ void print_vector(cnr_logger::TraceLogger& logger, const std::string& msg, const
   assert(v.size()==7);
   for(size_t i=0;i< v.size();i++)
   {
-    CNR_INFO(logger, color << msg << " " << (i==0u? "E" : "J") << i << ": "  << v.at(i));
+    CNR_DEBUG(logger, color << msg << " " << (i==0u? "E" : "J") << i << ": "  << v.at(i));
   }
 }
 void print_vector_throttle(cnr_logger::TraceLogger& logger, const std::string& msg, const std::vector<double>& v ,double throttle = 1.0, const char* color = "\033[0m")
@@ -135,33 +126,25 @@ void print_vector_throttle(cnr_logger::TraceLogger& logger, const std::string& m
   assert(v.size()==7);
   for(size_t i=0;i< v.size();i++)
   {
-    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J1: "  << v.at(1));
-    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J2: "  << v.at(2));
-    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J3: "  << v.at(3));
-    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J4: "  << v.at(4));
-    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J5: "  << v.at(5));
-    CNR_INFO_THROTTLE(logger, throttle, color << msg << " J6: "  << v.at(6));
-    CNR_INFO_THROTTLE(logger, throttle, color << msg << " E0: "  << v.at(0));
+    CNR_DEBUG_THROTTLE(logger, throttle, color << msg << " J1: "  << v.at(1));
+    CNR_DEBUG_THROTTLE(logger, throttle, color << msg << " J2: "  << v.at(2));
+    CNR_DEBUG_THROTTLE(logger, throttle, color << msg << " J3: "  << v.at(3));
+    CNR_DEBUG_THROTTLE(logger, throttle, color << msg << " J4: "  << v.at(4));
+    CNR_DEBUG_THROTTLE(logger, throttle, color << msg << " J5: "  << v.at(5));
+    CNR_DEBUG_THROTTLE(logger, throttle, color << msg << " J6: "  << v.at(6));
+    CNR_DEBUG_THROTTLE(logger, throttle, color << msg << " E0: "  << v.at(0));
   }
 }
 
 void print_message_struct_throttle(cnr_logger::TraceLogger& logger, const std::string& msg, const cnr::drapebot::drapebot_msg_hw& m, double throttle = 1.0)
 {
-  CNR_INFO_THROTTLE(logger,throttle , msg << " J1 : " << m.J1);
-  CNR_INFO_THROTTLE(logger,throttle , msg << " J2 : " << m.J2);
-  CNR_INFO_THROTTLE(logger,throttle , msg << " J3 : " << m.J3);
-  CNR_INFO_THROTTLE(logger,throttle , msg << " J4 : " << m.J4);
-  CNR_INFO_THROTTLE(logger,throttle , msg << " J5 : " << m.J5);
-  CNR_INFO_THROTTLE(logger,throttle , msg << " J6 : " << m.J6);
-  CNR_INFO_THROTTLE(logger,throttle , msg << " E0 : " << m.E0);
-  
-//   CNR_INFO(logger, msg << " J1 : " << m.J1);
-//   CNR_INFO(logger, msg << " J2 : " << m.J2);
-//   CNR_INFO(logger, msg << " J3 : " << m.J3);
-//   CNR_INFO(logger, msg << " J4 : " << m.J4);
-//   CNR_INFO(logger, msg << " J5 : " << m.J5);
-//   CNR_INFO(logger, msg << " J6 : " << m.J6);
-//   CNR_INFO(logger, msg << " E0 : " << m.E0);
+  CNR_DEBUG_THROTTLE(logger,throttle , msg << " J1 : " << m.J1);
+  CNR_DEBUG_THROTTLE(logger,throttle , msg << " J2 : " << m.J2);
+  CNR_DEBUG_THROTTLE(logger,throttle , msg << " J3 : " << m.J3);
+  CNR_DEBUG_THROTTLE(logger,throttle , msg << " J4 : " << m.J4);
+  CNR_DEBUG_THROTTLE(logger,throttle , msg << " J5 : " << m.J5);
+  CNR_DEBUG_THROTTLE(logger,throttle , msg << " J6 : " << m.J6);
+  CNR_DEBUG_THROTTLE(logger,throttle , msg << " E0 : " << m.E0);
 }
 
 
@@ -514,8 +497,6 @@ bool MQTTRobotHW::doInit()
       print_last_msg(this->m_logger, last_msg);      
     }
     
-    CNR_INFO(m_logger,cnr_logger::BOLDMAGENTA()<<"PRESs enter if pose ok");
-//     std::cin.get();
   }
   else
   {
@@ -553,7 +534,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
   
     
-    CNR_INFO_THROTTLE(m_logger,10.0,"[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] publishing command on : "<<m_mqtt_command_topic);
+    CNR_DEBUG_THROTTLE(m_logger,10.0,"[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] publishing command on : "<<m_mqtt_command_topic);
        
     if(verbose_)
     {
@@ -779,7 +760,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   
   if (USE_REAL_ROBOT)
   {
-    CNR_INFO_THROTTLE(m_logger,10.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
+    CNR_DEBUG_THROTTLE(m_logger,10.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
     
 //     for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
 //     {
@@ -842,7 +823,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   
   
   if(verbose_)
-    CNR_INFO_THROTTLE(m_logger,10.0,cnr_logger::BLUE()<<" publishing feedback to in loop on : "<<topic);
+    CNR_DEBUG_THROTTLE(m_logger,10.0,cnr_logger::BLUE()<<" publishing feedback to in loop on : "<<topic);
   
   sensor_msgs::JointState js;
   js.name.clear();

@@ -88,7 +88,7 @@ int main(int argc, char **argv)
   }
   
   std::vector<std::string> joint_names;
-  if(!nh.getParam("joint_names",joint_names))
+  if(!nh.getParam("robot_joint_names",joint_names))
   {
     ROS_WARN_STREAM("rate not found on namespace: "<<nh.getNamespace()<<". default!: 10");
   }
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
       }
             
       execute_trajectory.sendGoal ( trajectory_msg );
-      ROS_INFO_STREAM(BLUE<<"goal trajectory sent:\n"<<trajectory_msg);
+//       ROS_INFO_STREAM(BLUE<<"goal trajectory sent:\n"<<trajectory_msg);
       
       std::vector<double> first_point;
       ROS_INFO_STREAM("first traj point");
@@ -195,7 +195,7 @@ int main(int argc, char **argv)
         as = execute_trajectory.getState();
         
         if(as == actionlib::SimpleClientGoalState::ACTIVE) 
-          ROS_INFO_STREAM_THROTTLE(2.0,GREEN<<"executing trajectory. State :  ACTIVE !" );
+          ROS_INFO_STREAM_THROTTLE(5.0,GREEN<<"executing trajectory. State :  ACTIVE !" );
         else if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
           ROS_INFO_STREAM(RED<<"executing trajectory. State :  SUCCEEDED !" );
         else if(as == actionlib::SimpleClientGoalState::ABORTED) 

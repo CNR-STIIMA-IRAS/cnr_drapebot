@@ -9,7 +9,7 @@ rate: 100
 
 robot_hw_ns: "/robot1_mqtt_hw"
 
-joint_names: 
+robot_joint_names: 
 - kr210_1_linear_axis_joint
 - kr210_1_joint_1
 - kr210_1_joint_2

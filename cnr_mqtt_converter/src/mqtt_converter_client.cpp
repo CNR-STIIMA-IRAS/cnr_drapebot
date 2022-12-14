@@ -34,7 +34,7 @@ namespace  cnr
       
       reader.parse(buf,root);
       
-      ROS_INFO_STREAM(GREEN<<"Json Trajectory from MotionPlanner: \n" << buf);
+      ROS_INFO_STREAM(GREEN<<"Json Trajectory from ITR MotionPlanner: \n" << buf);
       
       if ( !JsonToMsg(root, trajectory_msg_))
       {
@@ -88,7 +88,7 @@ namespace  cnr
           msg->trajectory.points[i].accelerations[jj]=0;
         }
       }
-      ROS_INFO_STREAM(YELLOW<<"goal trajectory: \n"<< *msg);
+      ROS_DEBUG_STREAM(YELLOW<<"goal trajectory: \n"<< *msg);
       
       return true;
     }

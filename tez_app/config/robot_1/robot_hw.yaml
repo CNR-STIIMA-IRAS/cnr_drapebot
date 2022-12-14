@@ -1,7 +1,7 @@
 robot1_mqtt_hw:
   type: "cnr/control/MQTTRobotHW"
   appenders      : [file, screen]
-  levels         : [trace, info]
+  levels         : [trace, error]
   #pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%F:%M:%04L][%24c] %m%n"
   #pattern_layout : "[%5p][%d{HH:mm,SSS}][%M:%04L][%24c] %m%n"
   file_name      : robot1_mqtt_hw

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find tez_app)/launch/mqtt_converter.launch" >
+    <arg name="robot_name" value="robot_1"/>
+  </include>
+  
+  <include file="$(find tez_app)/launch/mqtt_converter.launch" >
+    <arg name="robot_name" value="robot_2"/>
+  </include>  
+  
+</launch>
+

@@ -6,6 +6,6 @@
   <group ns="$(arg robot_name)">
     <node pkg="cnr_mqtt_converter" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/>
     <rosparam command="load" file="$(find tez_app)/config/$(arg robot_name)/mqtt_config.yaml" />
-    
-  </group >
+  </group>
+  
 </launch>

@@ -27,7 +27,7 @@ namespace  cnr
       if(use_json_)
       {
         
-        ROS_INFO_STREAM_THROTTLE(2.0,"using JSON to decode message");
+        ROS_DEBUG_STREAM_THROTTLE(2.0,"using JSON to decode message");
         
         char buf[msg->payloadlen];
         memcpy(buf, msg->payload, msg->payloadlen);
@@ -52,7 +52,7 @@ namespace  cnr
       }
       else
       {
-        ROS_INFO_STREAM_THROTTLE(2.0,"using basic mqtt to decode message");
+        ROS_DEBUG_STREAM_THROTTLE(2.0,"using basic mqtt to decode message");
         
         int n_joints = MSG_LENGTH; // TODO::verify
         

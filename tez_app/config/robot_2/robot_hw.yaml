@@ -1,7 +1,7 @@
 robot2_mqtt_hw:
   type: "cnr/control/MQTTRobotHW"
   appenders      : [file, screen]
-  levels         : [trace, info]
+  levels         : [trace, debug]
   #pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%F:%M:%04L][%24c] %m%n"
   #pattern_layout : "[%5p][%d{HH:mm,SSS}][%M:%04L][%24c] %m%n"
   file_name      : robot2_mqtt_hw
@@ -31,7 +31,7 @@ robot2_mqtt_hw:
   delta_pos_from_start: false
   
   use_real_robot: true
-  verbose: true
+  verbose: false
   
   max_missing_cycles: 5
   
