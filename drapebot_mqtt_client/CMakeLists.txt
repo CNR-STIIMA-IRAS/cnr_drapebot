@@ -26,6 +26,8 @@ include_directories( include
 if(WIN32)
   include_directories("C:\\ws\\mosquitto\\include\\")
   include_directories("C:\\ws\\jsoncpp\\include\\json\\")
+else()
+  include_directories("/usr/include/jsoncpp/json/")
 endif()
 
 ## Declare a C++ library
