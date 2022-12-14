@@ -33,7 +33,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <json.h>
+#ifdef WIN32
+  #include <json.h>
+#else
+  #include <jsoncpp/json/json.h>
+#endif
+
 #include <ros/ros.h>
 
 #include <drapebot_mqtt_client/drapebot_mqtt_client.h>
@@ -42,23 +47,23 @@ namespace  cnr
 {
   namespace drapebot
   {
-    // void tic(int mode) 
-    // {
-    //   static std::chrono::high_resolution_clock::time_point t_start;
+    void tic(int mode) 
+    {
+      static std::chrono::high_resolution_clock::time_point t_start;
     
-    //   if (mode==0)
-    //       t_start = std::chrono::high_resolution_clock::now();
-    //   else 
-    //   {
-    //     auto t_end = std::chrono::high_resolution_clock::now();
-    //     ROS_WARN_STREAM_THROTTLE(1.0, "Elapsed time is " << (t_end-t_start).count()*1E-9 << "  seconds" );
-    //   }
-    // }
+      if (mode==0)
+          t_start = std::chrono::high_resolution_clock::now();
+      else 
+      {
+        auto t_end = std::chrono::high_resolution_clock::now();
+        ROS_WARN_STREAM_THROTTLE(1.0, "Elapsed time is " << (t_end-t_start).count()*1E-9 << "  seconds" );
+      }
+    }
 
-    // void toc() 
-    // { 
-    //   tic(1); 
-    // }
+    void toc() 
+    { 
+      tic(1); 
+    }
 
     void DrapebotMsgDecoder::on_message(const struct mosquitto_message *msg)
     {

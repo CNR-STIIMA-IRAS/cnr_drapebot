@@ -33,7 +33,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <json.h>
+#ifdef WIN32
+  #include <json.h>
+#else
+  #include <jsoncpp/json/json.h>
+#endif
+
 #include <chrono>
 #include <algorithm>
 #include <cstddef>
