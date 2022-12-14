@@ -1,0 +1,691 @@
+<robot name="tez_cell" version="1.0">
+    <link name="base_link">
+        <visual>
+            <origin rpy="0 0 0" xyz="-1.59975 2.91663 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/spannfeld.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/spannfeld.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <!-- Jig -->
+    <joint name="jig_pos" type="fixed">
+        <origin rpy="0 0 0" xyz="-3.175 -4.1069 1.121" />
+        <parent link="base_link" />
+        <child link="jig" />
+    </joint>
+    <link name="jig">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/jig.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/jig.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <!-- Tooling -->
+    <joint name="tooling_pos" type="fixed">
+        <origin rpy="0 0 0" xyz="-2.62294 -0.77019 0.96508" />
+        <parent link="base_link" />
+        <child link="tooling" />
+    </joint>
+    <link name="tooling">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/tooling.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/tooling.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <!-- Palette -->
+    <joint name="palette_pos" type="fixed">
+        <origin rpy="0 0 0" xyz="-2.47822 1.29621 0.96043" />
+        <parent link="base_link" />
+        <child link="palette" />
+    </joint>
+    <link name="palette">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/palette.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/palette.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <!-- Laser Fence -->
+    <joint name="laser_fence_pos" type="fixed">
+        <origin rpy="0 0 0" xyz="-1.58311 2.9162 0" />
+        <parent link="base_link" />
+        <child link="laser_fence" />
+    </joint>
+    <link name="laser_fence">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/laser_fences.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/laser_fences.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <!-- Linear Axis -->
+    <joint name="linear_axis_pos" type="fixed">
+        <origin rpy="0 0 0" xyz="-1.6 2.915 0" />
+        <parent link="base_link" />
+        <child link="linear_axis" />
+    </joint>
+    <link name="linear_axis">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/linear_axis.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/full_details/linear_axis.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <!-- KR210_1 -->
+    <joint name="kr210_1_linear_axis_joint" type="prismatic">
+        <origin rpy="0 0 -1.5708" xyz="0 0 0.485" />
+        <parent link="linear_axis" />
+        <child link="KR210_1_socket" />
+        <axis xyz="1.0 0.0 0.0" />
+        <limit effort="100" lower="0" upper="-9" velocity="100" />
+    </joint>
+    <link name="KR210_1_socket">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_socket.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_socket.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_1_joint_1" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0.5256" />
+        <parent link="KR210_1_socket" />
+        <child link="KR210_1_A1" />
+        <axis xyz="0.0 0.0 1.0" />
+        <limit effort="100" lower="-3.22886" upper="3.22886" velocity="100" />
+    </joint>
+    <link name="KR210_1_A1">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A1.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A1.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_1_joint_2" type="revolute">
+        <origin rpy="0 0 0" xyz="0.005 -0.35 0.45" />
+        <parent link="KR210_1_A1" />
+        <child link="KR210_1_A2" />
+        <axis xyz="1.0 0.0 0.0" />
+        <limit effort="10000" lower="-2.0944" upper="1.22173" velocity="100" />
+    </joint>
+    <link name="KR210_1_A2">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A2.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A2.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_1_joint_3" type="revolute">
+        <origin rpy="0 0 0" xyz="-0.183 0 1.35" />
+        <parent link="KR210_1_A2" />
+        <child link="KR210_1_A3" />
+        <axis xyz="1.0 0.0 0.0" />
+        <limit effort="100" lower="-2.0944" upper="2.70526" velocity="100" />
+    </joint>
+    <link name="KR210_1_A3">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A3.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A3.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_1_joint_4" type="revolute">
+        <origin rpy="0 0 0" xyz="0.178 -0.962 -0.041" />
+        <parent link="KR210_1_A3" />
+        <child link="KR210_1_A4" />
+        <axis xyz="0.0 1.0 0.0" />
+        <limit effort="100" lower="-6.10865" upper="6.10865" velocity="100" />
+    </joint>
+    <link name="KR210_1_A4">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A4.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A4.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_1_joint_5" type="revolute">
+        <origin rpy="0 0 0" xyz="0 -0.438 0" />
+        <parent link="KR210_1_A4" />
+        <child link="KR210_1_A5" />
+        <axis xyz="1.0 0.0 0.0" />
+        <limit effort="100" lower="-2.18166" upper="2.18166" velocity="100" />
+    </joint>
+    <link name="KR210_1_A5">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A5.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A5.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_1_joint_6" type="revolute">
+        <origin rpy="0 0 0" xyz="0 -0.24 0" />
+        <parent link="KR210_1_A5" />
+        <child link="KR210_1_A6" />
+        <axis xyz="0.0 1.0 0.0" />
+        <limit effort="100" lower="-6.10865" upper="6.10865" velocity="2" />
+    </joint>
+    <link name="KR210_1_A6">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A6.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A6.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <!-- <link name="EndEffector_Link" />
+
+  <joint name="EndEffector" type="fixed">
+    <origin xyz="0 0 -0.061525" rpy="0 0 0" />
+    <parent link="KR210_1_A6" />
+    <child link="EndEffector_Link" />
+    <axis xyz="0 0 0" />
+  </joint> -->
+    <!-- KR210_2 -->
+    <joint name="kr210_2_linear_axis_joint" type="prismatic">
+        <origin rpy="0 0 -1.5708" xyz="0 -1.5 0.485" />
+        <parent link="linear_axis" />
+        <child link="KR210_2_socket" />
+        <axis xyz="1.0 0.0 0.0" />
+        <limit effort="100" lower="-1.5" upper="-9" velocity="100" />
+    </joint>
+    <link name="KR210_2_socket">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_socket.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_socket.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_2_joint_1" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0.5256" />
+        <parent link="KR210_2_socket" />
+        <child link="KR210_2_A1" />
+        <axis xyz="0.0 0.0 1.0" />
+        <limit effort="100" lower="-3.22886" upper="3.22886" velocity="100" />
+    </joint>
+    <link name="KR210_2_A1">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A1.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A1.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_2_joint_2" type="revolute">
+        <origin rpy="0 0 0" xyz="0.005 -0.35 0.45" />
+        <parent link="KR210_2_A1" />
+        <child link="KR210_2_A2" />
+        <axis xyz="1.0 0.0 0.0" />
+        <limit effort="10000" lower="-2.0944" upper="1.22173" velocity="100" />
+    </joint>
+    <link name="KR210_2_A2">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A2.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A2.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_2_joint_3" type="revolute">
+        <origin rpy="0 0 0" xyz="-0.183 0 1.35" />
+        <parent link="KR210_2_A2" />
+        <child link="KR210_2_A3" />
+        <axis xyz="1.0 0.0 0.0" />
+        <limit effort="100" lower="-2.0944" upper="2.70526" velocity="100" />
+    </joint>
+    <link name="KR210_2_A3">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A3.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A3.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_2_joint_4" type="revolute">
+        <origin rpy="0 0 0" xyz="0.178 -0.962 -0.041" />
+        <parent link="KR210_2_A3" />
+        <child link="KR210_2_A4" />
+        <axis xyz="0.0 1.0 0.0" />
+        <limit effort="100" lower="-6.10865" upper="6.10865" velocity="100" />
+    </joint>
+    <link name="KR210_2_A4">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A4.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A4.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_2_joint_5" type="revolute">
+        <origin rpy="0 0 0" xyz="0 -0.438 0" />
+        <parent link="KR210_2_A4" />
+        <child link="KR210_2_A5" />
+        <axis xyz="1.0 0.0 0.0" />
+        <limit effort="100" lower="-2.18166" upper="2.18166" velocity="100" />
+    </joint>
+    <link name="KR210_2_A5">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A5.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A5.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="kr210_2_joint_6" type="revolute">
+        <origin rpy="0 0 0" xyz="0 -0.24 0" />
+        <parent link="KR210_2_A5" />
+        <child link="KR210_2_A6" />
+        <axis xyz="0.0 1.0 0.0" />
+        <limit effort="100" lower="-6.10865" upper="6.10865" velocity="2" />
+    </joint>
+    <link name="KR210_2_A6">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A6.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/collada/reduced_details/KR210_3100_ultra_A6.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <joint name="EndEffector" type="fixed">
+        <origin xyz="0 0 0" rpy="1.5708 0 1.5708" />
+        <parent link="KR210_2_A6" />
+        <child link="gripper" />
+        <axis xyz="0 0 0" />
+    </joint>
+    <link name="gripper">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/obj/gripper.obj" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://tez_description/mesh/obj/gripper.obj" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.03" iyy="0.03" izz="0.03" ixy="0.0" ixz="0.0" iyz="0.0" />
+        </inertial>
+    </link>
+    <transmission name="trans_kr210_1_linear_axis_joint">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_1_linear_axis_joint">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_1_linear_axis_joint_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_1_joint_1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_1_joint_1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_1_joint_1_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_1_joint_2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_1_joint_2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_1_joint_2_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_1_joint_3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_1_joint_3">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_1_joint_3_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_1_joint_4">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_1_joint_4">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_1_joint_4_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_1_joint_5">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_1_joint_5">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_1_joint_5_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_1_joint_6">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_1_joint_6">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_1_joint_6_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_2_linear_axis_joint">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_2_linear_axis_joint">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_2_linear_axis_joint_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_2_joint_1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_2_joint_1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_2_joint_1_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_2_joint_2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_2_joint_2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_2_joint_2_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_2_joint_3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_2_joint_3">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_2_joint_3_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_2_joint_4">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_2_joint_4">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_2_joint_4_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_2_joint_5">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_2_joint_5">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_2_joint_5_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_kr210_2_joint_6">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="kr210_2_joint_6">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kr210_2_joint_6_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <gazebo>
+        <plugin name="gazebo_ros_control">
+            <robotNamespace>/</robotNamespace>
+        </plugin>
+    </gazebo>
+</robot>
+

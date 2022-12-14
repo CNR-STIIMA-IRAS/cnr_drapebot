@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: tez_description
+    relative_path: urdf/tez_cell_fullmesh.urdf
+    xacro_args: ""
+  SRDF:
+    relative_path: config/tez_cell.srdf
+  CONFIG:
+    author_name: paolo@drapebot.it
+    author_email: paolo@drapebot.it
+    generated_timestamp: 1670843840

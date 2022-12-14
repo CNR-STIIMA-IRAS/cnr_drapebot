@@ -67,7 +67,7 @@
     <parent link="KR210_1_socket"/>
     <child link="KR210_1_A1"/>
     <axis xyz="0.0 0.0 -1.0"/>
-    <limit effort="100" lower="-3.22886" upper="3.22886" velocity="1"/>
+    <limit effort="100" lower="-3.22886" upper="3.22886" velocity="0.1"/>
   </joint>
 
   <link name="KR210_1_A1">
@@ -90,7 +90,7 @@
     <parent link="KR210_1_A1"/>
     <child link="KR210_1_A2"/>
     <axis xyz="1.0 0.0 0.0"/>
-    <limit effort="10000" lower="-2.443460952792061" upper="-0.08726646259971647" velocity="1"/>
+    <limit effort="10000" lower="-2.443460952792061" upper="-0.08726646259971647" velocity="0.1"/>
   </joint>
 
   <link name="KR210_1_A2">
@@ -113,7 +113,7 @@
     <parent link="KR210_1_A2"/>
     <child link="KR210_1_A3"/>
     <axis xyz="1.0 0.0 0.0"/>
-    <limit effort="100" lower="-2.0943951023931953" upper="2.705260340591211" velocity="1"/>
+    <limit effort="100" lower="-2.0943951023931953" upper="2.705260340591211" velocity="0.1"/>
   </joint>
 
   <link name="KR210_1_A3">
@@ -159,7 +159,7 @@
     <parent link="KR210_1_A4"/>
     <child link="KR210_1_A5"/>
     <axis xyz="1.0 0.0 0.0"/>
-    <limit effort="100" lower="-2.138028333693054" upper="2.138028333693054" velocity="1"/>
+    <limit effort="100" lower="-2.138028333693054" upper="2.138028333693054" velocity="0.1"/>
   </joint>
 
   <link name="KR210_1_A5">
@@ -210,9 +210,204 @@
     <axis xyz="0 0 0" />
   </joint> -->
 
-
+  
+  
+  
+  
+  
   <!-- KR210_2 -->
   <joint name="kr210_2_linear_axis_joint" type="prismatic">
+    <origin rpy="0 0 3.1415" xyz="-9.0 0 0.487"/>
+    <parent link="linear_axis"/>
+    <child link="KR210_2_socket"/>
+    <axis xyz="1.0 0.0 0.0"/>
+    <limit effort="100" lower="-9" upper="0" velocity="100"/> <!--upper = 9 in origin version-->
+  </joint>
+
+  <link name="KR210_2_socket">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_socket.dae"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="kr210_2_joint_1" type="revolute">
+    <origin rpy="0 0 -1.5707963267948966" xyz="0 0 0.5256"/>
+    <parent link="KR210_2_socket"/>
+    <child link="KR210_2_A1"/>
+    <axis xyz="0.0 0.0 -1.0"/>
+    <limit effort="100" lower="-3.22886" upper="3.22886" velocity="0.1"/>
+  </joint>
+
+  <link name="KR210_2_A1">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A1.dae"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="kr210_2_joint_2" type="revolute">
+    <origin rpy="1.5707963267948966 0 0" xyz="0.005 -0.35 0.45"/>
+    <parent link="KR210_2_A1"/>
+    <child link="KR210_2_A2"/>
+    <axis xyz="1.0 0.0 0.0"/>
+    <limit effort="10000" lower="-2.443460952792061" upper="-0.08726646259971647" velocity="0.1"/>
+  </joint>
+
+  <link name="KR210_2_A2">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A2.dae"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="kr210_2_joint_3" type="revolute">
+    <origin rpy="-1.5707963267948966 0 0" xyz="-0.183 0 1.35"/>
+    <parent link="KR210_2_A2"/>
+    <child link="KR210_2_A3"/>
+    <axis xyz="1.0 0.0 0.0"/>
+    <limit effort="100" lower="-2.0943951023931953" upper="2.705260340591211" velocity="0.1"/>
+  </joint>
+
+  <link name="KR210_2_A3">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A3.dae"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="kr210_2_joint_4" type="revolute">
+    <origin rpy="0 0 0" xyz="0.178 -0.962 -0.041"/>
+    <parent link="KR210_2_A3"/>
+    <child link="KR210_2_A4"/>
+    <axis xyz="0.0 1.0 0.0"/>
+    <limit effort="100" lower="-6.10865" upper="6.10865" velocity="100"/>
+  </joint>
+
+  <link name="KR210_2_A4">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A4.dae"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="kr210_2_joint_5" type="revolute">
+    <origin rpy="0 0 0" xyz="0 -0.438 0"/>
+    <parent link="KR210_2_A4"/>
+    <child link="KR210_2_A5"/>
+    <axis xyz="1.0 0.0 0.0"/>
+    <limit effort="100" lower="-2.138028333693054" upper="2.138028333693054" velocity="0.1"/>
+  </joint>
+
+  <link name="KR210_2_A5">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A5.dae"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="kr210_2_joint_6" type="revolute">
+    <origin rpy="0 0 0" xyz="0 -0.24 0"/>
+    <parent link="KR210_2_A5"/>
+    <child link="KR210_2_A6"/>
+    <axis xyz="0.0 1.0 0.0"/>
+    <limit effort="100" lower="-6.10865" upper="6.10865" velocity="2"/>
+  </joint>
+
+  <link name="KR210_2_A6">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
+      </geometry>
+    </collision>
+  </link>
+
+  
+  <joint name="EndEffector" type="fixed">
+    <origin xyz="0 -0.01 0" rpy="0 0 1.5708" />
+    <parent link="KR210_2_A6" />
+    <child link="gripper" />
+    <axis xyz="0 0 0" />
+  </joint>
+
+  <link name="gripper">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/collada/reduced_details/gripper.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tez_description/mesh/collada/reduced_details/gripper.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  
+  
+  
+  
+  
+
+  <!-- KR210_2 -->
+  <!--<joint name="kr210_2_linear_axis_joint" type="prismatic">
     <origin rpy="0 0 3.14159" xyz="-1.5 0 0.487"/>
     <parent link="linear_axis"/>
     <child link="KR210_2_socket"/>
@@ -371,7 +566,7 @@
         <mesh filename="package://tez_description/mesh/reduced_details/KR210_3100_ultra_A6.dae"/>
       </geometry>
     </collision>
-  </link>
+  </link>-->
 
   <!-- <link name="EndEffector_Link" />
 

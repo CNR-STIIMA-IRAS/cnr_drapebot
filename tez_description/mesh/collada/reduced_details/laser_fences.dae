@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <asset>
+    <contributor>
+      <author>Blender User</author>
+      <authoring_tool>Blender 3.1.2 commit date:2022-03-31, commit time:17:40, hash:cc66d1020c3b</authoring_tool>
+    </contributor>
+    <created>2022-09-24T18:59:17</created>
+    <modified>2022-09-24T18:59:17</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="laser_fence_color-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.8000001 0.0183632 0.03561572 1</color>
+            </diffuse>
+            <transparent opaque="A_ONE">
+              <color sid="alpha">0 0 0 0.7579051</color>
+            </transparent>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_images/>
+  <library_materials>
+    <material id="laser_fence_color-material" name="laser_fence_color">
+      <instance_effect url="#laser_fence_color-effect"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="Laser_Fences-mesh" name="Laser Fences">
+      <mesh>
+        <source id="Laser_Fences-mesh-positions">
+          <float_array id="Laser_Fences-mesh-positions-array" count="120">-9.654041 -4.815 2.2 -9.654041 -4.865 2.2 -7.245221 -4.815 2.2 -7.245221 -4.865 2.2 -9.654041 -4.815 0 -7.245221 -4.815 0 -9.654041 -4.865 0 -7.245221 -4.865 0 1.558801 5.4 2.2 1.558801 5.4 0 1.558801 -0.7000001 0 1.558801 -0.7000001 0.8 1.558801 -1.76 0.8 1.558801 -4.815 2.2 1.558801 -1.76 0 1.558801 -4.815 0 1.608801 -1.76 0 1.608801 -1.76 0.8 1.608801 -4.865 0 -5.245221 -4.865 0 -5.245221 -4.815 0 -5.245221 -4.865 2.2 1.608801 -4.865 2.2 1.608801 5.4 0 1.608801 -0.7000001 0 -5.245221 -4.815 2.2 1.608801 5.4 2.2 1.608801 -0.7000001 0.8 -10.2912 -1.439976 0.8 -10.2412 -1.439976 0.8 -10.2912 -1.439976 2.2 -10.2412 -1.439976 2.2 -10.2412 5.4 2.2 -10.2412 5.4 0 -10.2912 5.4 2.2 -10.2912 5.4 0 -10.2912 -0.7000001 0 -10.2412 -0.7000001 0 -10.2412 -0.7000001 0.8 -10.2912 -0.7000001 0.8</float_array>
+          <technique_common>
+            <accessor source="#Laser_Fences-mesh-positions-array" count="40" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Laser_Fences-mesh-normals">
+          <float_array id="Laser_Fences-mesh-normals-array" count="24">0 0 1 0 0 -1 -1 0 0 0 1 0 1 0 0 0 -1 0 -1 0 0 1 -1.42127e-7 0</float_array>
+          <technique_common>
+            <accessor source="#Laser_Fences-mesh-normals-array" count="8" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Laser_Fences-mesh-vertices">
+          <input semantic="POSITION" source="#Laser_Fences-mesh-positions"/>
+        </vertices>
+        <triangles material="laser_fence_color-material" count="68">
+          <input semantic="VERTEX" source="#Laser_Fences-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Laser_Fences-mesh-normals" offset="1"/>
+          <p>0 0 1 0 2 0 2 0 1 0 3 0 4 1 5 1 6 1 6 1 5 1 7 1 4 2 6 2 0 2 0 2 6 2 1 2 0 3 2 3 4 3 4 3 2 3 5 3 7 4 5 4 3 4 3 4 5 4 2 4 1 5 6 5 3 5 3 5 6 5 7 5 8 2 9 2 10 2 8 6 10 6 11 6 8 2 11 2 12 2 8 2 12 2 13 2 14 2 15 2 12 2 12 2 15 2 13 2 14 3 12 3 16 3 16 3 12 3 17 3 16 1 18 1 14 1 14 1 18 1 15 1 18 1 19 1 15 1 15 1 19 1 20 1 21 5 19 5 22 5 22 5 19 5 18 5 9 1 23 1 10 1 10 1 23 1 24 1 20 2 19 2 25 2 25 2 19 2 21 2 25 3 13 3 20 3 20 3 13 3 15 3 26 3 23 3 8 3 8 3 23 3 9 3 26 0 8 0 22 0 22 0 8 0 13 0 22 0 13 0 21 0 21 0 13 0 25 0 11 5 10 5 27 5 27 5 10 5 24 5 26 4 22 4 17 4 26 4 17 4 27 4 26 4 27 4 24 4 26 4 24 4 23 4 16 4 17 4 18 4 18 4 17 4 22 4 11 1 27 1 12 1 12 1 27 1 17 1 28 5 29 5 30 5 30 5 29 5 31 5 32 3 33 3 34 3 34 3 33 3 35 3 34 0 30 0 32 0 32 0 30 0 31 0 35 1 33 1 36 1 36 1 33 1 37 1 31 4 29 4 32 4 32 4 29 4 38 4 32 7 38 7 33 7 33 4 38 4 37 4 30 2 34 2 28 2 28 2 34 2 39 2 34 2 35 2 39 2 39 2 35 2 36 2 39 5 36 5 38 5 38 5 36 5 37 5 39 1 38 1 28 1 28 1 38 1 29 1</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Laser_Fences" name="Laser Fences" type="NODE">
+        <matrix sid="transform">-4.37114e-8 -1 0 0 1 -4.37114e-8 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#Laser_Fences-mesh" name="Laser Fences">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="laser_fence_color-material" target="#laser_fence_color-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene"/>
+  </scene>
+</COLLADA>

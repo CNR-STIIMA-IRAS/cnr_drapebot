@@ -76,14 +76,23 @@ void mqtt_msg_to_vector(const cnr::drapebot::drapebot_msg_hw msg,std::vector<dou
 
 void print_last_msg(cnr_logger::TraceLogger& logger, const cnr::drapebot::drapebot_msg_hw last_msg)
 {    
-    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb count "<< last_msg.count);
-    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J1 "<< last_msg.J1);
-    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J2 "<< last_msg.J2);
-    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J3 "<< last_msg.J3);
-    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J4 "<< last_msg.J4);
-    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J5 "<< last_msg.J5);
-    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb J6 "<< last_msg.J6);
-    CNR_INFO_THROTTLE(logger,2.0,cnr_logger::GREEN()<<"last fb E0 "<< last_msg.E0);
+    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb count "<< last_msg.count);
+    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J1 "<< last_msg.J1);
+    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J2 "<< last_msg.J2);
+    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J3 "<< last_msg.J3);
+    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J4 "<< last_msg.J4);
+    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J5 "<< last_msg.J5);
+    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb J6 "<< last_msg.J6);
+    CNR_INFO_THROTTLE(logger,10.0,cnr_logger::GREEN()<<"last fb E0 "<< last_msg.E0);
+
+//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb count "<< last_msg.count);
+//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J1 "<< last_msg.J1);
+//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J2 "<< last_msg.J2);
+//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J3 "<< last_msg.J3);
+//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J4 "<< last_msg.J4);
+//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J5 "<< last_msg.J5);
+//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb J6 "<< last_msg.J6);
+//     CNR_INFO(logger,cnr_logger::GREEN()<<"last fb E0 "<< last_msg.E0);
 }
 
 
@@ -145,6 +154,14 @@ void print_message_struct_throttle(cnr_logger::TraceLogger& logger, const std::s
   CNR_INFO_THROTTLE(logger,throttle , msg << " J5 : " << m.J5);
   CNR_INFO_THROTTLE(logger,throttle , msg << " J6 : " << m.J6);
   CNR_INFO_THROTTLE(logger,throttle , msg << " E0 : " << m.E0);
+  
+//   CNR_INFO(logger, msg << " J1 : " << m.J1);
+//   CNR_INFO(logger, msg << " J2 : " << m.J2);
+//   CNR_INFO(logger, msg << " J3 : " << m.J3);
+//   CNR_INFO(logger, msg << " J4 : " << m.J4);
+//   CNR_INFO(logger, msg << " J5 : " << m.J5);
+//   CNR_INFO(logger, msg << " J6 : " << m.J6);
+//   CNR_INFO(logger, msg << " E0 : " << m.E0);
 }
 
 
@@ -234,6 +251,9 @@ bool MQTTRobotHW::doInit()
   m_cmd_eff.resize(resourceNumber(),0);
   m_ft_sensor.resize(6,0);
 
+  goal_toll_.resize(resourceNumber(),0);
+  cmd_pos_holder_.resize(resourceNumber(),0);
+  hold_pos_.resize(resourceNumber(), false);
 
   if (m_robothw_nh.hasParam("initial_position"))
   {
@@ -370,6 +390,16 @@ bool MQTTRobotHW::doInit()
     CNR_WARN(m_logger,"param: "<<m_robothw_nh.getNamespace()<<"/max_missing_cycles not found . default: m_maximum_missing_cycle = "<< m_maximum_missing_cycle );
   }
   
+  if (!m_robothw_nh.getParam("goal_tolerance",goal_toll_))
+  {
+    goal_toll_={0.001,0.01,0.01,0.01,0.01,0.01,0.01};
+    CNR_WARN(m_logger,"using defalut host: localhost");
+  }
+  
+  CNR_INFO(m_logger, cnr_logger::CYAN()<<"goal tolerance: ");
+  for (auto p : goal_toll_)
+    CNR_INFO(m_logger, cnr_logger::CYAN() << p);
+
   
 //   ---- MQTT params ----
   CNR_TRACE(m_logger," MQTT PARAMS");
@@ -495,6 +525,7 @@ bool MQTTRobotHW::doInit()
   mqtt_to_vector(mqtt_drapebot_client_,m_cmd_pos);
   mqtt_to_vector(mqtt_drapebot_client_,m_pos);
   m_start_pos = m_pos;
+  cmd_pos_holder_ = m_pos;
   
   
   if(verbose_)
@@ -530,13 +561,88 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
       vector_to_mqtt_msg(m_cmd_pos,m_);
       std::string st = cnr_logger::MAGENTA();
       st += " command : "; 
-      print_message_struct_throttle(m_logger,st, m_);
+      print_message_struct_throttle(m_logger,st, m_,10.0);
     }
     
     if(!use_json_)
   {
   // ----------- BYTE MQTT MSG -------------------
+    
+    
+    
+    bool last_point_available;
+    if (!m_robothw_nh.getParam("last_point_available",last_point_available))
+    {
+      last_point_available = false;
+      check_last_ = false;
+    }
       
+    if (last_point_available)
+    {
+      for(size_t i=0; i<m_pos.size(); i++)
+        hold_pos_.at(i) = false;
+      m_robothw_nh.setParam("last_point_available", false);
+      check_last_ = true;
+    }
+    
+    if (check_last_)
+    {
+      std::vector<double> last_traj_point;
+      m_robothw_nh.getParam("last_traj_point",last_traj_point);
+      
+      for(size_t i=0; i<m_pos.size(); i++)
+      {
+        if (std::fabs( m_pos.at(i) - last_traj_point.at(i) ) < goal_toll_.at(i) && hold_pos_.at(i) == false) 
+        {
+          cmd_pos_holder_.at(i) = m_pos.at(i);
+          hold_pos_.at(i) = true;
+          
+          CNR_INFO(m_logger,cnr_logger::CYAN()<<"holding joint: "<<i);
+          CNR_INFO(m_logger,cnr_logger::CYAN()<<"holding position of joint "<<i<<".\nm_pos    : "  << m_pos.at(i) 
+                                                  << "\ngoal_pos : " << last_traj_point.at(i)
+                                                  << "\ndelta pos: "<< std::fabs( m_pos.at(i) - last_traj_point.at(i) )
+                                                  << "\ntollerance" << goal_toll_.at(i));
+        }
+      }
+
+      for(size_t i=0; i<m_pos.size(); i++)
+      {
+        if(hold_pos_.at(i))
+        {
+          m_cmd_pos.at(i) = cmd_pos_holder_.at(i);
+        }
+      }
+      
+      if( !( std::find(hold_pos_.begin(), hold_pos_.end(), false) != hold_pos_.end() ) )
+      {
+        CNR_INFO(m_logger, cnr_logger::GREEN() << "all joints in tolerance ! ");
+        
+        for(size_t i=0; i<m_pos.size(); i++)
+        {
+          CNR_INFO(m_logger, cnr_logger::GREEN() << "holding position of joint "<<i<<".\nm_pos    : "  << m_pos.at(i) 
+                                                                                   << "\ngoal_pos : " << last_traj_point.at(i)
+                                                                                   << "\ndelta pos: "<< std::fabs( m_pos.at(i) - last_traj_point.at(i) )
+                                                                                   << "\ntollerance" << goal_toll_.at(i));
+        }
+        
+        check_last_ = false;
+      }
+    }
+    else
+    {
+      for(size_t i=0; i<m_pos.size(); i++)
+      {
+        if(hold_pos_.at(i))
+        {
+          m_cmd_pos.at(i) = cmd_pos_holder_.at(i);
+        }
+      }
+//       print_vector_throttle(m_logger,"holding position: ",m_cmd_pos);
+    }
+    
+    
+    
+    
     cnr::drapebot::drapebot_msg_hw m_;
     vector_to_mqtt_msg(m_cmd_pos,m_);
     
@@ -673,7 +779,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   
   if (USE_REAL_ROBOT)
   {
-    CNR_INFO_THROTTLE(m_logger,2.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
+    CNR_INFO_THROTTLE(m_logger,10.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
     
 //     for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
 //     {
@@ -696,7 +802,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       int delay = std::fabs(mqtt_drapebot_client_->get_msg_count_cmd() - last_msg.count);
       if( delay > m_maximum_missing_cycle  )
       {
-        CNR_WARN_THROTTLE(m_logger,1.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
+        CNR_WARN_THROTTLE(m_logger,10.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
                                                << mqtt_drapebot_client_->get_msg_count_cmd() <<", feedback: " << last_msg.count);
       }
     }
@@ -736,7 +842,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   
   
   if(verbose_)
-    CNR_INFO_THROTTLE(m_logger,2.0,cnr_logger::BLUE()<<" publishing feedback to in loop on : "<<topic);
+    CNR_INFO_THROTTLE(m_logger,10.0,cnr_logger::BLUE()<<" publishing feedback to in loop on : "<<topic);
   
   sensor_msgs::JointState js;
   js.name.clear();

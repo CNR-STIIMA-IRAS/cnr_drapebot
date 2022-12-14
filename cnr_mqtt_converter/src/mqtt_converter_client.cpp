@@ -88,7 +88,7 @@ namespace  cnr
           msg->trajectory.points[i].accelerations[jj]=0;
         }
       }
-      ROS_DEBUG_STREAM(YELLOW<<"goal trajectory: \n"<<&msg);
+      ROS_INFO_STREAM(YELLOW<<"goal trajectory: \n"<< *msg);
       
       return true;
     }

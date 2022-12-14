@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="punta">
+
+  <material name="lightgrey">
+    <color rgba="0.7 0.7 0.7 1.0"/>
+  </material>
+
+<xacro:macro name="punta">
+
+  <link name="punta">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+     <geometry>
+       <cylinder radius="0.015" length="0.15"/>
+     </geometry>
+     <material name="lightgrey"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.05" />
+     <geometry>
+       <cylinder radius="0.015" length="0.15"/>
+     </geometry>
+     <material name="lightgrey"/>
+    </collision>
+    <collision_checking>
+      <origin rpy="0 0 0" xyz="0 0 0.5" />
+     <geometry>
+       <cylinder radius="0.015" length="0.15"/>
+     </geometry>
+    </collision_checking>
+    <inertial>
+      <origin rpy="0 0 3.92699" xyz="0 0 0.05" />
+     <mass value="1"/>
+     <inertia ixx="100"  ixy="0"  ixz="0" iyy="100" iyz="0" izz="100" />
+    </inertial>
+  </link>  
+ 
+  <joint name="tip_joint" type="fixed">
+    <origin xyz="0 0 0.075" rpy="0 0 0" />
+    <parent link="punta"/>
+    <child link="tip"/>
+ </joint>
+ 
+  <link name="tip"/>
+ 
+</xacro:macro>
+ 
+</robot>

@@ -31,14 +31,16 @@ robot1_mqtt_hw:
   delta_pos_from_start: false
   
   use_real_robot: true
-  verbose: true
+  verbose: false
   
   max_missing_cycles: 5
+  
+  goal_tolerance: [0.00001,0.001,0.001,0.001,0.001,0.001,0.001]
   
   #--- MQTT ---
   
   client_id: "robot1/MQTT_HW"
-  host: 192.168.250.200    # drapebot
+  host: 192.168.12.204    # drapebot
   #host: 172.31.1.11    # loris pc
   #host: localhost
   port: 1883

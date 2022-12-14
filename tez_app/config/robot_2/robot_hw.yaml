@@ -3,7 +3,7 @@ robot2_mqtt_hw:
   appenders      : [file, screen]
   levels         : [trace, info]
   #pattern_layout : "[%5p][%d{HH:mm:ss,SSS}][%F:%M:%04L][%24c] %m%n"
-  pattern_layout : "[%5p][%d{HH:mm,SSS}][%M:%04L][%24c] %m%n"
+  #pattern_layout : "[%5p][%d{HH:mm,SSS}][%M:%04L][%24c] %m%n"
   file_name      : robot2_mqtt_hw
   sampling_period: 0.004
   diagnostic_period: 0.1
@@ -25,19 +25,24 @@ robot2_mqtt_hw:
   robot_description_planning_param: /robot_description_planning
   kin_update_period: 0.1
 
-  initial_position: [1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0]
+  initial_position: [0.0, -1.57, 1.56, 1.57, 0.0, 0.0, 0.0] # [j1,j2,j3,j4,j5,j6,e0] last value is for the linear axis 
   
   use_delta_target_pos: false
   delta_pos_from_start: false
   
-  use_real_robot: false
-  verbose: false
+  use_real_robot: true
+  verbose: true
+  
+  max_missing_cycles: 5
+  
+  goal_tolerance: [0.00001,0.001,0.001,0.001,0.001,0.001,0.001]
   
   #--- MQTT ---
   
   client_id: "robot2/MQTT_HW"
-  #host: 192.168.12.204    # drapebot
-  host: localhost
+  host: 192.168.12.204    # drapebot
+  #host: 172.31.1.11    # loris pc
+  #host: localhost
   port: 1883
   
   feedback_mqtt_topic: "/robot_2/feedback"
@@ -49,9 +54,16 @@ robot2_mqtt_hw:
 
   remap_source_args:
   - "/robot2_mqtt_hw/js_pub_r2/joint_states"
+  - "/robot2_mqtt_hw/cmd_pos"
+  - "/robot2_mqtt_hw/old_pos"
+  - "/robot2_mqtt_hw/delta_pos"
   remap_target_args:
   - "/robot2/joint_states"
   #- "/joint_states"  # TODO:: per uso singolo robot
+  - "/cmd_pos_r2"
+  - "/old_pos_r2"
+  - "/delta_pos_r2"
+  
 
   js_pub_r2:
     type: cnr/control/JointStatePublisher

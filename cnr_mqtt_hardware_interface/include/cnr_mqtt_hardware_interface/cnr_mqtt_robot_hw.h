@@ -119,6 +119,11 @@ protected:
   int m_maximum_missing_cycle;
   
   cnr::drapebot::MQTTDrapebotClientHw* mqtt_drapebot_client_;
+
+  std::vector<double> goal_toll_;
+  std::vector<double> cmd_pos_holder_;
+  std::vector<bool> hold_pos_;
+  
   
   ros::Publisher cmd_pos_pub_;
   ros::Publisher fb_pos_pub_;
@@ -130,6 +135,7 @@ protected:
   bool USE_REAL_ROBOT;
   bool verbose_;
   bool use_json_;
+  bool check_last_;
   
   int command_count_ = 0;
 

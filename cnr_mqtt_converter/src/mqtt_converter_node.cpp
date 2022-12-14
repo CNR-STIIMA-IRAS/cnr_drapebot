@@ -116,6 +116,15 @@ int main(int argc, char **argv)
   
   cnr::drapebot_converter::MQTTDrapebotClientHw client(client_id, broker_address, port);
   
+  std::string robot_hw_ns;
+  if(!nh.getParam("robot_hw_ns",robot_hw_ns))
+  {
+    robot_hw_ns = "robot1_mqtt_hw";
+    ROS_WARN_STREAM("robot_hw_ns not found on namespace: "<<nh.getNamespace()<<". default!: "<<robot_hw_ns);
+  }
+  nh.setParam(robot_hw_ns+"/last_point_available",false);
+  
+  
   ros::Rate r = rate;
   
   ROS_INFO_STREAM("[mqtt_converter] -> subscribing to "<<topic);
@@ -174,6 +183,8 @@ int main(int argc, char **argv)
       ROS_INFO_STREAM("last traj point");      
       for (auto p : trajectory_msg.trajectory.points.back().positions)
         ROS_INFO_STREAM(p);
+      nh.setParam(robot_hw_ns+"/last_traj_point",trajectory_msg.trajectory.points.back().positions);
+      nh.setParam(robot_hw_ns+"/last_point_available",true);
       
       ROS_INFO_STREAM("waitin for execution");
       
