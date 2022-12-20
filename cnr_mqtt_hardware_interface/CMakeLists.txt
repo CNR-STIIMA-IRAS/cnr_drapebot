@@ -16,7 +16,9 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   roscpp
   roslint 
-  cnr_mqtt
+#   cnr_mqtt    # TODO:: verificare che non serva con giorgio
+  state_space_filters
+  cnr_mqtt_client
 )
 
 if(CATKIN_ENABLE_TESTING AND ENABLE_COVERAGE_TESTING)
@@ -27,8 +29,8 @@ endif()
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES cnr_mqtt_hardware_interface
-  CATKIN_DEPENDS cnr_controller_interface_params cnr_hardware_interface  nodelet roscpp cnr_mqtt
+  LIBRARIES cnr_mqtt_hardware_interface mqtt_client_hw
+  CATKIN_DEPENDS cnr_controller_interface_params cnr_hardware_interface  nodelet roscpp cnr_mqtt_client
   DEPENDS 
 )
 
@@ -37,11 +39,28 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+add_library           (mqtt_client_hw src/${PROJECT_NAME}/mqtt_client_hw.cpp )
+target_link_libraries (mqtt_client_hw ${catkin_LIBRARIES} jsoncpp)
+
 add_library           (${PROJECT_NAME} src/${PROJECT_NAME}/cnr_mqtt_robot_hw.cpp )
 add_dependencies      (${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries (${PROJECT_NAME} ${catkin_LIBRARIES} mosquittopp mosquitto jsoncpp)
+target_link_libraries (${PROJECT_NAME} ${catkin_LIBRARIES} jsoncpp mqtt_client_hw )
 target_compile_options(${PROJECT_NAME} PUBLIC -Wall -faligned-new
         $<$<CONFIG:Release>:-Ofast -funroll-loops -ffast-math >)
+
+        
+        
+        
+add_executable(mqtt_listener src/${PROJECT_NAME}/mqtt_listener.cpp)
+target_link_libraries(mqtt_listener ${catkin_LIBRARIES} mqtt_client_hw)
+
+add_executable(mqtt_cmd src/${PROJECT_NAME}/mqtt_cmd.cpp)
+target_link_libraries(mqtt_cmd ${catkin_LIBRARIES} mqtt_client_hw)
+
+add_executable(mqtt_cmd2 src/${PROJECT_NAME}/mqtt_cmd2.cpp)
+target_link_libraries(mqtt_cmd2 ${catkin_LIBRARIES} mqtt_client_hw)
+
+
 
 #############
 ## Install ##

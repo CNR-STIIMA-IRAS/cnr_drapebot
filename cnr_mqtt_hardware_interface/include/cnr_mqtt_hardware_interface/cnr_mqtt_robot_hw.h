@@ -32,8 +32,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef CNR_HARDWARE_INTERFACE_CNR_MQTT_ROBOT_HW
-#define CNR_HARDWARE_INTERFACE_CNR_MQTT_ROBOT_HW
+
+#pragma once
 
 #include <mutex>
 
@@ -47,45 +47,10 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-#include <mosquittopp.h>
-
-struct message_struct {
-
-  double J1;
-  double J2;
-  double J3;
-  double J4;
-  double J5;
-  double J6;
-  double E0;
-  
-} mqtt_msg;   
+#include <cnr_mqtt_hardware_interface/mqtt_client_hw.h>
+// #include <mosquittopp.h>
 
 
-class mqtt_client : public mosqpp::mosquittopp
-{
-public:
-    mqtt_client (const char *id, const char *host, int port, int keepalive = 60);
-    ~mqtt_client();
-
-    void on_connect(int rc);
-    void on_message(const struct mosquitto_message *message);
-    void on_subscribe(int mid, int qos_count, const int *granted_qos);
-    bool get_first_message_status();
-
-    double J1;
-    double J2;
-    double J3;
-    double J4;
-    double J5;
-    double J6;
-    double E0;
-    
-private:
-    
-    bool first_message_received;
-    
-};
 
 
 
@@ -136,8 +101,11 @@ protected:
   std::vector<double> m_old_pos;   // previous setpoint position position
   std::vector<double> m_start_pos;   //starting position position
   std::vector<double> m_delta_pos;   //target position
+  std::vector<double> m_old_delta_pos;   //target position
   std::vector<double> m_cmd_vel;   //target velocity
   std::vector<double> m_cmd_eff;   //target effort
+  
+  //std::vector<double> m_old_command_pos;   // previous setpoint position position
 
   ros::Subscriber m_wrench_sub;
   ros::Subscriber m_traj_sub;
@@ -148,12 +116,28 @@ protected:
   
   bool first_cycle;
   
-  mqtt_client* m_client;
+  int m_maximum_missing_cycle;
+  
+  cnr::drapebot::MQTTDrapebotClientHw* mqtt_drapebot_client_;
+
+  std::vector<double> goal_toll_;
+  std::vector<double> cmd_pos_holder_;
+  std::vector<bool> hold_pos_;
+  
   
   ros::Publisher cmd_pos_pub_;
   ros::Publisher fb_pos_pub_;
   
+  ros::Publisher cmd_pub_;
+  ros::Publisher old_pub_;
+  ros::Publisher delta_pub_;
+  
   bool USE_REAL_ROBOT;
+  bool verbose_;
+  bool use_json_;
+  bool check_last_;
+  
+  int command_count_ = 0;
 
   friend void setParam(MQTTRobotHW* hw, const std::string& ns);
 };
@@ -162,4 +146,3 @@ void setParam(MQTTRobotHW* hw, const std::string& ns);
 
 }  // namespace cnr_hardware_interface
 
-#endif  //  CNR_HARDWARE_INTERFACE_CNR_MQTT_ROBOT_HW
