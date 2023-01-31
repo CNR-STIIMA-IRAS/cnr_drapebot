@@ -788,7 +788,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       }
     }
     else
-      CNR_WARN_THROTTLE(m_logger,1.0,"no new feedback message available ... not good");
+      CNR_WARN_THROTTLE(m_logger,1.0,"no new feedback message available ... not good . topic: "<< m_mqtt_feedback_topic);
   }
   else
   {

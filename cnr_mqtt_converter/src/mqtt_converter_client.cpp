@@ -34,7 +34,8 @@ namespace  cnr
       
       reader.parse(buf,root);
       
-//       ROS_INFO_STREAM(GREEN<<"Json Trajectory from ITR MotionPlanner: \n" << buf);
+      ROS_DEBUG_STREAM(GREEN<<"Json Trajectory from ITR MotionPlanner: \n" << buf);
+      ROS_DEBUG_STREAM(YELLOW<<"root from ITR MotionPlanner: \n" << root);
       
       if ( !JsonToMsg(root, trajectory_msg_))
       {
@@ -56,7 +57,8 @@ namespace  cnr
       //TODO:: definire con Gottardi parametro per settare configuratione deformation/non deformation
       //set_config(traj["configuration"])
       
-      msg->trajectory.points.resize(traj.size());
+      
+      msg->trajectory.points.resize(traj.size()-1); //TODO: the -1 is added because the "collaborative" field is considered as additional traj point
       msg->trajectory.joint_names.resize(joint_names_.size());
       msg->trajectory.header.frame_id = joint_names_[0];
       
@@ -65,7 +67,8 @@ namespace  cnr
         msg->trajectory.joint_names.at(i) = joint_names_.at(i);
         ROS_DEBUG_STREAM(msg->trajectory.joint_names.back());
       }
-      for (int i=0; i<traj.size();i++)
+            
+      for (int i=0; i<msg->trajectory.points.size();i++)
       {
         std::string P = "P"+  std::to_string((i+1));
         ros::Duration time_from_start( std::stod( traj[P]["time"].asString() ));
@@ -88,6 +91,22 @@ namespace  cnr
           msg->trajectory.points[i].accelerations[jj]=0;
         }
       }
+      
+      bool coop = traj["collaborative"].asBool();
+      
+      ROS_INFO_STREAM(CYAN<<"coop : "<<coop);
+      try{
+      *cooperative_ = coop;
+      }
+      catch(const std::exception& e)
+      {
+        ROS_ERROR_STREAM("Exception thrown in cooperative coop: " <<  e.what() );
+      }
+
+
+      ROS_INFO_STREAM("deformation_address : "<<cooperative_);
+      ROS_INFO_STREAM("deformation_active_ : "<<*cooperative_);
+      
       ROS_DEBUG_STREAM(YELLOW<<"goal trajectory: \n"<< *msg);
       
       return true;
@@ -123,9 +142,11 @@ namespace  cnr
       try
       {
         mqtt_traj_msg_dec_ = new control_msgs::FollowJointTrajectoryGoal;
+        
+        ROS_INFO_STREAM(cooperative_);
 
         drapebot_msg_hw_encoder_ = new cnr::drapebot_converter::DrapebotMsgEncoderHw();
-        drapebot_msg_hw_decoder_ = new cnr::drapebot_converter::DrapebotMsgDecoderHw(mqtt_traj_msg_dec_);
+        drapebot_msg_hw_decoder_ = new cnr::drapebot_converter::DrapebotMsgDecoderHw(mqtt_traj_msg_dec_,cooperative_);
 
         mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_hw_encoder_, drapebot_msg_hw_decoder_);
         
@@ -189,7 +210,7 @@ namespace  cnr
     {
       if (drapebot_msg_hw_decoder_->isNewMessageAvailable() )
       {
-        
+        ROS_DEBUG_STREAM(*mqtt_traj_msg_dec_);
         last_msg = *mqtt_traj_msg_dec_;
         
         drapebot_msg_hw_decoder_->setNewMessageAvailable(false);
@@ -220,6 +241,20 @@ namespace  cnr
         return drapebot_msg_hw_decoder_->isDataValid();
       else
         return false;
+    }
+
+    bool MQTTDrapebotClientHw::isTrajCooperative()
+    {
+      try
+      {
+        ROS_INFO_STREAM(CYAN<<*cooperative_);
+        return *cooperative_;
+      }
+      catch(const std::exception& e)
+      {
+        ROS_ERROR_STREAM("Exception thrown in isTrajCooperative: " <<  e.what() );
+      }
+      return false;
     }
     
     void MQTTDrapebotClientHw::set_joint_names(std::vector<std::string> jn)

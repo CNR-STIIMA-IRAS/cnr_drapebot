@@ -159,13 +159,23 @@ int main(int argc, char **argv)
       control_msgs::FollowJointTrajectoryGoal trajectory_msg;
       client.getLastReceivedMessage(trajectory_msg);
       
-      if (handle_deformation)
+//       ROS_INFO_STREAM(BLUE<<"deformation address: "<<client.cooperative_);
+//       ROS_INFO_STREAM(RED<<"deformation: "<<*client.cooperative_);
+      ROS_INFO_STREAM(GREEN<<"traj coopera: "<<client.isTrajCooperative());
+      
+      configuration_msgs::StartConfiguration start;
+      if (client.isTrajCooperative())
       {
-        configuration_msgs::StartConfiguration start;
-        start.request.start_configuration = client.get_config();
-        start.request.strictness = 1;
-        configuration_srv.call(start);
+        ROS_INFO_STREAM(BOLDYELLOW<<"Deformation active . ");
+        start.request.start_configuration = "planner_def";
       }
+      else
+      {
+        ROS_INFO_STREAM(BOLDWHITE<<"Executing nominal trajectory ");
+        start.request.start_configuration = "planner";
+      }
+      start.request.strictness = 1;
+      configuration_srv.call(start);
             
       execute_trajectory.sendGoal ( trajectory_msg );
       ros::Duration(0.1).sleep();
