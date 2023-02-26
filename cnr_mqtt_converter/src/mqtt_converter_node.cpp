@@ -4,6 +4,10 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/simple_client_goal_state.h>
 #include <configuration_msgs/StartConfiguration.h>
+#include <std_srvs/Trigger.h>
+#include <rosdyn_core/primitives.h>
+#include <tf/transform_broadcaster.h>
+#include <tf_conversions/tf_eigen.h>
 
 
 
@@ -142,13 +146,41 @@ int main(int argc, char **argv)
   ROS_INFO_STREAM("[ " << robot_hw_ns << " ] - " << action_name<<" connected ! ");
   
   ros::ServiceClient configuration_srv = nh.serviceClient<configuration_msgs::StartConfiguration>("/configuration_manager/start_configuration");
+  ros::ServiceClient reset_pose_estimation = nh.serviceClient<std_srvs::Trigger>("/reset_pose_estimation");
+    
   if (handle_deformation)
   {
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waitin for server /configuration_manager/start_configuration");
     configuration_srv.waitForExistence();
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /configuration_manager/start_configuration connected ! ");
+    ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waitin for server /reset_pose_estimation");
+    reset_pose_estimation.waitForExistence();
+    ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /reset_pose_estimation connected ! ");
+
   }
   
+  
+  
+//   TO publish goal pose
+  std::string base_link, tool_link, target_pose;
+  if(!nh.getParam("base_link",base_link))
+    ROS_ERROR_STREAM("base link not found on namespace: "<<nh.getNamespace()<<". retunr!: ");
+  if(!nh.getParam("tool_link",tool_link))
+    ROS_WARN_STREAM("tool_link not found on namespace: " <<nh.getNamespace()<<". retunr!: ");
+  if(!nh.getParam("target_pose",target_pose))
+    ROS_WARN_STREAM("target_pose not found on namespace: "<<nh.getNamespace()<<". retunr!: ");
+  
+  urdf::Model urdf_model;
+  if (!urdf_model.initParam("robot_description"))
+    ROS_ERROR("Urdf robot_description '%s' does not exist",(nh.getNamespace()+"/robot_description").c_str());
+  Eigen::Vector3d gravity;
+  gravity << 0, 0, -9.806;
+  rosdyn::ChainPtr chain_bt = rosdyn::createChain(urdf_model, base_link, tool_link, gravity);
+  Eigen::Affine3d T_bt ;
+  tf::Pose goal_tf;
+  static tf::TransformBroadcaster br;
+//   end
+
   while(ros::ok())
   {
     ROS_INFO_STREAM_THROTTLE(5.0,"[ " << robot_hw_ns << " ]" << " - looping");
@@ -158,16 +190,23 @@ int main(int argc, char **argv)
     {
       control_msgs::FollowJointTrajectoryGoal trajectory_msg;
       client.getLastReceivedMessage(trajectory_msg);
-      
-//       ROS_INFO_STREAM(BLUE<<"deformation address: "<<client.cooperative_);
-//       ROS_INFO_STREAM(RED<<"deformation: "<<*client.cooperative_);
-      ROS_INFO_STREAM(GREEN<<"traj coopera: "<<client.isTrajCooperative());
+      bool cooperative_traj=false;
+      try
+      {
+      cooperative_traj=client.isTrajCooperative();
+      }
+      catch(const std::exception& e)
+      {
+        ROS_ERROR_STREAM("[ "<<robot_hw_ns<<" ] Exception thrown in isTrajCooperative: " <<  e.what() );
+      }
       
       configuration_msgs::StartConfiguration start;
-      if (client.isTrajCooperative())
+      if (cooperative_traj)
       {
         ROS_INFO_STREAM(BOLDYELLOW<<"Deformation active . ");
         start.request.start_configuration = "planner_def";
+        std_srvs::Trigger reset_pose;
+        reset_pose_estimation.call(reset_pose);
       }
       else
       {
@@ -191,12 +230,25 @@ int main(int argc, char **argv)
       nh.setParam(robot_hw_ns+"/last_traj_point",trajectory_msg.trajectory.points.back().positions);
       nh.setParam(robot_hw_ns+"/last_point_available",true);
       
+      Eigen::VectorXd vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(trajectory_msg.trajectory.points.back().positions.data(), trajectory_msg.trajectory.points.back().positions.size());
+      
       ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " - waitin for execution");
       
       actionlib::SimpleClientGoalState as = execute_trajectory.getState();
       
       while(as != actionlib::SimpleClientGoalState::SUCCEEDED )
       {
+        
+        
+        
+        T_bt = chain_bt->getTransformation(vec);
+        tf::poseEigenToTF (T_bt, goal_tf);
+        br.sendTransform(tf::StampedTransform(goal_tf, ros::Time::now(), base_link, target_pose));
+        ros::Duration(0.01).sleep();
+        
+        
+        
+        
         as = execute_trajectory.getState();
         
         if(as == actionlib::SimpleClientGoalState::ACTIVE) 
@@ -239,11 +291,8 @@ int main(int argc, char **argv)
         
         if(client.isNewMessageAvailable())
         {
-//           control_msgs::FollowJointTrajectoryGoal trajectory_msg;
-//           client.getLastReceivedMessage(trajectory_msg);
           execute_trajectory.cancelGoal();
           execute_trajectory.cancelAllGoals();
-//           execute_trajectory.sendGoal ( trajectory_msg );
           ROS_INFO_STREAM(BOLDGREEN<< "[ " << robot_hw_ns << " ]New trajectory received. Goal changed ! ");
           break;
         }

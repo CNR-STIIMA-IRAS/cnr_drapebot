@@ -11,6 +11,9 @@
   <depend> roscpp </depend>
   <depend> configuration_msgs </depend>
   <depend> cnr_mqtt_client </depend>
+  <depend> rosdyn_core </depend>  
+  <depend> tf_conversions </depend>  
+
   
 
 

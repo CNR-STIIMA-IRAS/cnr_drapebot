@@ -7,6 +7,8 @@ find_package(catkin REQUIRED COMPONENTS
   control_msgs
   configuration_msgs
   cnr_mqtt_client
+  rosdyn_core
+  tf_conversions
   )
 
 #find_package(PkgConfig REQUIRED)
@@ -15,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS cnr_mqtt_client
+  CATKIN_DEPENDS cnr_mqtt_client rosdyn_core
   )
 
 

@@ -95,8 +95,9 @@ namespace  cnr
       bool coop = traj["collaborative"].asBool();
       
       ROS_INFO_STREAM(CYAN<<"coop : "<<coop);
-      try{
-      *cooperative_ = coop;
+      try
+      {
+        *cooperative_ = coop;
       }
       catch(const std::exception& e)
       {
@@ -104,9 +105,6 @@ namespace  cnr
       }
 
 
-      ROS_INFO_STREAM("deformation_address : "<<cooperative_);
-      ROS_INFO_STREAM("deformation_active_ : "<<*cooperative_);
-      
       ROS_DEBUG_STREAM(YELLOW<<"goal trajectory: \n"<< *msg);
       
       return true;
@@ -143,7 +141,6 @@ namespace  cnr
       {
         mqtt_traj_msg_dec_ = new control_msgs::FollowJointTrajectoryGoal;
         
-        ROS_INFO_STREAM(cooperative_);
 
         drapebot_msg_hw_encoder_ = new cnr::drapebot_converter::DrapebotMsgEncoderHw();
         drapebot_msg_hw_decoder_ = new cnr::drapebot_converter::DrapebotMsgDecoderHw(mqtt_traj_msg_dec_,cooperative_);
