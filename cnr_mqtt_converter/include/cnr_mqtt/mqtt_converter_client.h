@@ -18,10 +18,10 @@ namespace cnr
     class DrapebotMsgDecoderHw: public cnr::mqtt::MsgDecoder
     {
     public:
-      DrapebotMsgDecoderHw(control_msgs::FollowJointTrajectoryGoal* trajectory_msg, bool* cooperative): trajectory_msg_(trajectory_msg),cooperative_(cooperative) {ROS_INFO_STREAM(cooperative_);};
+      DrapebotMsgDecoderHw(control_msgs::FollowJointTrajectoryGoal* trajectory_msg): trajectory_msg_(trajectory_msg){};
       void on_message(const struct mosquitto_message *msg) override;
       control_msgs::FollowJointTrajectoryGoal *trajectory_msg_;
-      bool *cooperative_;
+      bool cooperative_;
       void setJointParams(const std::vector<std::string>& joint_names);
     private:
       control_msgs::FollowJointTrajectoryGoal transform_trajectory(Json::Value traj);
@@ -52,13 +52,13 @@ namespace cnr
       int unsubscribe(int *mid, const char *sub);
       int publish(const void* payload, int& payload_len, const char* topic_name);
      
-      bool getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg);
+      bool getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg, bool& cooperative);
       bool isNewMessageAvailable();
       bool isDataValid();    
       
       bool isTrajCooperative();    
       
-      bool* cooperative_;
+      bool cooperative_;
       
       void set_joint_names(std::vector<std::string> jn);
       void set_config(const std::string& config);

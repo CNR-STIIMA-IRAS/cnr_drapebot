@@ -189,16 +189,17 @@ int main(int argc, char **argv)
     if(client.isNewMessageAvailable())
     {
       control_msgs::FollowJointTrajectoryGoal trajectory_msg;
-      client.getLastReceivedMessage(trajectory_msg);
       bool cooperative_traj=false;
-      try
-      {
-      cooperative_traj=client.isTrajCooperative();
-      }
-      catch(const std::exception& e)
-      {
-        ROS_ERROR_STREAM("[ "<<robot_hw_ns<<" ] Exception thrown in isTrajCooperative: " <<  e.what() );
-      }
+      client.getLastReceivedMessage(trajectory_msg,cooperative_traj);
+//       try
+//       {
+//       cooperative_traj=client.isTrajCooperative();
+//       }
+//       catch(const std::exception& e)
+//       {
+//         ROS_ERROR_STREAM("[ "<<robot_hw_ns<<" ] Exception thrown in isTrajCooperative: " <<  e.what() );
+//       }
+      
       
       configuration_msgs::StartConfiguration start;
       if (cooperative_traj)
@@ -231,6 +232,8 @@ int main(int argc, char **argv)
       nh.setParam(robot_hw_ns+"/last_point_available",true);
       
       Eigen::VectorXd vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(trajectory_msg.trajectory.points.back().positions.data(), trajectory_msg.trajectory.points.back().positions.size());
+      T_bt = chain_bt->getTransformation(vec);
+      tf::poseEigenToTF (T_bt, goal_tf);
       
       ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " - waitin for execution");
       
@@ -241,10 +244,8 @@ int main(int argc, char **argv)
         
         
         
-        T_bt = chain_bt->getTransformation(vec);
-        tf::poseEigenToTF (T_bt, goal_tf);
         br.sendTransform(tf::StampedTransform(goal_tf, ros::Time::now(), base_link, target_pose));
-        ros::Duration(0.01).sleep();
+//         ros::Duration(0.01).sleep();
         
         
         
@@ -252,7 +253,7 @@ int main(int argc, char **argv)
         as = execute_trajectory.getState();
         
         if(as == actionlib::SimpleClientGoalState::ACTIVE) 
-          ROS_INFO_STREAM_THROTTLE(5.0,YELLOW<<"executing trajectory. State :  ACTIVE !" );
+          ROS_INFO_STREAM_THROTTLE(1.0,YELLOW<<"executing trajectory. State :  ACTIVE !" );
         else if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
         {
           ROS_INFO_STREAM(GREEN<< "[ " << robot_hw_ns << " ]executing trajectory. State :  SUCCEEDED !" );

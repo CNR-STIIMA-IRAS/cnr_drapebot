@@ -657,8 +657,11 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   else
   {
   // ----------- JSON MQTT MSG -------------------
+    
+    
+//     tic();
     Json::Value root;
-    Json::FastWriter writer;
+//     Json::FastWriter writer;
     
     root["J0"] = m_cmd_pos.at(1);
     root["J1"] = m_cmd_pos.at(2);
@@ -680,7 +683,9 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     int size_pl = sizeof(pl);
     mqtt_drapebot_client_->publish(pl, size_pl, m_mqtt_command_topic.c_str());
-        
+    
+//     toc();
+    
   }
   
 

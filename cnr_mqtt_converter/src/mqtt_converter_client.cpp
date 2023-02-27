@@ -49,6 +49,7 @@ namespace  cnr
         setNewMessageAvailable(true); 
         setDataValid(true);
       }
+      
     }
     
     bool DrapebotMsgDecoderHw::JsonToMsg(Json::Value traj, control_msgs::FollowJointTrajectoryGoal *msg)
@@ -95,9 +96,13 @@ namespace  cnr
       bool coop = traj["collaborative"].asBool();
       
       ROS_INFO_STREAM(CYAN<<"coop : "<<coop);
+      
       try
       {
-        *cooperative_ = coop;
+      ROS_INFO_STREAM(GREEN<<"cooperative : "<<cooperative_);
+        cooperative_ = coop;
+      ROS_INFO_STREAM(GREEN<<"cooperative : "<<cooperative_);
+        
       }
       catch(const std::exception& e)
       {
@@ -143,7 +148,7 @@ namespace  cnr
         
 
         drapebot_msg_hw_encoder_ = new cnr::drapebot_converter::DrapebotMsgEncoderHw();
-        drapebot_msg_hw_decoder_ = new cnr::drapebot_converter::DrapebotMsgDecoderHw(mqtt_traj_msg_dec_,cooperative_);
+        drapebot_msg_hw_decoder_ = new cnr::drapebot_converter::DrapebotMsgDecoderHw(mqtt_traj_msg_dec_);
 
         mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_hw_encoder_, drapebot_msg_hw_decoder_);
         
@@ -203,12 +208,14 @@ namespace  cnr
       else
         return -1;
     }
-    bool MQTTDrapebotClientHw::getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg)
+    bool MQTTDrapebotClientHw::getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg, bool& cooperative)
     {
       if (drapebot_msg_hw_decoder_->isNewMessageAvailable() )
       {
         ROS_DEBUG_STREAM(*mqtt_traj_msg_dec_);
         last_msg = *mqtt_traj_msg_dec_;
+        
+        cooperative_ = drapebot_msg_hw_decoder_->cooperative_;
         
         drapebot_msg_hw_decoder_->setNewMessageAvailable(false);
         return true;
@@ -240,19 +247,19 @@ namespace  cnr
         return false;
     }
 
-    bool MQTTDrapebotClientHw::isTrajCooperative()
-    {
-      try
-      {
-        ROS_INFO_STREAM(CYAN<<*cooperative_);
-        return *cooperative_;
-      }
-      catch(const std::exception& e)
-      {
-        ROS_ERROR_STREAM("Exception thrown in isTrajCooperative: " <<  e.what() );
-      }
-      return false;
-    }
+//     bool MQTTDrapebotClientHw::isTrajCooperative()
+//     {
+//       try
+//       {
+//         ROS_INFO_STREAM(CYAN<<*cooperative_);
+//         return *cooperative_;
+//       }
+//       catch(const std::exception& e)
+//       {
+//         ROS_ERROR_STREAM("Exception thrown in isTrajCooperative: " <<  e.what() );
+//       }
+//       return false;
+//     }
     
     void MQTTDrapebotClientHw::set_joint_names(std::vector<std::string> jn)
     {

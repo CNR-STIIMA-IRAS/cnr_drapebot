@@ -40,8 +40,14 @@
 
 #include <mutex>
 #include <cnr_mqtt_client/cnr_mqtt_client.h>
+#include <jsoncpp/json/json.h>
 
 #define MSG_LENGTH 7 // The length is given by 6 axes robot + linear axis
+
+
+void tic(int mode=0);
+void toc();
+
 
 namespace cnr
 {
@@ -72,6 +78,8 @@ namespace cnr
       cnr::drapebot::drapebot_msg_hw* mqtt_msg_;
       bool use_json_;
       void vec_to_msg(std::vector<double> v, cnr::drapebot::drapebot_msg_hw* msg);
+      Json::Reader reader_;
+      Json::Value root_;
     };
 
     class DrapebotMsgEncoderHw: public cnr::mqtt::MsgEncoder

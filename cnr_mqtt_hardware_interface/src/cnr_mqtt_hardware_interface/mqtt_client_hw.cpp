@@ -1,7 +1,26 @@
 #include <ros/ros.h>
 #include <cnr_mqtt_hardware_interface/mqtt_client_hw.h>
 
-#include <jsoncpp/json/json.h>
+
+
+void tic(int mode)
+{
+static std::chrono::high_resolution_clock::time_point t_start;
+if (mode==0)
+t_start = std::chrono::high_resolution_clock::now();
+else
+{
+auto t_end = std::chrono::high_resolution_clock::now();
+ROS_WARN_STREAM_THROTTLE(1.0, "Elapsed time is " << (t_end-t_start).count()*1E-9 << " seconds" );
+}
+}
+void toc()
+{
+tic(1);
+}
+
+
+
 
 namespace  cnr
 {
@@ -32,20 +51,21 @@ namespace  cnr
         char buf[msg->payloadlen];
         memcpy(buf, msg->payload, msg->payloadlen);
         
-        Json::Reader reader;
-        Json::Value root;
+//         Json::Reader reader_;
+//         Json::Value root_;
+
+        root_.clear();
+        reader_.parse(buf,root_);
         
-        reader.parse(buf,root);
+        mqtt_msg_->J1 = root_["J0"].asDouble();// = m_cmd_pos.at(1);
+        mqtt_msg_->J2 = root_["J1"].asDouble();// = m_cmd_pos.at(2);
+        mqtt_msg_->J3 = root_["J2"].asDouble();// = m_cmd_pos.at(3);
+        mqtt_msg_->J4 = root_["J3"].asDouble();// = m_cmd_pos.at(4);
+        mqtt_msg_->J5 = root_["J4"].asDouble();// = m_cmd_pos.at(5);
+        mqtt_msg_->J6 = root_["J5"].asDouble();// = m_cmd_pos.at(6);
+        mqtt_msg_->E0 = root_["E0"].asDouble();// = m_cmd_pos.at(0);
         
-        mqtt_msg_->J1 = root["J0"].asDouble();// = m_cmd_pos.at(1);
-        mqtt_msg_->J2 = root["J1"].asDouble();// = m_cmd_pos.at(2);
-        mqtt_msg_->J3 = root["J2"].asDouble();// = m_cmd_pos.at(3);
-        mqtt_msg_->J4 = root["J3"].asDouble();// = m_cmd_pos.at(4);
-        mqtt_msg_->J5 = root["J4"].asDouble();// = m_cmd_pos.at(5);
-        mqtt_msg_->J6 = root["J5"].asDouble();// = m_cmd_pos.at(6);
-        mqtt_msg_->E0 = root["E0"].asDouble();// = m_cmd_pos.at(0);
-        
-        mqtt_msg_-> count = root["count"].asInt();
+        mqtt_msg_-> count = root_["count"].asInt();
         
         setNewMessageAvailable(true); 
         setDataValid(true);
