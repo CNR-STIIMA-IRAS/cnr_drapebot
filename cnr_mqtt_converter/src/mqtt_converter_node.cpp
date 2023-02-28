@@ -206,8 +206,6 @@ int main(int argc, char **argv)
       {
         ROS_INFO_STREAM(BOLDYELLOW<<"Deformation active . ");
         start.request.start_configuration = "planner_def";
-        std_srvs::Trigger reset_pose;
-        reset_pose_estimation.call(reset_pose);
       }
       else
       {
@@ -216,6 +214,13 @@ int main(int argc, char **argv)
       }
       start.request.strictness = 1;
       configuration_srv.call(start);
+      
+      if(cooperative_traj)
+      {
+        ros::Duration(1.0).sleep();
+        std_srvs::Trigger reset_pose;
+        reset_pose_estimation.call(reset_pose);
+      }
             
       execute_trajectory.sendGoal ( trajectory_msg );
       ros::Duration(0.1).sleep();
