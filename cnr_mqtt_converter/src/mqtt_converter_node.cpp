@@ -243,6 +243,8 @@ int main(int argc, char **argv)
 
       while(as != actionlib::SimpleClientGoalState::SUCCEEDED )
       {        
+
+        br.sendTransform(tf::StampedTransform(goal_tf, ros::Time::now(), base_link, target_pose));
         
         as = execute_trajectory.getState();
         
