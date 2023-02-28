@@ -216,7 +216,7 @@ namespace  cnr
         last_msg = *mqtt_traj_msg_dec_;
         
         cooperative_ = drapebot_msg_hw_decoder_->cooperative_;
-        
+        cooperative = cooperative_;
         drapebot_msg_hw_decoder_->setNewMessageAvailable(false);
         return true;
       }
@@ -247,19 +247,10 @@ namespace  cnr
         return false;
     }
 
-//     bool MQTTDrapebotClientHw::isTrajCooperative()
-//     {
-//       try
-//       {
-//         ROS_INFO_STREAM(CYAN<<*cooperative_);
-//         return *cooperative_;
-//       }
-//       catch(const std::exception& e)
-//       {
-//         ROS_ERROR_STREAM("Exception thrown in isTrajCooperative: " <<  e.what() );
-//       }
-//       return false;
-//     }
+    bool MQTTDrapebotClientHw::isTrajCooperative()
+    {
+      return cooperative_;
+    }
     
     void MQTTDrapebotClientHw::set_joint_names(std::vector<std::string> jn)
     {
