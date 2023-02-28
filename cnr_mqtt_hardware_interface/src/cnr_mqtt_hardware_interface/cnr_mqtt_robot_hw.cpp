@@ -489,13 +489,14 @@ bool MQTTRobotHW::doInit()
       
       ros::Duration(0.005).sleep();
     }
+    CNR_INFO(m_logger,"First message received");
     
-    if(mqtt_drapebot_client_->isNewMessageAvailable())
-    {
+//     if(mqtt_drapebot_client_->isNewMessageAvailable())
+//     {
       cnr::drapebot::drapebot_msg_hw last_msg;
       mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
       print_last_msg(this->m_logger, last_msg);      
-    }
+//     }
     
   }
   else
@@ -765,6 +766,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   
   if (USE_REAL_ROBOT)
   {
+//     tic();
     CNR_DEBUG_THROTTLE(m_logger,10.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
     
 //     for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
@@ -794,6 +796,8 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
     }
     else
       CNR_WARN_THROTTLE(m_logger,1.0,"no new feedback message available ... not good . topic: "<< m_mqtt_feedback_topic);
+    
+//     toc();
   }
   else
   {
@@ -801,9 +805,8 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
     m_pos = m_cmd_pos;
   }
   
-  
   Json::Value root;
-  Json::FastWriter writer;
+//   Json::FastWriter writer;
   
   
   for(size_t i=0;i<m_pos.size();i++)
@@ -845,7 +848,6 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   js.header.stamp = ros::Time::now();
   
   fb_pos_pub_.publish(js);
-  
   CNR_RETURN_TRUE_THROTTLE_DEFAULT(m_logger);
 }
 

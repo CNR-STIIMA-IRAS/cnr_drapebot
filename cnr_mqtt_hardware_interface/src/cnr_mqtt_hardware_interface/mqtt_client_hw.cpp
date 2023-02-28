@@ -208,7 +208,6 @@ namespace  cnr
     {
       if (drapebot_msg_hw_decoder_->isNewMessageAvailable() )
       {
-        
         last_msg = *mqtt_msg_dec_;
         
         drapebot_msg_hw_decoder_->setNewMessageAvailable(false);
