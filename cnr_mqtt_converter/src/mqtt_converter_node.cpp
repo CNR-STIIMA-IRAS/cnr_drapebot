@@ -201,10 +201,10 @@ int main(int argc, char **argv)
 //       }
       
       
+      std_srvs::Trigger reset_pose;
       configuration_msgs::StartConfiguration start;
       if (cooperative_traj)
       {
-        std_srvs::Trigger reset_pose;
         ros::Duration(0.1).sleep();
         ROS_INFO_STREAM(BOLDYELLOW<<"Deformation active . ");
         start.request.start_configuration = "planner_def";
