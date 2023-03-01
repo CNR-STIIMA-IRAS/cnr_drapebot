@@ -454,7 +454,7 @@ bool MQTTRobotHW::doInit()
   }
   
   
-  std::string v = USE_REAL_ROBOT ? "ACHTUNG ! ! ! \n USING REAL ROBOT ! \n be careful, be nice please" : "using fake robot." ;
+  std::string v = USE_REAL_ROBOT ? " \n USING REAL ROBOT ! \n be careful." : "using fake robot." ;
   if (USE_REAL_ROBOT)
     CNR_INFO(m_logger,cnr_logger::RED()<<"\n\n ################# \n "<< v <<" \n################# \n\n");
   else
@@ -795,7 +795,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       }
     }
     else
-      CNR_WARN_THROTTLE(m_logger,1.0,"no new feedback message available ... not good . topic: "<< m_mqtt_feedback_topic);
+      CNR_WARN_THROTTLE(m_logger,10.0,"no new feedback message available ... not good . topic: "<< m_mqtt_feedback_topic);
     
 //     toc();
   }
