@@ -211,7 +211,12 @@ int main(int argc, char **argv)
         T_bt = chain_bt->getTransformation(vec);
         tf::Pose human_tf;
         tf::poseEigenToTF (T_bt, human_tf);
-        br.sendTransform(tf::StampedTransform(human_tf, ros::Time::now(), base_link, "human_trg_pose"));
+        for(int i=0;i<10;i++)
+        {
+          ROS_INFO_STREAM("publishing tf human");
+          br.sendTransform(tf::StampedTransform(human_tf, ros::Time::now(), base_link, "human_trg_pose"));
+          ros::Duration(0.05).sleep();
+        }
         ROS_INFO_STREAM(BOLDYELLOW<<"Deformation active . ");
         start.request.start_configuration = "planner_def";
       }
