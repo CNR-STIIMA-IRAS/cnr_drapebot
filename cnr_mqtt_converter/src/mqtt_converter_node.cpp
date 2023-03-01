@@ -205,11 +205,11 @@ int main(int argc, char **argv)
       if (cooperative_traj)
       {
         std_srvs::Trigger reset_pose;
-        reset_pose_estimation.call(reset_pose);
         ROS_INFO_STREAM(CYAN<<"resetting human estimation pose ");
         ros::Duration(0.1).sleep();
         ROS_INFO_STREAM(BOLDYELLOW<<"Deformation active . ");
         start.request.start_configuration = "planner_def";
+        reset_pose_estimation.call(reset_pose);
       }
       else
       {
