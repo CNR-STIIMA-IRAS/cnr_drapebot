@@ -206,6 +206,12 @@ int main(int argc, char **argv)
       if (cooperative_traj)
       {
         ros::Duration(0.1).sleep();
+        
+        Eigen::VectorXd vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(trajectory_msg.trajectory.points.front().positions.data(), trajectory_msg.trajectory.points.front().positions.size());
+        T_bt = chain_bt->getTransformation(vec);
+        tf::Pose human_tf;
+        tf::poseEigenToTF (T_bt, human_tf);
+        br.sendTransform(tf::StampedTransform(human_tf, ros::Time::now(), base_link, "human_taget_pose"));
         ROS_INFO_STREAM(BOLDYELLOW<<"Deformation active . ");
         start.request.start_configuration = "planner_def";
       }
@@ -216,11 +222,13 @@ int main(int argc, char **argv)
       }
       start.request.strictness = 1;
       configuration_srv.call(start);
-      if (cooperative_traj)
-      {
-        ROS_INFO_STREAM(CYAN<<"resetting human estimation pose ");
-        reset_pose_estimation.call(reset_pose);
-      }
+      
+//       if (cooperative_traj)
+//       {
+//         ROS_INFO_STREAM(CYAN<<"resetting human estimation pose ");
+//         reset_pose_estimation.call(reset_pose);
+//       }
+      
       execute_trajectory.sendGoal ( trajectory_msg );
       ros::Duration(0.1).sleep();
       
