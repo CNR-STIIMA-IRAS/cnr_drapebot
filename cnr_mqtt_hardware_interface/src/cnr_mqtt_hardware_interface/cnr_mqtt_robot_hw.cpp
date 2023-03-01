@@ -629,31 +629,6 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     vector_to_mqtt_msg(m_cmd_pos,m_);
     
     mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
-      
-    {
-    //---------------------------- debug rostopic ------------------------------
-    sensor_msgs::JointState js;
-    
-    js.name.push_back("E0");
-    js.name.push_back("J1");
-    js.name.push_back("J2");
-    js.name.push_back("J3");
-    js.name.push_back("J4");
-    js.name.push_back("J5");
-    js.name.push_back("J6");
-
-    js.position.push_back(m_.E0);
-    js.position.push_back(m_.J1);
-    js.position.push_back(m_.J2);
-    js.position.push_back(m_.J3);
-    js.position.push_back(m_.J4);
-    js.position.push_back(m_.J5);
-    js.position.push_back(m_.J6);
-    
-    js.header.stamp = ros::Time::now();
-    
-    cmd_pos_pub_.publish(js);
-    }
   }
   else
   {
@@ -687,6 +662,30 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
 //     toc();
     
+  }
+  {
+  //---------------------------- debug rostopic ------------------------------
+  sensor_msgs::JointState js;
+  
+  js.name.push_back("E0");
+  js.name.push_back("J1");
+  js.name.push_back("J2");
+  js.name.push_back("J3");
+  js.name.push_back("J4");
+  js.name.push_back("J5");
+  js.name.push_back("J6");
+
+  js.position.push_back(m_.E0);
+  js.position.push_back(m_.J1);
+  js.position.push_back(m_.J2);
+  js.position.push_back(m_.J3);
+  js.position.push_back(m_.J4);
+  js.position.push_back(m_.J5);
+  js.position.push_back(m_.J6);
+  
+  js.header.stamp = ros::Time::now();
+  
+  cmd_pos_pub_.publish(js);
   }
   
 
