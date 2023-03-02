@@ -42,6 +42,7 @@
 #include <cnr_mqtt_hardware_interface/cnr_mqtt_robot_hw.h>
 
 #include <jsoncpp/json/json.h>
+#include <configuration_msgs/StartConfiguration.h>
 
 PLUGINLIB_EXPORT_CLASS(cnr_hardware_interface::MQTTRobotHW, hardware_interface::RobotHW)
 
@@ -574,81 +575,6 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   {
   // ----------- BYTE MQTT MSG -------------------
     
-    
-    
-//     bool last_point_available;
-//     if (!m_robothw_nh.getParam("last_point_available",last_point_available))
-//     {
-//       last_point_available = false;
-//       check_last_ = false;
-//     }
-//       
-//     if (last_point_available)
-//     {
-//       for(size_t i=0; i<m_pos.size(); i++)
-//         hold_pos_.at(i) = false;
-//       m_robothw_nh.setParam("last_point_available", false);
-//       check_last_ = true;
-//     }
-//     
-//     if (check_last_)
-//     {
-//       std::vector<double> last_traj_point;
-//       m_robothw_nh.getParam("last_traj_point",last_traj_point);
-//       
-//       for(size_t i=0; i<m_pos.size(); i++)
-//       {
-//         if (std::fabs( m_pos.at(i) - last_traj_point.at(i) ) < goal_toll_.at(i) && hold_pos_.at(i) == false) 
-//         {
-//           cmd_pos_holder_.at(i) = m_pos.at(i);
-//           hold_pos_.at(i) = true;
-//           
-//           CNR_INFO(m_logger,cnr_logger::CYAN()<<"holding joint: "<<i);
-//           CNR_INFO(m_logger,cnr_logger::CYAN()<<"holding position of joint "<<i<<".\nm_pos    : "  << m_pos.at(i) 
-//                                                   << "\ngoal_pos : " << last_traj_point.at(i)
-//                                                   << "\ndelta pos: "<< std::fabs( m_pos.at(i) - last_traj_point.at(i) )
-//                                                   << "\ntollerance" << goal_toll_.at(i));
-//         }
-//       }
-// 
-//       for(size_t i=0; i<m_pos.size(); i++)
-//       {
-//         if(hold_pos_.at(i))
-//         {
-//           m_cmd_pos.at(i) = cmd_pos_holder_.at(i);
-//         }
-//       }
-//       
-//       if( !( std::find(hold_pos_.begin(), hold_pos_.end(), false) != hold_pos_.end() ) )
-//       {
-//         CNR_INFO(m_logger, cnr_logger::GREEN() << "all joints in tolerance ! ");
-//         
-//         for(size_t i=0; i<m_pos.size(); i++)
-//         {
-//           CNR_INFO(m_logger, cnr_logger::GREEN() << "holding position of joint "<<i<<".\nm_pos    : "  << m_pos.at(i) 
-//                                                                                    << "\ngoal_pos : " << last_traj_point.at(i)
-//                                                                                    << "\ndelta pos: "<< std::fabs( m_pos.at(i) - last_traj_point.at(i) )
-//                                                                                    << "\ntollerance" << goal_toll_.at(i));
-//         }
-//         
-//         check_last_ = false;
-//       }
-//     }
-//     else
-//     {
-//       for(size_t i=0; i<m_pos.size(); i++)
-//       {
-//         if(hold_pos_.at(i))
-//         {
-//           m_cmd_pos.at(i) = cmd_pos_holder_.at(i);
-//         }
-//       }
-// //       print_vector_throttle(m_logger,"holding position: ",m_cmd_pos);
-//     }
-    
-    
-    
-    
     cnr::drapebot::drapebot_msg_hw m_;
     vector_to_mqtt_msg(m_cmd_pos,m_);
     
@@ -684,9 +610,7 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   // ----------- JSON MQTT MSG -------------------
     
     
-//     tic();
     Json::Value root;
-//     Json::FastWriter writer;
     
     root["J0"] = m_cmd_pos.at(1);
     root["J1"] = m_cmd_pos.at(2);
@@ -732,7 +656,6 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     cmd_pos_pub_.publish(js);
     }
-//     toc();
     
   }
   
@@ -813,15 +736,10 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   
   if (USE_REAL_ROBOT)
   {
-//     tic();
     CNR_DEBUG_THROTTLE(m_logger,10.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
-    
-//     for (int i = 0;i<5;i++) // multiple call to loop function to empty the queue
-//     {
-      
+          
       if (mqtt_drapebot_client_->loop(4) != MOSQ_ERR_SUCCESS)
         CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
-//     }
   
     
     if(mqtt_drapebot_client_->isNewMessageAvailable())
@@ -843,6 +761,13 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       
       if(!check_vector_distances(m_logger, m_cmd_pos, m_pos))
       {
+        
+        ros::ServiceClient configuration_srv = m_robothw_nh.serviceClient<configuration_msgs::StartConfiguration>("/configuration_manager/start_configuration");
+        configuration_msgs::StartConfiguration start;
+        start.request.start_configuration = "whatch";
+        start.request.strictness = 1;
+        configuration_srv.call(start);
+
         CNR_INFO(m_logger,"resetting command pose . ");
         m_cmd_pos = m_pos;
         print_vector(m_logger, "feedback : ", m_pos, cnr_logger::CYAN().c_str());
