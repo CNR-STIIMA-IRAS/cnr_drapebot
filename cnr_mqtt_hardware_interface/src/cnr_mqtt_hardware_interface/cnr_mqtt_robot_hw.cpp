@@ -764,7 +764,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
         
         ros::ServiceClient configuration_srv = m_robothw_nh.serviceClient<configuration_msgs::StartConfiguration>("/configuration_manager/start_configuration");
         configuration_msgs::StartConfiguration start;
-        start.request.start_configuration = "whatch";
+        start.request.start_configuration = "mqtt_whatch";
         start.request.strictness = 1;
         configuration_srv.call(start);
 
