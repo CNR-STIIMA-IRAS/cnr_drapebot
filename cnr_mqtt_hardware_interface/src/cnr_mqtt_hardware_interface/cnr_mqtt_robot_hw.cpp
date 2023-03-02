@@ -162,8 +162,8 @@ bool check_vector_distances(cnr_logger::TraceLogger& logger, std::vector<double>
   {
     if(std::fabs(v1.at(i) - v2.at(i)) > 0.1 )
     {
-      CNR_WARN(logger,"command and feedback are very different");
-      CNR_WARN(logger,"joint " << i << " -- command: "<< v1.at(i) << ", feedback: "<<v2.at(i));
+      CNR_ERROR(logger,"command and feedback are very different");
+      CNR_ERROR(logger,"joint " << i << " -- command: "<< v1.at(i) << ", feedback: "<<v2.at(i));
       return false;
     }
   }
@@ -761,21 +761,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       
       if(!check_vector_distances(m_logger, m_cmd_pos, m_pos))
       {
-        
-        ros::ServiceClient configuration_srv = m_robothw_nh.serviceClient<configuration_msgs::StartConfiguration>("/configuration_manager/start_configuration");
-        configuration_msgs::StartConfiguration start;
-        start.request.start_configuration = "mqtt_watch";
-        start.request.strictness = 1;
-        configuration_srv.call(start);
-
-        start.request.start_configuration = "planner";
-        start.request.strictness = 1;
-        configuration_srv.call(start);
-
-        CNR_INFO(m_logger,"resetting command pose . ");
-        m_cmd_pos = m_pos;
-        print_vector(m_logger, "feedback : ", m_pos, cnr_logger::CYAN().c_str());
-        print_vector(m_logger, "command  :" , m_cmd_pos  , cnr_logger::BLUE().c_str());
+        CNR_INFO(m_logger,"restart this terminal ! otherwise the robot will go back to the old position before jogging ");
       }      
     }
     else
