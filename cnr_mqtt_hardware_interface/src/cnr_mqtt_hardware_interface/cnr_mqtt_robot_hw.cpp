@@ -768,6 +768,10 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
         start.request.strictness = 1;
         configuration_srv.call(start);
 
+        start.request.start_configuration = "planner";
+        start.request.strictness = 1;
+        configuration_srv.call(start);
+
         CNR_INFO(m_logger,"resetting command pose . ");
         m_cmd_pos = m_pos;
         print_vector(m_logger, "feedback : ", m_pos, cnr_logger::CYAN().c_str());
