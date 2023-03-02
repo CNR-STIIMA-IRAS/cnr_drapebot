@@ -845,6 +845,8 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       {
         CNR_INFO(m_logger,"resetting command pose . ");
         m_cmd_pos = m_pos;
+        print_vector(m_logger, "feedback : ", m_pos, cnr_logger::CYAN().c_str());
+        print_vector(m_logger, "command  :" , m_cmd_pos  , cnr_logger::BLUE().c_str());
       }      
     }
     else
