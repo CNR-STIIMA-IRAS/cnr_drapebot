@@ -148,6 +148,30 @@ void print_message_struct_throttle(cnr_logger::TraceLogger& logger, const std::s
 }
 
 
+
+bool check_vector_distances(cnr_logger::TraceLogger& logger, std::vector<double> v1, std::vector<double> v2)
+{
+  if(v1.size()!=v2.size())
+  {
+    CNR_ERROR(logger,"vector does not have the same size . return");
+    return false;
+  }
+  
+  for(int i=0;i<v1.size();i++)
+  {
+    if(std::fabs(v1.at(i) - v2.at(i)) > 0.1 )
+    {
+      CNR_WARN(logger,"command and feedback are very different");
+      CNR_WARN(logger,"joint " << i << " -- command: "<< v1.at(i) << ", feedback: "<<v2.at(i));
+      return false;
+    }
+  }
+  return true;
+  
+}
+
+
+
 namespace cnr_hardware_interface
 {
 
@@ -816,6 +840,12 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
         CNR_WARN_THROTTLE(m_logger,10.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
                                                << mqtt_drapebot_client_->get_msg_count_cmd() <<", feedback: " << last_msg.count);
       }
+      
+      if(!check_vector_distances(m_logger, m_cmd_pos, m_pos))
+      {
+        CNR_INFO(m_logger,"resetting command pose . ");
+        m_cmd_pos = m_pos;
+      }      
     }
     else
       CNR_DEBUG_THROTTLE(m_logger,10.0,"no new feedback message available ... not good . topic: "<< m_mqtt_feedback_topic);
