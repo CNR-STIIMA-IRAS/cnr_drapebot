@@ -234,6 +234,10 @@ int main(int argc, char **argv)
 //         reset_pose_estimation.call(reset_pose);
 //       }
       
+      
+      ROS_INFO_STREAM("trajectory to be executed");
+      ROS_INFO_STREAM(trajectory_msg );
+      
       execute_trajectory.sendGoal ( trajectory_msg );
       ros::Duration(0.1).sleep();
       
@@ -259,7 +263,7 @@ int main(int argc, char **argv)
       br.sendTransform(tf::StampedTransform(goal_tf, ros::Time::now(), base_link, target_pose));
 
       while(as != actionlib::SimpleClientGoalState::SUCCEEDED )
-      {        
+      {
 
         br.sendTransform(tf::StampedTransform(goal_tf, ros::Time::now(), base_link, target_pose));
         
