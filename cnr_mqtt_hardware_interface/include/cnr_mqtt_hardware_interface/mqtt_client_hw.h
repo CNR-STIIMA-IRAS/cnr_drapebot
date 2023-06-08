@@ -40,13 +40,8 @@
 
 #include <mutex>
 #include <cnr_mqtt_client/cnr_mqtt_client.h>
-#include <jsoncpp/json/json.h>
 
 #define MSG_LENGTH 7 // The length is given by 6 axes robot + linear axis
-
-
-void tic(int mode=0);
-void toc();
 
 
 namespace cnr
@@ -55,7 +50,6 @@ namespace cnr
   {
     struct drapebot_msg_hw 
     {
-//       double joints_values_[MSG_LENGTH] = {0};
       double J1;
       double J2;
       double J3;
@@ -70,16 +64,17 @@ namespace cnr
     class DrapebotMsgDecoderHw: public cnr::mqtt::MsgDecoder
     {
     public:
-      DrapebotMsgDecoderHw(cnr::drapebot::drapebot_msg_hw* mqtt_msg, bool use_json): mqtt_msg_(mqtt_msg), use_json_(use_json) {};
+      DrapebotMsgDecoderHw(cnr::drapebot::drapebot_msg_hw* mqtt_msg, bool use_json): mqtt_msg_(mqtt_msg), use_json_(use_json), first_message_rec_(false) {};
       
       // The method should be reimplemented on the base of the application
       void on_message(const struct mosquitto_message *msg) override;
+      bool isFirstMsgRec(){return first_message_rec_;};
+      
     private:
       cnr::drapebot::drapebot_msg_hw* mqtt_msg_;
       bool use_json_;
-      void vec_to_msg(std::vector<double> v, cnr::drapebot::drapebot_msg_hw* msg);
-      Json::Reader reader_;
-      Json::Value root_;
+      bool first_message_rec_;
+      void vec_to_msg(const std::vector<double>& v, cnr::drapebot::drapebot_msg_hw* msg);
     };
 
     class DrapebotMsgEncoderHw: public cnr::mqtt::MsgEncoder
@@ -110,6 +105,7 @@ namespace cnr
       bool getLastReceivedMessage(cnr::drapebot::drapebot_msg_hw& last_msg);
       bool isNewMessageAvailable();
       bool isDataValid();    
+      bool isFirstMsgRec(){return drapebot_msg_hw_decoder_->isFirstMsgRec(); };
 
       int get_msg_count_cmd(){return msg_count_cmd;};
       void set_msg_count_cmd(const int& count){msg_count_cmd = count;};

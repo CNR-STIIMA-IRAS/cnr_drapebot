@@ -35,14 +35,13 @@
 
 #include <pluginlib/class_list_macros.h>
 
-
 #include <cnr_controller_interface_params/cnr_controller_interface_params.h>
-// #include <cnr_hardware_interface/internal/vector_to_string.h>
 #include <cnr_hardware_interface/cnr_robot_hw.h>
 #include <cnr_mqtt_hardware_interface/cnr_mqtt_robot_hw.h>
 
-#include <jsoncpp/json/json.h>
 #include <configuration_msgs/StartConfiguration.h>
+#include <cnr_mqtt_hardware_interface/json.hpp>
+
 
 PLUGINLIB_EXPORT_CLASS(cnr_hardware_interface::MQTTRobotHW, hardware_interface::RobotHW)
 
@@ -297,7 +296,6 @@ bool MQTTRobotHW::doInit()
   m_cmd_pos = m_pos;
   m_cmd_vel = m_vel;
   m_cmd_eff = m_eff;
-//   m_delta_pos = m_pos;
   
   for(size_t i=0;i<resourceNumber();i++)
   {
@@ -506,7 +504,7 @@ bool MQTTRobotHW::doInit()
   if(USE_REAL_ROBOT)
   {
     CNR_INFO(m_logger,"start waiting");
-    while ( !mqtt_drapebot_client_->isNewMessageAvailable() )
+    while ( !mqtt_drapebot_client_->isFirstMsgRec() )
     {
       CNR_WARN_THROTTLE(m_logger,2.0,"waiting for first feedback message");
       if (mqtt_drapebot_client_->loop() != MOSQ_ERR_SUCCESS)
@@ -519,8 +517,15 @@ bool MQTTRobotHW::doInit()
 //     if(mqtt_drapebot_client_->isNewMessageAvailable())
 //     {
       cnr::drapebot::drapebot_msg_hw last_msg;
-      mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
-      print_last_msg(this->m_logger, last_msg);      
+      if (!mqtt_drapebot_client_->isFirstMsgRec())
+      {
+        CNR_WARN(m_logger,"First feedback message not received yet");
+      }
+      else
+      {
+        mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
+        print_last_msg(this->m_logger, last_msg);      
+      }
 //     }
     
   }
@@ -610,23 +615,37 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   // ----------- JSON MQTT MSG -------------------
     
     
-    Json::Value root;
+    // Json::Value root;
     
-    root["J0"] = m_cmd_pos.at(1);
-    root["J1"] = m_cmd_pos.at(2);
-    root["J2"] = m_cmd_pos.at(3);
-    root["J3"] = m_cmd_pos.at(4);
-    root["J4"] = m_cmd_pos.at(5);
-    root["J5"] = m_cmd_pos.at(6);
-    root["E0"] = m_cmd_pos.at(0);
+    // root["J0"] = m_cmd_pos.at(1);
+    // root["J1"] = m_cmd_pos.at(2);
+    // root["J2"] = m_cmd_pos.at(3);
+    // root["J3"] = m_cmd_pos.at(4);
+    // root["J4"] = m_cmd_pos.at(5);
+    // root["J5"] = m_cmd_pos.at(6);
+    // root["E0"] = m_cmd_pos.at(0);
     
     command_count_++;
     
-    root["count"] = command_count_;
+    // root["count"] = command_count_;
     
-    Json::StreamWriterBuilder builder;
-    const std::string json_file = Json::writeString(builder, root);
-    
+    // Json::StreamWriterBuilder builder;
+    // const std::string json_file = Json::writeString(builder, root);
+
+    nlohmann::json data;
+
+    data["J0"] = m_cmd_pos.at(1);
+    data["J1"] = m_cmd_pos.at(2);
+    data["J2"] = m_cmd_pos.at(3);
+    data["J3"] = m_cmd_pos.at(4);
+    data["J4"] = m_cmd_pos.at(5);
+    data["J5"] = m_cmd_pos.at(6);
+    data["E0"] = m_cmd_pos.at(0);
+    data["count"] = command_count_;
+
+    const std::string json_file = data.dump();
+
+
     char pl[json_file.length()+1];
     strcpy(pl, json_file.c_str());
     
@@ -658,8 +677,6 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     }
     
   }
-  
-
   
   CNR_RETURN_TRUE_THROTTLE_DEFAULT(m_logger);
 }
@@ -741,12 +758,10 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       if (mqtt_drapebot_client_->loop(4) != MOSQ_ERR_SUCCESS)
         CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
   
-    
-    if(mqtt_drapebot_client_->isNewMessageAvailable())
-    {
-      cnr::drapebot::drapebot_msg_hw last_msg;
-      mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
-      
+    cnr::drapebot::drapebot_msg_hw last_msg;
+
+    if(!mqtt_drapebot_client_->isFirstMsgRec() ||  mqtt_drapebot_client_->getLastReceivedMessage(last_msg))
+    { 
       mqtt_msg_to_vector(last_msg,m_pos);
       
       if(verbose_)
@@ -755,7 +770,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       int delay = std::fabs(mqtt_drapebot_client_->get_msg_count_cmd() - last_msg.count);
       if( delay > m_maximum_missing_cycle  )
       {
-        CNR_WARN_THROTTLE(m_logger,10.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
+        CNR_WARN_THROTTLE(m_logger,2.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
                                                << mqtt_drapebot_client_->get_msg_count_cmd() <<", feedback: " << last_msg.count);
       }
       
@@ -765,9 +780,8 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       }      
     }
     else
-      CNR_DEBUG_THROTTLE(m_logger,10.0,"no new feedback message available ... not good . topic: "<< m_mqtt_feedback_topic);
+      CNR_WARN_THROTTLE(m_logger,2.0,"No new feedback message available OR first message not received yet... not good, topic: "<< m_mqtt_feedback_topic);
     
-//     toc();
   }
   else
   {
@@ -775,19 +789,30 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
     m_pos = m_cmd_pos;
   }
   
-  Json::Value root;
+  //Json::Value root;
 //   Json::FastWriter writer;
   
   
+  // for(size_t i=0;i<m_pos.size();i++)
+  // {
+  //   root["J" +std::to_string(i)]["current_value"] = m_pos.at(i);
+  //   root["J" +std::to_string(i)]["command_value"] = m_cmd_pos.at(i);  
+  //   root["J" +std::to_string(i)]["reference_value"] = m_nom_traj.at(i);
+  // }
+  
+  // Json::StreamWriterBuilder builder;
+  // const std::string json_file = Json::writeString(builder, root);
+
+  nlohmann::json data;
+
   for(size_t i=0;i<m_pos.size();i++)
   {
-    root["J" +std::to_string(i)]["current_value"] = m_pos.at(i);
-    root["J" +std::to_string(i)]["command_value"] = m_cmd_pos.at(i);  
-    root["J" +std::to_string(i)]["reference_value"] = m_nom_traj.at(i);
+    data["J" +std::to_string(i)]["current_value"] = m_pos.at(i);
+    data["J" +std::to_string(i)]["command_value"] = m_cmd_pos.at(i);  
+    data["J" +std::to_string(i)]["reference_value"] = m_nom_traj.at(i);
   }
-  
-  Json::StreamWriterBuilder builder;
-  const std::string json_file = Json::writeString(builder, root);
+
+  const std::string json_file = data.dump();
     
   int n = m_mqtt_out_feedback_topic.length();
   char topic[n+ 1];
