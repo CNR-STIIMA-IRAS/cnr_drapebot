@@ -22,7 +22,7 @@ static const char* BOLDWHITE    = "\033[1m\033[37m";
 
 
 
-void mqtt_to_vector(const cnr::drapebot::MQTTDrapebotClientHw* client,std::vector<double> & ret)
+void mqtt_to_vector(const cnr::drapebot::MQTTDrapebotClientHw* client,std::vector<double>& ret)
 {
   if(ret.size()!=7)
     ret.resize(7,0);
@@ -36,7 +36,7 @@ void mqtt_to_vector(const cnr::drapebot::MQTTDrapebotClientHw* client,std::vecto
     ret.at(0) = client->mqtt_msg_dec_->E0;
 }
 
-void mqtt_msg_to_vector(const cnr::drapebot::drapebot_msg_hw msg,std::vector<double>& ret)
+void mqtt_msg_to_vector(const cnr::drapebot::drapebot_msg_hw& msg,std::vector<double>& ret)
 {
   if(ret.size()!=7)
     ret.resize(7,0);

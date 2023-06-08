@@ -48,10 +48,6 @@
 #include <geometry_msgs/WrenchStamped.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <cnr_mqtt_hardware_interface/mqtt_client_hw.h>
-// #include <mosquittopp.h>
-
-
-
 
 
 namespace cnr_hardware_interface

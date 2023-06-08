@@ -496,7 +496,7 @@ bool MQTTRobotHW::doInit()
   CNR_INFO(m_logger,cnr_logger::GREEN() << "subscribing: "<< cid << " to: " << m_mqtt_feedback_topic);
   if (mqtt_drapebot_client_->subscribe(NULL, m_mqtt_feedback_topic.c_str(), 1) != 0)
   {
-    ROS_ERROR_STREAM("Error on Mosquitto subscribe topic: " << m_mqtt_feedback_topic );
+    CNR_ERROR(m_logger, "Error on Mosquitto subscribe topic: " << m_mqtt_feedback_topic );
     return -1;
   }
   
@@ -507,26 +507,24 @@ bool MQTTRobotHW::doInit()
     while ( !mqtt_drapebot_client_->isFirstMsgRec() )
     {
       CNR_WARN_THROTTLE(m_logger,2.0,"waiting for first feedback message");
-      if (mqtt_drapebot_client_->loop() != MOSQ_ERR_SUCCESS)
+      if (mqtt_drapebot_client_->loop(4) != MOSQ_ERR_SUCCESS)
         CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
       
       ros::Duration(0.005).sleep();
     }
     CNR_INFO(m_logger,"First message received");
     
-//     if(mqtt_drapebot_client_->isNewMessageAvailable())
-//     {
-      cnr::drapebot::drapebot_msg_hw last_msg;
-      if (!mqtt_drapebot_client_->isFirstMsgRec())
-      {
-        CNR_WARN(m_logger,"First feedback message not received yet");
-      }
-      else
-      {
-        mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
-        print_last_msg(this->m_logger, last_msg);      
-      }
-//     }
+
+    cnr::drapebot::drapebot_msg_hw last_msg;
+    if (!mqtt_drapebot_client_->isFirstMsgRec())
+    {
+      CNR_WARN(m_logger,"First feedback message not received yet");
+    }
+    else
+    {
+      mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
+      print_last_msg(this->m_logger, last_msg);      
+    }
     
   }
   else
@@ -614,24 +612,8 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
   {
   // ----------- JSON MQTT MSG -------------------
     
-    
-    // Json::Value root;
-    
-    // root["J0"] = m_cmd_pos.at(1);
-    // root["J1"] = m_cmd_pos.at(2);
-    // root["J2"] = m_cmd_pos.at(3);
-    // root["J3"] = m_cmd_pos.at(4);
-    // root["J4"] = m_cmd_pos.at(5);
-    // root["J5"] = m_cmd_pos.at(6);
-    // root["E0"] = m_cmd_pos.at(0);
-    
     command_count_++;
     
-    // root["count"] = command_count_;
-    
-    // Json::StreamWriterBuilder builder;
-    // const std::string json_file = Json::writeString(builder, root);
-
     nlohmann::json data;
 
     data["J0"] = m_cmd_pos.at(1);
@@ -755,12 +737,12 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   {
     CNR_DEBUG_THROTTLE(m_logger,10.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
           
-      if (mqtt_drapebot_client_->loop(4) != MOSQ_ERR_SUCCESS)
-        CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
+    if (mqtt_drapebot_client_->loop(4) != MOSQ_ERR_SUCCESS)
+      CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
   
     cnr::drapebot::drapebot_msg_hw last_msg;
 
-    if(!mqtt_drapebot_client_->isFirstMsgRec() ||  mqtt_drapebot_client_->getLastReceivedMessage(last_msg))
+    if(!mqtt_drapebot_client_->isFirstMsgRec() || mqtt_drapebot_client_->getLastReceivedMessage(last_msg))
     { 
       mqtt_msg_to_vector(last_msg,m_pos);
       
@@ -788,20 +770,6 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
     CNR_INFO_THROTTLE(m_logger,2.0,cnr_logger::BLUE()<<"using fake robot--> m_pos = m_cmd_pos ");
     m_pos = m_cmd_pos;
   }
-  
-  //Json::Value root;
-//   Json::FastWriter writer;
-  
-  
-  // for(size_t i=0;i<m_pos.size();i++)
-  // {
-  //   root["J" +std::to_string(i)]["current_value"] = m_pos.at(i);
-  //   root["J" +std::to_string(i)]["command_value"] = m_cmd_pos.at(i);  
-  //   root["J" +std::to_string(i)]["reference_value"] = m_nom_traj.at(i);
-  // }
-  
-  // Json::StreamWriterBuilder builder;
-  // const std::string json_file = Json::writeString(builder, root);
 
   nlohmann::json data;
 

@@ -22,14 +22,17 @@ namespace  cnr
     
     void DrapebotMsgDecoderHw::on_message(const struct mosquitto_message *msg)
     {
+
       if(use_json_)
       {   
         char buf[msg->payloadlen];
         memcpy(buf, msg->payload, msg->payloadlen);
+
+        std::string buf_str(buf);
         
         if(mtx_.try_lock_for(std::chrono::milliseconds(4)))
         {        
-          nlohmann::json data = nlohmann::json::parse(buf);
+          nlohmann::json data = nlohmann::json::parse(buf_str);
 
           mqtt_msg_->J1 = data["J0"];
           mqtt_msg_->J2 = data["J1"];
@@ -45,6 +48,9 @@ namespace  cnr
 
           mtx_.unlock();
         }
+        else
+          ROS_WARN("Can't lock mutex in DrapebotMsgDecoderHw::on_message.");
+
       }
       else
       {
