@@ -22,7 +22,6 @@ namespace  cnr
     
     void DrapebotMsgDecoderHw::on_message(const struct mosquitto_message *msg)
     {
-
       if(use_json_)
       {   
         char buf[msg->payloadlen];
@@ -30,7 +29,7 @@ namespace  cnr
 
         std::string buf_str(buf);
         
-        if(mtx_.try_lock_for(std::chrono::milliseconds(4)))
+        if(mtx_.try_lock_for(std::chrono::milliseconds(2)))
         {        
           nlohmann::json data = nlohmann::json::parse(buf_str);
 
@@ -64,18 +63,17 @@ namespace  cnr
         
         if ( msg->payloadlen == message_size )
         {
-          
-          for(size_t id=0; id< n_joints*sizeof(mqtt_msg_->E0)/sizeof(double); id++)        
+          if(mtx_.try_lock_for(std::chrono::milliseconds(2)))
           {
-            double j;
-            memcpy(&j, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
-            joints.push_back(j);
-          }
+            for(size_t id=0; id< n_joints*sizeof(mqtt_msg_->E0)/sizeof(double); id++)        
+            {
+              double j;
+              memcpy(&j, (char *)msg->payload + id * (sizeof(double)), sizeof(double));
+              joints.push_back(j);
+            }
+            
+            vec_to_msg(joints,mqtt_msg_);
           
-          vec_to_msg(joints,mqtt_msg_);
-          
-          if(mtx_.try_lock_for(std::chrono::milliseconds(4)))
-          {
             unsigned long int count;
             memcpy(&count, (char *)msg->payload + n_joints * sizeof(mqtt_msg_->E0), sizeof(unsigned long int));  
             mqtt_msg_->count = count;
@@ -193,47 +191,34 @@ namespace  cnr
     }
     bool MQTTDrapebotClientHw::getLastReceivedMessage(cnr::drapebot::drapebot_msg_hw& last_msg)
     {
-        if (drapebot_msg_hw_decoder_ != NULL)
+      if (drapebot_msg_hw_decoder_ != NULL)
+      {
+        if (!drapebot_msg_hw_decoder_->isFirstMsgRec())
         {
-          if (!drapebot_msg_hw_decoder_->isFirstMsgRec())
-          {
-            ROS_WARN_THROTTLE(2.0,"First message not received yet.");
-            return false;
-          }  
+          ROS_WARN_THROTTLE(2.0,"First message not received yet.");
+          return false;
+        }  
 
-        // if (drapebot_msg_hw_decoder_->isNewMessageAvailable() )
-        // {
-          if(drapebot_msg_hw_decoder_->mtx_.try_lock_for(std::chrono::milliseconds(4)))
-          {
-            last_msg.E0 = mqtt_msg_dec_->E0;
-            last_msg.J1 = mqtt_msg_dec_->J1;
-            last_msg.J2 = mqtt_msg_dec_->J2;
-            last_msg.J3 = mqtt_msg_dec_->J3;
-            last_msg.J4 = mqtt_msg_dec_->J4;
-            last_msg.J5 = mqtt_msg_dec_->J5;
-            last_msg.J6 = mqtt_msg_dec_->J6;
-            last_msg.count = mqtt_msg_dec_->count;
+        if(drapebot_msg_hw_decoder_->mtx_.try_lock_for(std::chrono::milliseconds(2)))
+        {
+          last_msg.E0 = mqtt_msg_dec_->E0;
+          last_msg.J1 = mqtt_msg_dec_->J1;
+          last_msg.J2 = mqtt_msg_dec_->J2;
+          last_msg.J3 = mqtt_msg_dec_->J3;
+          last_msg.J4 = mqtt_msg_dec_->J4;
+          last_msg.J5 = mqtt_msg_dec_->J5;
+          last_msg.J6 = mqtt_msg_dec_->J6;
+          last_msg.count = mqtt_msg_dec_->count;
 
-            
-            //drapebot_msg_hw_decoder_->setNewMessageAvailable(false);
-            
-            drapebot_msg_hw_decoder_->mtx_.unlock();
-            return true;
-          }
-          else
-          {
-            ROS_WARN("Can't lock mutex in MQTTDrapebotClientHw::getLastReceivedMessage. Last message received from MQTT not recovered.");
-            return false;
-          }
-
-        // }
-        // else
-        // {
-        //   ROS_WARN("New message not available.");
-        //   return false;
-        // }
-        // return true;
+          drapebot_msg_hw_decoder_->mtx_.unlock();
+          return true;
         }
+        else
+        {
+          ROS_WARN("Can't lock mutex in MQTTDrapebotClientHw::getLastReceivedMessage. Last message received from MQTT not recovered.");
+          return false;
+        }
+      }
     }
 
     bool MQTTDrapebotClientHw::isNewMessageAvailable()

@@ -72,6 +72,7 @@ protected:
   void initialJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg);
   void wrenchCb(const geometry_msgs::WrenchStamped::ConstPtr& msg);
   void trajCb(const sensor_msgs::JointState::ConstPtr& msg);
+  void EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg);
 
   hardware_interface::JointStateInterface           m_js_jh;   //interface for reading joint state
   hardware_interface::PositionJointInterface        m_p_jh;    //interface for writing position target
@@ -101,8 +102,6 @@ protected:
   std::vector<double> m_cmd_vel;   //target velocity
   std::vector<double> m_cmd_eff;   //target effort
   
-  //std::vector<double> m_old_command_pos;   // previous setpoint position position
-
   ros::Subscriber m_wrench_sub;
   ros::Subscriber m_traj_sub;
   std::string m_frame_id;
@@ -128,7 +127,7 @@ protected:
   ros::Publisher old_pub_;
   ros::Publisher delta_pub_;
   
-  bool USE_REAL_ROBOT;
+  bool use_real_robot_;
   bool verbose_;
   bool use_json_;
   bool check_last_;

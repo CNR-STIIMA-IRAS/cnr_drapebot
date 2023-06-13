@@ -238,9 +238,23 @@ void MQTTRobotHW::trajCb(const sensor_msgs::JointState::ConstPtr &msg)
   CNR_TRACE_THROTTLE(m_logger,10,"received a wrench");
 }
 
+void MQTTRobotHW::EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
+{
+  m_pos.at(0) = 0.0;
+  m_pos.at(1) = msg->position[0];
+  m_pos.at(2) = msg->position[1];
+  m_pos.at(3) = msg->position[2];
+  m_pos.at(4) = msg->position[3];
+  m_pos.at(5) = msg->position[4];
+  m_pos.at(6) = msg->position[5];
+
+  CNR_TRACE_THROTTLE(m_logger,10,"received a wrench");
+}
 
 bool MQTTRobotHW::doInit()
 {
+ 
+ 
   CNR_TRACE_START(m_logger);
   
 
@@ -283,7 +297,7 @@ bool MQTTRobotHW::doInit()
     m_robothw_nh.getParam(position_ns, m_pos);
     std::string ss;
     for (auto const & p : m_pos) ss += std::to_string(p) + ", ";
-    CNR_DEBUG(m_logger, "Initial Position: <" << ss << ">");
+      CNR_DEBUG(m_logger, "Initial Position: <" << ss << ">");
   }
 
   double timeout = 10;
@@ -327,13 +341,13 @@ bool MQTTRobotHW::doInit()
     CNR_TRACE(m_logger,"using defalut frame_id name: tool0");
   }
 
-  std::string wrench_topic="fake_wrench";
+  std::string wrench_topic = "fake_wrench";
   if (!m_robothw_nh.getParam("wrench_topic",wrench_topic))
   {
     wrench_topic="fake_wrench";
     CNR_TRACE(m_logger,"using defalut wrench_topic name: fake_wrench");
   }
-  m_wrench_sub=m_robothw_nh.subscribe(wrench_topic,1,&MQTTRobotHW::wrenchCb,this);
+  m_wrench_sub = m_robothw_nh.subscribe(wrench_topic,1,&MQTTRobotHW::wrenchCb,this);
 
 
   CNR_TRACE(m_logger,"Sensor handle");
@@ -362,10 +376,10 @@ bool MQTTRobotHW::doInit()
   std::string pose_target;
   if (!m_robothw_nh.getParam("nominal_trajectory_topic",pose_target))
   {
-    pose_target="/joint_pos_target";
+    pose_target = "/joint_pos_target";
     CNR_WARN(m_logger,"default noimnal trajectory topic : joint_pos_target");
   }
-  m_traj_sub=m_robothw_nh.subscribe(pose_target,1,&MQTTRobotHW::trajCb,this);
+  m_traj_sub = m_robothw_nh.subscribe(pose_target,1,&MQTTRobotHW::trajCb,this);
   
   m_nom_traj.resize(7,0);
   m_nom_traj.at(0) = m_pos[1];
@@ -375,7 +389,8 @@ bool MQTTRobotHW::doInit()
   m_nom_traj.at(4) = m_pos[5];
   m_nom_traj.at(5) = m_pos[6];
   m_nom_traj.at(6) = m_pos[0];
-  
+
+
   if (!m_robothw_nh.getParam("use_delta_target_pos",use_delta_target_pos_))
   {
     use_delta_target_pos_=false;
@@ -457,9 +472,9 @@ bool MQTTRobotHW::doInit()
     CNR_TRACE(m_logger,"using topic out : out_mqtt_feedback_topic");
   }
    
-  if (!m_robothw_nh.getParam("use_real_robot",USE_REAL_ROBOT))
+  if (!m_robothw_nh.getParam("use_real_robot",use_real_robot_))
   {
-    USE_REAL_ROBOT = false;
+    use_real_robot_ = false;
     CNR_WARN(this->m_logger, "\n\n USING SIMULATED ROBOT !!. SET PARAM >> use_real_robot: true << in the config to use the real robot");
     CNR_TRACE(m_logger,"\n\n USING SIMULATED ROBOT !!. SET PARAM >> use_real_robot: true << in the config to use the real robot");
   }
@@ -477,8 +492,8 @@ bool MQTTRobotHW::doInit()
   }
   
   
-  std::string v = USE_REAL_ROBOT ? " \n USING REAL ROBOT ! \n be careful." : "using fake robot." ;
-  if (USE_REAL_ROBOT)
+  std::string v = use_real_robot_ ? " \n USING REAL ROBOT ! \n be careful." : "using fake robot." ;
+  if (use_real_robot_)
     CNR_INFO(m_logger,cnr_logger::RED()<<"\n\n ################# \n "<< v <<" \n################# \n\n");
   else
     CNR_INFO(m_logger, cnr_logger::BLUE()<<"\n"<<v<<"\n");
@@ -501,13 +516,13 @@ bool MQTTRobotHW::doInit()
   }
   
   
-  if(USE_REAL_ROBOT)
+  if(use_real_robot_)
   {
     CNR_INFO(m_logger,"start waiting");
     while ( !mqtt_drapebot_client_->isFirstMsgRec() )
     {
       CNR_WARN_THROTTLE(m_logger,2.0,"waiting for first feedback message");
-      if (mqtt_drapebot_client_->loop(4) != MOSQ_ERR_SUCCESS)
+      if (mqtt_drapebot_client_->loop(1) != MOSQ_ERR_SUCCESS)
         CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
       
       ros::Duration(0.005).sleep();
@@ -561,20 +576,19 @@ bool MQTTRobotHW::doInit()
 bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period)
 {
   CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
+     
+  CNR_DEBUG_THROTTLE(m_logger,10.0,"[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] publishing command on : "<<m_mqtt_command_topic);
+      
+  if(verbose_)
+  {
+    cnr::drapebot::drapebot_msg_hw m_;
+    vector_to_mqtt_msg(m_cmd_pos,m_);
+    std::string st = cnr_logger::MAGENTA();
+    st += " command : "; 
+    print_message_struct_throttle(m_logger,st, m_,10.0);
+  }
   
-    
-    CNR_DEBUG_THROTTLE(m_logger,10.0,"[MQTTRobotHW - " + m_robothw_nh.getNamespace() + "] publishing command on : "<<m_mqtt_command_topic);
-       
-    if(verbose_)
-    {
-      cnr::drapebot::drapebot_msg_hw m_;
-      vector_to_mqtt_msg(m_cmd_pos,m_);
-      std::string st = cnr_logger::MAGENTA();
-      st += " command : "; 
-      print_message_struct_throttle(m_logger,st, m_,10.0);
-    }
-    
-    if(!use_json_)
+  if(!use_json_)
   {
   // ----------- BYTE MQTT MSG -------------------
     
@@ -733,11 +747,11 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
 {  
   CNR_TRACE_START_THROTTLE_DEFAULT(m_logger);
   
-  if (USE_REAL_ROBOT)
+  if (use_real_robot_)
   {
     CNR_DEBUG_THROTTLE(m_logger,10.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
           
-    if (mqtt_drapebot_client_->loop(4) != MOSQ_ERR_SUCCESS)
+    if (mqtt_drapebot_client_->loop(1) != MOSQ_ERR_SUCCESS)
       CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
   
     cnr::drapebot::drapebot_msg_hw last_msg;
@@ -753,7 +767,7 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       if( delay > m_maximum_missing_cycle  )
       {
         CNR_WARN_THROTTLE(m_logger,2.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
-                                               << mqtt_drapebot_client_->get_msg_count_cmd() <<", feedback: " << last_msg.count);
+                                              << mqtt_drapebot_client_->get_msg_count_cmd() <<", feedback: " << last_msg.count);
       }
       
       if(!check_vector_distances(m_logger, m_cmd_pos, m_pos))
@@ -762,8 +776,8 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
       }      
     }
     else
-      CNR_WARN_THROTTLE(m_logger,2.0,"No new feedback message available OR first message not received yet... not good, topic: "<< m_mqtt_feedback_topic);
-    
+      CNR_WARN_THROTTLE(m_logger,2.0,"No new MQTT feedback message available OR first message not received yet... not good, topic: "<< m_mqtt_feedback_topic);
+        
   }
   else
   {
