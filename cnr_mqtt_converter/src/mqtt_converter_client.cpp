@@ -1,4 +1,37 @@
-#include "cnr_mqtt/mqtt_converter_client.h"
+/*
+ *  Software License Agreement (New BSD License)
+ *
+ *  Copyright 2022 National Council of Research of Italy (CNR)
+ *
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the copyright holder(s) nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ */
 
 static const char* DEFAULT      = "\033[0m";
 static const char* RESET        = "\033[0m";
@@ -19,40 +52,17 @@ static const char* BOLDMAGENTA  = "\033[1m\033[35m";
 static const char* BOLDCYAN     = "\033[1m\033[36m";
 static const char* BOLDWHITE    = "\033[1m\033[37m";
 
+#include "cnr_mqtt/mqtt_converter_client.h"
+
+
 namespace  cnr
 {
   namespace drapebot_converter
   {
-    
-    void DrapebotMsgDecoderHw::on_message(const struct mosquitto_message *message)
-    {
-      char buf[message->payloadlen];
-      memcpy(buf, message->payload, message->payloadlen);
-      
-      Json::Reader reader;
-      Json::Value root;
-      
-      reader.parse(buf,root);
-      
-      ROS_DEBUG_STREAM(GREEN<<"Json Trajectory from ITR MotionPlanner: \n" << buf);
-      ROS_DEBUG_STREAM(YELLOW<<"root from ITR MotionPlanner: \n" << root);
-      
-      if ( !JsonToMsg(root, trajectory_msg_))
-      {
-        ROS_ERROR("error in the conversion");
-        setNewMessageAvailable(false);
-        setDataValid(false);
-      }
-      else
-      {
-        ROS_INFO("conversion ok");      
-        setNewMessageAvailable(true); 
-        setDataValid(true);
-      }
-      
-    }
-    
-    bool DrapebotMsgDecoderHw::JsonToMsg(Json::Value traj, control_msgs::FollowJointTrajectoryGoal *msg)
+
+
+
+    bool MsgDecoder::JsonToMsg(Json::Value traj, control_msgs::FollowJointTrajectoryGoal *msg)
     {
       
       //TODO:: definire con Gottardi parametro per settare configuratione deformation/non deformation
@@ -115,7 +125,36 @@ namespace  cnr
       return true;
     }
     
-    void DrapebotMsgDecoderHw::setJointParams(const std::vector<std::string>& joint_names)
+    
+    void MsgDecoder::on_message(const struct mosquitto_message *msg)
+    {
+      char buf[msg->payloadlen];
+      memcpy(buf, msg->payload, msg->payloadlen);
+      
+      Json::Reader reader;
+      Json::Value root;
+      
+      reader.parse(buf,root);
+      
+      ROS_DEBUG_STREAM(GREEN<<"Json Trajectory from ITR MotionPlanner: \n" << buf);
+      ROS_DEBUG_STREAM(YELLOW<<"root from ITR MotionPlanner: \n" << root);
+      
+      if ( !JsonToMsg(root, trajectory_msg_))
+      {
+        ROS_ERROR("error in the conversion");
+        setNewMessageAvailable(false);
+        setDataValid(false);
+      }
+      else
+      {
+        ROS_INFO("conversion ok");      
+        setNewMessageAvailable(true); 
+        setDataValid(true);
+      }
+      
+    }
+    
+    void MsgDecoder::setJointParams(const std::vector<std::string>& joint_names)
     {
       n_joints_ = joint_names.size();
       joint_names_.resize(n_joints_);
@@ -126,133 +165,134 @@ namespace  cnr
     }
     
     
-    void DrapebotMsgEncoderHw::on_publish(int mid)
+    void MsgEncoder::on_publish(int mid)
     {
       // Nothing to do here
     }
     
 
-
-    
-    
-    
-    
-    
-    
-    
-    MQTTDrapebotClientHw::MQTTDrapebotClientHw(const char *id, const char *host, int port, int keepalive)
+    MqttClient::MqttClient(const char *id, const char *host, const int port, const bool use_json, int keepalive)
     {
       try
       {
         mqtt_traj_msg_dec_ = new control_msgs::FollowJointTrajectoryGoal;
         
 
-        drapebot_msg_hw_encoder_ = new cnr::drapebot_converter::DrapebotMsgEncoderHw();
-        drapebot_msg_hw_decoder_ = new cnr::drapebot_converter::DrapebotMsgDecoderHw(mqtt_traj_msg_dec_);
+        msg_encoder_ = new cnr::drapebot_converter::MsgEncoder();
+        msg_decoder_ = new cnr::drapebot_converter::MsgDecoder(mqtt_traj_msg_dec_);
 
-        mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, drapebot_msg_hw_encoder_, drapebot_msg_hw_decoder_);
+        mqtt_client_ = new cnr::mqtt::MQTTClient(id, host, port, msg_encoder_, msg_decoder_);
         
         msg_count_cmd = 0;
         first_message_received_ = false;
       }
       catch(const std::exception& e)
       {
-        ROS_ERROR_STREAM("Exception thrown in MQTTDrapebotClientHw constructor: " <<  e.what() );
+        ROS_ERROR_STREAM("Exception thrown in MqttClient constructor: " <<  e.what() );
       }
     }
 
-    MQTTDrapebotClientHw::~MQTTDrapebotClientHw()
+    MqttClient::~MqttClient()
     {  
       delete mqtt_traj_msg_dec_;
-      delete drapebot_msg_hw_decoder_;
-      delete drapebot_msg_hw_encoder_;
+      delete msg_decoder_;
+      delete msg_encoder_;
       delete mqtt_client_;
     }
 
-    int MQTTDrapebotClientHw::stop()
+    int MqttClient::stop()
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->stop();      
-      else
-        return -1;
+
+      return -1;
     }
 
-    int MQTTDrapebotClientHw::loop()
+    int MqttClient::loop(int timeout)
     {
       if (mqtt_client_ != NULL)
-        return mqtt_client_->loop();
-      else
-        return -1;
+        return mqtt_client_->loop(timeout);
+      
+      return -1;
     }
 
-    int MQTTDrapebotClientHw::subscribe(int *mid, const char *sub, int qos)
+    int MqttClient::reconnect()
+    {
+      if (mqtt_client_ != NULL)
+        return mqtt_client_->reconnect();
+      
+      return -1;
+    }
+
+    int MqttClient::subscribe(int *mid, const char *sub, int qos)
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->subscribe(mid, sub, qos);
-      else
-        return -1;
+      
+      return -1;
     }
     
-    int MQTTDrapebotClientHw::unsubscribe(int *mid, const char *sub)
+    int MqttClient::unsubscribe(int *mid, const char *sub)
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->unsubscribe(mid, sub);
-      else
-        return -1;
+
+      return -1;
     }
 
-    int MQTTDrapebotClientHw::publish(const void* payload, int& payload_len, const char* topic_name)
+    int MqttClient::publish(const void* payload, int& payload_len, const char* topic_name)
     {        
       if (mqtt_client_ != NULL)
         return mqtt_client_->publish(payload, payload_len, topic_name);
-      else
-        return -1;
+      
+      return -1;
     }
-    bool MQTTDrapebotClientHw::getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg, bool& cooperative)
+
+    bool MqttClient::getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg, bool& cooperative)
     {
-      if (drapebot_msg_hw_decoder_->isNewMessageAvailable() )
+      if (msg_decoder_->isNewMessageAvailable() )
       {
         ROS_DEBUG_STREAM(*mqtt_traj_msg_dec_);
         last_msg = *mqtt_traj_msg_dec_;
         
-        cooperative_ = drapebot_msg_hw_decoder_->cooperative_;
+        cooperative_ = msg_decoder_->cooperative_;
         cooperative = cooperative_;
-        drapebot_msg_hw_decoder_->setNewMessageAvailable(false);
+        msg_decoder_->setNewMessageAvailable(false);
         return true;
       }
       else
       {
-        ROS_WARN("New message not available.");
+        ROS_WARN("New msg not available.");
         return false;
       }
       return true;
     }
 
-    bool MQTTDrapebotClientHw::isNewMessageAvailable()
+    bool MqttClient::isNewMessageAvailable()
     {
-      if (drapebot_msg_hw_decoder_ != NULL)
-        return drapebot_msg_hw_decoder_->isNewMessageAvailable();
+      if (msg_decoder_ != NULL)
+        return msg_decoder_->isNewMessageAvailable();
       else
       {
-        ROS_ERROR("drapebot_msg_hw_decoder_ == NULL . return false");
+        ROS_ERROR("msg_decoder_ == NULL . return false");
         return false;
       }
     }
 
-    bool MQTTDrapebotClientHw::isDataValid()
+    bool MqttClient::isDataValid()
     {
-      if (drapebot_msg_hw_decoder_ != NULL)
-        return drapebot_msg_hw_decoder_->isDataValid();
+      if (msg_decoder_ != NULL)
+        return msg_decoder_->isDataValid();
       else
         return false;
     }
 
-    bool MQTTDrapebotClientHw::isTrajCooperative()
+    bool MqttClient::isTrajCooperative()
     {
       return cooperative_;
     }
     
-    void MQTTDrapebotClientHw::set_joint_names(std::vector<std::string> jn)
+    void MqttClient::set_joint_names(std::vector<std::string> jn)
     {
       for(auto n : jn)
       {
@@ -263,16 +303,16 @@ namespace  cnr
       
       ROS_DEBUG_STREAM("joint nuimber: "<<n_joints_ );
       
-      drapebot_msg_hw_decoder_->setJointParams(joint_names_);
+      msg_decoder_->setJointParams(joint_names_);
       
     }
 
-    void MQTTDrapebotClientHw::set_config(const std::string& config)
+    void MqttClient::set_config(const std::string& config)
     {
       configuration_ = config;
     }
 
-    std::string MQTTDrapebotClientHw::get_config()
+    std::string MqttClient::get_config()
     {
       return configuration_;
     }
