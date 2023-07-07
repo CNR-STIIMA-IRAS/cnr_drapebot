@@ -52,7 +52,7 @@ static const char* BOLDMAGENTA  = "\033[1m\033[35m";
 static const char* BOLDCYAN     = "\033[1m\033[36m";
 static const char* BOLDWHITE    = "\033[1m\033[37m";
 
-#include "cnr_mqtt/mqtt_converter_client.h"
+#include <cnr_mqtt_converter/mqtt_converter_client.h>
 
 
 namespace  cnr
@@ -171,7 +171,7 @@ namespace  cnr
     }
     
 
-    MqttClient::MqttClient(const char *id, const char *host, const int port, const bool use_json, int keepalive)
+    MQTTClient::MQTTClient(const char *id, const char *host, const int port, const bool use_json, int keepalive)
     {
       try
       {
@@ -192,7 +192,7 @@ namespace  cnr
       }
     }
 
-    MqttClient::~MqttClient()
+    MQTTClient::~MQTTClient()
     {  
       delete mqtt_traj_msg_dec_;
       delete msg_decoder_;
@@ -200,7 +200,7 @@ namespace  cnr
       delete mqtt_client_;
     }
 
-    int MqttClient::stop()
+    int MQTTClient::stop()
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->stop();      
@@ -208,7 +208,7 @@ namespace  cnr
       return -1;
     }
 
-    int MqttClient::loop(int timeout)
+    int MQTTClient::loop(int timeout)
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->loop(timeout);
@@ -216,7 +216,7 @@ namespace  cnr
       return -1;
     }
 
-    int MqttClient::reconnect()
+    int MQTTClient::reconnect()
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->reconnect();
@@ -224,7 +224,7 @@ namespace  cnr
       return -1;
     }
 
-    int MqttClient::subscribe(int *mid, const char *sub, int qos)
+    int MQTTClient::subscribe(int *mid, const char *sub, int qos)
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->subscribe(mid, sub, qos);
@@ -232,7 +232,7 @@ namespace  cnr
       return -1;
     }
     
-    int MqttClient::unsubscribe(int *mid, const char *sub)
+    int MQTTClient::unsubscribe(int *mid, const char *sub)
     {
       if (mqtt_client_ != NULL)
         return mqtt_client_->unsubscribe(mid, sub);
@@ -240,7 +240,7 @@ namespace  cnr
       return -1;
     }
 
-    int MqttClient::publish(const void* payload, int& payload_len, const char* topic_name)
+    int MQTTClient::publish(const void* payload, int& payload_len, const char* topic_name)
     {        
       if (mqtt_client_ != NULL)
         return mqtt_client_->publish(payload, payload_len, topic_name);
@@ -248,7 +248,7 @@ namespace  cnr
       return -1;
     }
 
-    bool MqttClient::getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg, bool& cooperative)
+    bool MQTTClient::getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg, bool& cooperative)
     {
       if (msg_decoder_->isNewMessageAvailable() )
       {
@@ -268,7 +268,7 @@ namespace  cnr
       return true;
     }
 
-    bool MqttClient::isNewMessageAvailable()
+    bool MQTTClient::isNewMessageAvailable()
     {
       if (msg_decoder_ != NULL)
         return msg_decoder_->isNewMessageAvailable();
@@ -279,7 +279,7 @@ namespace  cnr
       }
     }
 
-    bool MqttClient::isDataValid()
+    bool MQTTClient::isDataValid()
     {
       if (msg_decoder_ != NULL)
         return msg_decoder_->isDataValid();
@@ -287,12 +287,12 @@ namespace  cnr
         return false;
     }
 
-    bool MqttClient::isTrajCooperative()
+    bool MQTTClient::isTrajCooperative()
     {
       return cooperative_;
     }
     
-    void MqttClient::set_joint_names(std::vector<std::string> jn)
+    void MQTTClient::set_joint_names(std::vector<std::string> jn)
     {
       for(auto n : jn)
       {
@@ -307,12 +307,12 @@ namespace  cnr
       
     }
 
-    void MqttClient::set_config(const std::string& config)
+    void MQTTClient::set_config(const std::string& config)
     {
       configuration_ = config;
     }
 
-    std::string MqttClient::get_config()
+    std::string MQTTClient::get_config()
     {
       return configuration_;
     }

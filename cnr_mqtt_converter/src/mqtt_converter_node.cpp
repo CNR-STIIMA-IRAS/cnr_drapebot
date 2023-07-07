@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "cnr_mqtt/mqtt_converter_client.h"
+#include <cnr_mqtt_converter/mqtt_converter_client.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/simple_client_goal_state.h>
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
   ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << broker_address);
   ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << client_id);
   
-  cnr::drapebot_converter::MQTTDrapebotClientHw client(client_id, broker_address, port);
+  cnr::drapebot_converter::MQTTClient client(client_id, broker_address, port);
   
   ros::Rate r = rate;
   

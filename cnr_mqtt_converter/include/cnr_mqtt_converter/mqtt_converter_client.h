@@ -43,6 +43,7 @@
 #include <fstream>
 
 #include <cnr_mqtt_client/cnr_mqtt_client.h>
+#include <jsoncpp/json/json.h>
 
 #include <control_msgs/FollowJointTrajectoryActionGoal.h>
 
@@ -66,7 +67,7 @@ namespace cnr
 
     private:
       control_msgs::FollowJointTrajectoryGoal transform_trajectory(Json::Value traj);
-
+      bool JsonToMsg(Json::Value traj, control_msgs::FollowJointTrajectoryGoal *msg);
       std::vector<std::string> joint_names_;
       int n_joints_;
 
@@ -81,11 +82,11 @@ namespace cnr
     private:
     };
 
-    class MqttClient
+    class MQTTClient
     {
     public:
-      MqttClient (const char *id, const char *host, const int port, const bool use_json, int keepalive = 60);
-      ~MqttClient();
+      MQTTClient (const char *id, const char *host, const int port, const bool use_json = true, int keepalive = 60);
+      ~MQTTClient();
 
       int stop();
       int loop(int timeout=2000);
@@ -94,7 +95,7 @@ namespace cnr
       int unsubscribe(int *mid, const char *sub);
       int publish(const void* payload, int& payload_len, const char* topic_name);
      
-      bool isFirstMsgRec(){ return drapebot_msg_decoder_->isFirstMsgRec(); };
+      //bool isFirstMsgRec(){ return msg_decoder_->isFirstMsgRec(); };
 
       bool getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg, bool& cooperative);
       bool isNewMessageAvailable();
