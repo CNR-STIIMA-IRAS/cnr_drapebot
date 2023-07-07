@@ -491,6 +491,11 @@ bool MQTTRobotHW::doInit()
     CNR_TRACE(m_logger,"default use_json: "<< use_json_);
   }
   
+  if (!m_robothw_nh.getParam("use_ros_feedback",use_ros_feedback_))
+  {
+    use_ros_feedback_ = false;
+    CNR_TRACE(m_logger,"default use_json: "<< use_ros_feedback_);
+  }
   
   std::string v = use_real_robot_ ? " \n USING REAL ROBOT ! \n be careful." : "using fake robot." ;
   if (use_real_robot_)
@@ -508,25 +513,48 @@ bool MQTTRobotHW::doInit()
 
   CNR_INFO(m_logger,"Connencted to: "<< cid << ": " << host_str);
 
-  CNR_INFO(m_logger,cnr_logger::GREEN() << "subscribing: "<< cid << " to: " << m_mqtt_feedback_topic);
-  if (mqtt_drapebot_client_->subscribe(NULL, m_mqtt_feedback_topic.c_str(), 1) != 0)
+  if (!use_ros_feedback_)
   {
-    CNR_ERROR(m_logger, "Error on Mosquitto subscribe topic: " << m_mqtt_feedback_topic );
-    return -1;
+    CNR_INFO(m_logger,cnr_logger::GREEN() << "subscribing: "<< cid << " to: " << m_mqtt_feedback_topic);
+    if (mqtt_drapebot_client_->subscribe(NULL, m_mqtt_feedback_topic.c_str(), 1) != 0)
+    {
+      CNR_ERROR(m_logger, "Error on Mosquitto subscribe topic: " << m_mqtt_feedback_topic );
+      return -1;
+    }
   }
-  
-  
+  else
+  {
+    std::string feedback_ros_topic;
+    if (!m_robothw_nh.getParam("feedback_ros_topic",feedback_ros_topic))
+    {
+      feedback_ros_topic = "/abb/joint_states";
+      ROS_WARN_STREAM("Ros ABB feedback topic " + m_robothw_nh.getNamespace() + "/mqtt_hw/feedback_ros_topic . Using default topic name: " + feedback_ros_topic);
+    }
+
+    m_robot_feedback = m_robothw_nh.subscribe(feedback_ros_topic, 1, &MQTTRobotHW::EGMJointStateCallback, this);
+
+    ros::topic::waitForMessage<sensor_msgs::JointState>(feedback_ros_topic, ros::Duration(100));
+
+  }
+
+
+
   if(use_real_robot_)
   {
     CNR_INFO(m_logger,"start waiting");
-    while ( !mqtt_drapebot_client_->isFirstMsgRec() )
+
+    if(!use_ros_feedback_)
     {
-      CNR_WARN_THROTTLE(m_logger,2.0,"waiting for first feedback message");
-      if (mqtt_drapebot_client_->loop(1) != MOSQ_ERR_SUCCESS)
-        CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
-      
-      ros::Duration(0.005).sleep();
+      while ( !mqtt_drapebot_client_->isFirstMsgRec() )
+      {
+        CNR_WARN_THROTTLE(m_logger,2.0,"waiting for first feedback message");
+        if (mqtt_drapebot_client_->loop(1) != MOSQ_ERR_SUCCESS)
+          CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
+        
+        ros::Duration(0.005).sleep();
+      }
     }
+
     CNR_INFO(m_logger,"First message received");
     
 
@@ -751,33 +779,35 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
   {
     CNR_DEBUG_THROTTLE(m_logger,10.0,cnr_logger::GREEN()<<"using real robot -- hope feedback comes");
           
-    if (mqtt_drapebot_client_->loop(1) != MOSQ_ERR_SUCCESS)
+    if(!use_ros_feedback_)
+    {
+      if (mqtt_drapebot_client_->loop(1) != MOSQ_ERR_SUCCESS)
       CNR_WARN(m_logger,"mqtt_drapebot_client_->loop() failed. check it");
   
-    cnr::drapebot::drapebot_msg_hw last_msg;
+      cnr::drapebot::drapebot_msg_hw last_msg;
 
-    if(!mqtt_drapebot_client_->isFirstMsgRec() || mqtt_drapebot_client_->getLastReceivedMessage(last_msg))
-    { 
-      mqtt_msg_to_vector(last_msg,m_pos);
-      
-      if(verbose_)
-        print_last_msg(m_logger, last_msg);
-      
-      int delay = std::fabs(mqtt_drapebot_client_->get_msg_count_cmd() - last_msg.count);
-      if( delay > m_maximum_missing_cycle  )
-      {
-        CNR_WARN_THROTTLE(m_logger,2.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
-                                              << mqtt_drapebot_client_->get_msg_count_cmd() <<", feedback: " << last_msg.count);
-      }
-      
-      if(!check_vector_distances(m_logger, m_cmd_pos, m_pos))
-      {
-        CNR_INFO(m_logger,"restart this terminal ! otherwise the robot will go back to the old position before jogging ");
-      }      
-    }
-    else
-      CNR_WARN_THROTTLE(m_logger,2.0,"No new MQTT feedback message available OR first message not received yet... not good, topic: "<< m_mqtt_feedback_topic);
+      if(!mqtt_drapebot_client_->isFirstMsgRec() || mqtt_drapebot_client_->getLastReceivedMessage(last_msg))
+      { 
+        mqtt_msg_to_vector(last_msg,m_pos);
         
+        if(verbose_)
+          print_last_msg(m_logger, last_msg);
+        
+        int delay = std::fabs(mqtt_drapebot_client_->get_msg_count_cmd() - last_msg.count);
+        if( delay > m_maximum_missing_cycle  )
+        {
+          CNR_WARN_THROTTLE(m_logger,2.0, "delay: " << delay << " exceeds maximum missing cycle ( " << m_maximum_missing_cycle << " ) . command: "
+                                                << mqtt_drapebot_client_->get_msg_count_cmd() <<", feedback: " << last_msg.count);
+        }
+      }
+      else
+        CNR_WARN_THROTTLE(m_logger,2.0,"No new MQTT feedback message available OR first message not received yet... not good, topic: "<< m_mqtt_feedback_topic);
+    }
+
+    if(!check_vector_distances(m_logger, m_cmd_pos, m_pos))
+    {
+      CNR_INFO(m_logger,"restart this terminal ! otherwise the robot will go back to the old position before jogging ");
+    }         
   }
   else
   {

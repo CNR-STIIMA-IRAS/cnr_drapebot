@@ -189,6 +189,7 @@ namespace  cnr
       else
         return -1;
     }
+    
     bool MQTTDrapebotClientHw::getLastReceivedMessage(cnr::drapebot::drapebot_msg_hw& last_msg)
     {
       if (drapebot_msg_hw_decoder_ != NULL)

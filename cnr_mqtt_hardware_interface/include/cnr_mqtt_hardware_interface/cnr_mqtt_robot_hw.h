@@ -104,6 +104,7 @@ protected:
   
   ros::Subscriber m_wrench_sub;
   ros::Subscriber m_traj_sub;
+  ros::Subscriber m_robot_feedback;
   std::string m_frame_id;
   std::string m_mqtt_command_topic;
   std::string m_mqtt_feedback_topic;
@@ -130,11 +131,12 @@ protected:
   bool use_real_robot_;
   bool verbose_;
   bool use_json_;
+  bool use_ros_feedback_;
   bool check_last_;
   
   int command_count_ = 0;
 
-  friend void setParam(MQTTRobotHW* hw, const std::string& ns);
+  friend void setParam(MQTTRobotHW* hw, const std::string& ns);  
 };
 
 void setParam(MQTTRobotHW* hw, const std::string& ns);

@@ -46,14 +46,8 @@ target_compile_options(${PROJECT_NAME} PUBLIC -Wall -faligned-new
         $<$<CONFIG:Release>:-Ofast -funroll-loops -ffast-math >)
 
                
-#add_executable(mqtt_listener src/${PROJECT_NAME}/mqtt_listener.cpp)
-#target_link_libraries(mqtt_listener ${catkin_LIBRARIES} mqtt_client_hw)
-
-#add_executable(mqtt_cmd src/${PROJECT_NAME}/mqtt_cmd.cpp)
-#target_link_libraries(mqtt_cmd ${catkin_LIBRARIES} mqtt_client_hw)
-
-#add_executable(mqtt_cmd2 src/${PROJECT_NAME}/mqtt_cmd2.cpp)
-#target_link_libraries(mqtt_cmd2 ${catkin_LIBRARIES} mqtt_client_hw)
+add_executable(mqtt_robot_feedback_repeater_node src/${PROJECT_NAME}/cnr_mqtt_robot_feedback_repeater_node.cpp)
+target_link_libraries(mqtt_robot_feedback_repeater_node ${catkin_LIBRARIES} mqtt_client_hw)
 
 
 
