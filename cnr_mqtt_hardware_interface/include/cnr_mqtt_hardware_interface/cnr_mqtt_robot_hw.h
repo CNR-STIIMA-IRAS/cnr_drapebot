@@ -86,6 +86,8 @@ protected:
   bool m_v_jh_active;
   bool m_e_jh_active;
   
+  bool first_ros_fb_msg_rec_;
+
   bool use_delta_target_pos_;
   bool delta_pos_from_start_;
 

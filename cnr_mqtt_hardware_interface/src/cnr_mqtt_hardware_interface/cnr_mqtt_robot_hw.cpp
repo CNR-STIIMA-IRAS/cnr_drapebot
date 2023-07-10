@@ -59,6 +59,17 @@ void mqtt_to_vector(const cnr::drapebot::MQTTDrapebotClientHw* client,std::vecto
     ret.at(0) = client->mqtt_msg_dec_->E0;
 }
 
+// void ros_msg_to_vector(const sensor_msgs::JointState msg, std::vector<double> & ret)
+// {    
+//   ret.at(1) = client->mqtt_msg_dec_->J1;
+//   ret.at(2) = client->mqtt_msg_dec_->J2;
+//   ret.at(3) = client->mqtt_msg_dec_->J3;
+//   ret.at(4) = client->mqtt_msg_dec_->J4;
+//   ret.at(5) = client->mqtt_msg_dec_->J5;
+//   ret.at(6) = client->mqtt_msg_dec_->J6;
+//   ret.at(0) = client->mqtt_msg_dec_->E0;
+// }
+
 void mqtt_msg_to_vector(const cnr::drapebot::drapebot_msg_hw msg,std::vector<double>& ret)
 {
   if(ret.size()!=7)
@@ -240,6 +251,12 @@ void MQTTRobotHW::trajCb(const sensor_msgs::JointState::ConstPtr &msg)
 
 void MQTTRobotHW::EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
+  if(!first_ros_fb_msg_rec_)
+  {
+    first_ros_fb_msg_rec_ = true;
+    ROS_FATAL("first feedback ros message received!");
+  }
+
   m_pos.at(0) = 0.0;
   m_pos.at(1) = msg->position[0];
   m_pos.at(2) = msg->position[1];
@@ -254,18 +271,14 @@ void MQTTRobotHW::EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr&
 bool MQTTRobotHW::doInit()
 {
  
- 
   CNR_TRACE_START(m_logger);
   
-
   CNR_WARN(m_logger, "Resources (" << resourceNumber() << ") ");
   m_pos.resize(resourceNumber(),0);
   m_vel.resize(resourceNumber(),0);
   m_eff.resize(resourceNumber(),0);
   
   m_cmd_pos.resize(resourceNumber(),0);
-  m_old_pos.resize(resourceNumber(),0);
-  m_start_pos.resize(resourceNumber(),0);
   m_delta_pos.resize(resourceNumber(),0);
   m_old_delta_pos.resize(resourceNumber(),0);
   m_cmd_vel.resize(resourceNumber(),0);
@@ -275,6 +288,8 @@ bool MQTTRobotHW::doInit()
   goal_toll_.resize(resourceNumber(),0);
   cmd_pos_holder_.resize(resourceNumber(),0);
   hold_pos_.resize(resourceNumber(), false);
+
+  first_ros_fb_msg_rec_ = false;
 
   if (m_robothw_nh.hasParam("initial_position"))
   {
@@ -513,6 +528,8 @@ bool MQTTRobotHW::doInit()
 
   CNR_INFO(m_logger,"Connencted to: "<< cid << ": " << host_str);
 
+  std::string feedback_ros_topic;
+
   if (!use_ros_feedback_)
   {
     CNR_INFO(m_logger,cnr_logger::GREEN() << "subscribing: "<< cid << " to: " << m_mqtt_feedback_topic);
@@ -524,19 +541,15 @@ bool MQTTRobotHW::doInit()
   }
   else
   {
-    std::string feedback_ros_topic;
     if (!m_robothw_nh.getParam("feedback_ros_topic",feedback_ros_topic))
     {
       feedback_ros_topic = "/abb/joint_states";
       ROS_WARN_STREAM("Ros ABB feedback topic " + m_robothw_nh.getNamespace() + "/mqtt_hw/feedback_ros_topic . Using default topic name: " + feedback_ros_topic);
     }
 
-    m_robot_feedback = m_robothw_nh.subscribe(feedback_ros_topic, 1, &MQTTRobotHW::EGMJointStateCallback, this);
-
-    ros::topic::waitForMessage<sensor_msgs::JointState>(feedback_ros_topic, ros::Duration(100));
+    m_robot_feedback = m_robothw_nh.subscribe(feedback_ros_topic, 1, &MQTTRobotHW::EGMJointStateCallback, this);    
 
   }
-
 
 
   if(use_real_robot_)
@@ -553,42 +566,79 @@ bool MQTTRobotHW::doInit()
         
         ros::Duration(0.005).sleep();
       }
+          cnr::drapebot::drapebot_msg_hw last_msg;
+      if (!mqtt_drapebot_client_->isFirstMsgRec())
+      {
+        CNR_WARN(m_logger,"First feedback message not received yet");
+      }
+      else
+      {
+        mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
+        print_last_msg(this->m_logger, last_msg);      
+      }
+
+      mqtt_to_vector(mqtt_drapebot_client_,m_cmd_pos);
+      mqtt_to_vector(mqtt_drapebot_client_,m_pos);
+
+    }
+    else
+    {
+
+      auto first_msg_ptr = ros::topic::waitForMessage<sensor_msgs::JointState>(feedback_ros_topic,m_robothw_nh,ros::Duration(1.0));
+
+      ROS_FATAL_STREAM(  "first msg: " <<  *first_msg_ptr);
+
+      print_vector(m_logger, "INITIAL FEEDBACK POSITION" , m_pos  , cnr_logger::BLUE().c_str());
+
+      m_pos.at(0) = 0.0;
+      m_pos.at(1) = first_msg_ptr->position[0];
+      m_pos.at(2) = first_msg_ptr->position[1];
+      m_pos.at(3) = first_msg_ptr->position[2];
+      m_pos.at(4) = first_msg_ptr->position[3];
+      m_pos.at(5) = first_msg_ptr->position[4];
+      m_pos.at(6) = first_msg_ptr->position[5];
+
+
+      ROS_FATAL_STREAM( "FIRST FEEDBACK \n\n\n\n J1: "  << m_pos.at(1));
+      ROS_FATAL_STREAM( " J2: "  << m_pos.at(2));
+      ROS_FATAL_STREAM( " J3: "  << m_pos.at(3));
+      ROS_FATAL_STREAM( " J4: "  << m_pos.at(4));
+      ROS_FATAL_STREAM( " J5: "  << m_pos.at(5));
+      ROS_FATAL_STREAM( " J6: "  << m_pos.at(6));
+      ROS_FATAL_STREAM( " E0: "  << m_pos.at(0) << "\n\n\n");
+
+      m_cmd_pos = m_pos;
+
+
+      ROS_FATAL_STREAM( "FIRST COMMAND \n\n\n\n J1: "  << m_cmd_pos.at(1));
+      ROS_FATAL_STREAM( " J2: "  << m_cmd_pos.at(2));
+      ROS_FATAL_STREAM( " J3: "  << m_cmd_pos.at(3));
+      ROS_FATAL_STREAM( " J4: "  << m_cmd_pos.at(4));
+      ROS_FATAL_STREAM( " J5: "  << m_cmd_pos.at(5));
+      ROS_FATAL_STREAM( " J6: "  << m_cmd_pos.at(6));
+      ROS_FATAL_STREAM( " E0: "  << m_cmd_pos.at(0) << "\n\n\n");
+
+
     }
 
     CNR_INFO(m_logger,"First message received");
     
-
-    cnr::drapebot::drapebot_msg_hw last_msg;
-    if (!mqtt_drapebot_client_->isFirstMsgRec())
-    {
-      CNR_WARN(m_logger,"First feedback message not received yet");
-    }
-    else
-    {
-      mqtt_drapebot_client_->getLastReceivedMessage(last_msg);
-      print_last_msg(this->m_logger, last_msg);      
-    }
     
   }
   else
   {
     vector_to_mqtt(m_pos,mqtt_drapebot_client_);
+    mqtt_to_vector(mqtt_drapebot_client_,m_cmd_pos);
+    mqtt_to_vector(mqtt_drapebot_client_,m_pos);
   }
   
-  mqtt_to_vector(mqtt_drapebot_client_,m_cmd_pos);
-  mqtt_to_vector(mqtt_drapebot_client_,m_pos);
-  m_start_pos = m_pos;
   cmd_pos_holder_ = m_pos;
   
   
   if(verbose_)
   {
     print_vector(m_logger, "INITIAL POSITION" , m_cmd_pos  , cnr_logger::BLUE().c_str());
-    print_vector(m_logger, "STARTING POSITION", m_start_pos, cnr_logger::CYAN().c_str());
   }
-  
-  m_start_pos = m_pos;
-  m_old_pos = m_pos;
   
   cmd_pos_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("cmd_joint_pos",1);
   fb_pos_pub_  = m_robothw_nh.advertise<sensor_msgs::JointState>("fb_joint_pos",1);
@@ -597,6 +647,19 @@ bool MQTTRobotHW::doInit()
   old_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("old_pos",1);
   delta_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("delta_pos",1);
   
+
+
+      m_cmd_pos = m_pos;
+      ROS_FATAL_STREAM( " COMMAND at the end \n\n\n\n J1: "  << m_cmd_pos.at(1));
+      ROS_FATAL_STREAM( " J2: "  << m_cmd_pos.at(2));
+      ROS_FATAL_STREAM( " J3: "  << m_cmd_pos.at(3));
+      ROS_FATAL_STREAM( " J4: "  << m_cmd_pos.at(4));
+      ROS_FATAL_STREAM( " J5: "  << m_cmd_pos.at(5));
+      ROS_FATAL_STREAM( " J6: "  << m_cmd_pos.at(6));
+      ROS_FATAL_STREAM( " E0: "  << m_cmd_pos.at(0) << "\n\n\n");
+
+
+
   CNR_RETURN_TRUE(m_logger);
 }
 
@@ -622,32 +685,32 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     cnr::drapebot::drapebot_msg_hw m_;
     vector_to_mqtt_msg(m_cmd_pos,m_);
-    
+
     mqtt_drapebot_client_->publish_with_tracking(m_mqtt_command_topic,m_);
       
     {
-    //---------------------------- debug rostopic ------------------------------
-    sensor_msgs::JointState js;
-    
-    js.name.push_back("E0");
-    js.name.push_back("J1");
-    js.name.push_back("J2");
-    js.name.push_back("J3");
-    js.name.push_back("J4");
-    js.name.push_back("J5");
-    js.name.push_back("J6");
+      //---------------------------- debug rostopic ------------------------------
+      sensor_msgs::JointState js;
+      
+      js.name.push_back("E0");
+      js.name.push_back("J1");
+      js.name.push_back("J2");
+      js.name.push_back("J3");
+      js.name.push_back("J4");
+      js.name.push_back("J5");
+      js.name.push_back("J6");
 
-    js.position.push_back(m_.E0);
-    js.position.push_back(m_.J1);
-    js.position.push_back(m_.J2);
-    js.position.push_back(m_.J3);
-    js.position.push_back(m_.J4);
-    js.position.push_back(m_.J5);
-    js.position.push_back(m_.J6);
-    
-    js.header.stamp = ros::Time::now();
-    
-    cmd_pos_pub_.publish(js);
+      js.position.push_back(m_.E0);
+      js.position.push_back(m_.J1);
+      js.position.push_back(m_.J2);
+      js.position.push_back(m_.J3);
+      js.position.push_back(m_.J4);
+      js.position.push_back(m_.J5);
+      js.position.push_back(m_.J6);
+      
+      js.header.stamp = ros::Time::now();
+      
+      cmd_pos_pub_.publish(js);
     }
   }
   else
@@ -675,29 +738,29 @@ bool MQTTRobotHW::doWrite(const ros::Time& /*time*/, const ros::Duration& period
     
     int size_pl = sizeof(pl);
     mqtt_drapebot_client_->publish(pl, size_pl, m_mqtt_command_topic.c_str());
-        {
-    //---------------------------- debug rostopic ------------------------------
-    sensor_msgs::JointState js;
-    
-    js.name.push_back("E0");
-    js.name.push_back("J1");
-    js.name.push_back("J2");
-    js.name.push_back("J3");
-    js.name.push_back("J4");
-    js.name.push_back("J5");
-    js.name.push_back("J6");
+    {
+      //---------------------------- debug rostopic ------------------------------
+      sensor_msgs::JointState js;
+      
+      js.name.push_back("E0");
+      js.name.push_back("J1");
+      js.name.push_back("J2");
+      js.name.push_back("J3");
+      js.name.push_back("J4");
+      js.name.push_back("J5");
+      js.name.push_back("J6");
 
-    js.position.push_back(m_cmd_pos.at(0));
-    js.position.push_back(m_cmd_pos.at(1));
-    js.position.push_back(m_cmd_pos.at(2));
-    js.position.push_back(m_cmd_pos.at(3));
-    js.position.push_back(m_cmd_pos.at(4));
-    js.position.push_back(m_cmd_pos.at(5));
-    js.position.push_back(m_cmd_pos.at(6));
-    
-    js.header.stamp = ros::Time::now();
-    
-    cmd_pos_pub_.publish(js);
+      js.position.push_back(m_cmd_pos.at(0));
+      js.position.push_back(m_cmd_pos.at(1));
+      js.position.push_back(m_cmd_pos.at(2));
+      js.position.push_back(m_cmd_pos.at(3));
+      js.position.push_back(m_cmd_pos.at(4));
+      js.position.push_back(m_cmd_pos.at(5));
+      js.position.push_back(m_cmd_pos.at(6));
+      
+      js.header.stamp = ros::Time::now();
+      
+      cmd_pos_pub_.publish(js);
     }
     
   }

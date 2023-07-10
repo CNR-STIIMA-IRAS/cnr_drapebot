@@ -154,7 +154,7 @@ int main(int argc, char **argv)
     configuration_srv.waitForExistence();
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /configuration_manager/start_configuration connected ! ");
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waitin for server /reset_pose_estimation");
-    reset_pose_estimation.waitForExistence();
+    //reset_pose_estimation.waitForExistence();   // TODO: capire come gestire inizializzazione della stima della posa
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /reset_pose_estimation connected ! ");
 
   }
