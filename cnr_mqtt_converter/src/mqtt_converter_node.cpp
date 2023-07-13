@@ -181,10 +181,15 @@ int main(int argc, char **argv)
   static tf::TransformBroadcaster br;
 //   end
 
+  bool trg_pose_available = false;
+
   while(ros::ok())
   {
     ROS_INFO_STREAM_THROTTLE(5.0,"[ " << robot_hw_ns << " ]" << " - looping");
     client.loop();
+
+    if(trg_pose_available)
+      br.sendTransform(tf::StampedTransform(goal_tf, ros::Time::now(), base_link, target_pose));
 
     if(client.isNewMessageAvailable())
     {
@@ -255,6 +260,7 @@ int main(int argc, char **argv)
       Eigen::VectorXd vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(trajectory_msg.trajectory.points.back().positions.data(), trajectory_msg.trajectory.points.back().positions.size());
       T_bt = chain_bt->getTransformation(vec);
       tf::poseEigenToTF (T_bt, goal_tf);
+      trg_pose_available = true;
       
       ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " - waitin for execution");
       
