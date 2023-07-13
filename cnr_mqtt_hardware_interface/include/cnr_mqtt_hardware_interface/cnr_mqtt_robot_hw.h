@@ -48,10 +48,6 @@
 #include <geometry_msgs/WrenchStamped.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <cnr_mqtt_hardware_interface/mqtt_client_hw.h>
-// #include <mosquittopp.h>
-
-
-
 
 
 namespace cnr_hardware_interface
@@ -76,6 +72,7 @@ protected:
   void initialJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg);
   void wrenchCb(const geometry_msgs::WrenchStamped::ConstPtr& msg);
   void trajCb(const sensor_msgs::JointState::ConstPtr& msg);
+  void EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg);
 
   hardware_interface::JointStateInterface           m_js_jh;   //interface for reading joint state
   hardware_interface::PositionJointInterface        m_p_jh;    //interface for writing position target
@@ -89,6 +86,8 @@ protected:
   bool m_v_jh_active;
   bool m_e_jh_active;
   
+  bool first_ros_fb_msg_rec_;
+
   bool use_delta_target_pos_;
   bool delta_pos_from_start_;
 
@@ -105,10 +104,9 @@ protected:
   std::vector<double> m_cmd_vel;   //target velocity
   std::vector<double> m_cmd_eff;   //target effort
   
-  //std::vector<double> m_old_command_pos;   // previous setpoint position position
-
   ros::Subscriber m_wrench_sub;
   ros::Subscriber m_traj_sub;
+  ros::Subscriber m_robot_feedback;
   std::string m_frame_id;
   std::string m_mqtt_command_topic;
   std::string m_mqtt_feedback_topic;
@@ -132,14 +130,15 @@ protected:
   ros::Publisher old_pub_;
   ros::Publisher delta_pub_;
   
-  bool USE_REAL_ROBOT;
+  bool use_real_robot_;
   bool verbose_;
   bool use_json_;
+  bool use_ros_feedback_;
   bool check_last_;
   
   int command_count_ = 0;
 
-  friend void setParam(MQTTRobotHW* hw, const std::string& ns);
+  friend void setParam(MQTTRobotHW* hw, const std::string& ns);  
 };
 
 void setParam(MQTTRobotHW* hw, const std::string& ns);

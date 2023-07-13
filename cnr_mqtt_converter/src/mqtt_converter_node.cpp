@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "cnr_mqtt/mqtt_converter_client.h"
+#include <cnr_mqtt_converter/mqtt_converter_client.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/simple_client_goal_state.h>
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
   ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << broker_address);
   ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << client_id);
   
-  cnr::drapebot_converter::MQTTDrapebotClientHw client(client_id, broker_address, port);
+  cnr::drapebot_converter::MQTTClient client(client_id, broker_address, port);
   
   ros::Rate r = rate;
   
@@ -154,7 +154,7 @@ int main(int argc, char **argv)
     configuration_srv.waitForExistence();
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /configuration_manager/start_configuration connected ! ");
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waitin for server /reset_pose_estimation");
-    reset_pose_estimation.waitForExistence();
+    //reset_pose_estimation.waitForExistence();   // TODO: capire come gestire inizializzazione della stima della posa
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /reset_pose_estimation connected ! ");
 
   }
@@ -181,10 +181,15 @@ int main(int argc, char **argv)
   static tf::TransformBroadcaster br;
 //   end
 
+  bool trg_pose_available = false;
+
   while(ros::ok())
   {
     ROS_INFO_STREAM_THROTTLE(5.0,"[ " << robot_hw_ns << " ]" << " - looping");
     client.loop();
+
+    if(trg_pose_available)
+      br.sendTransform(tf::StampedTransform(goal_tf, ros::Time::now(), base_link, target_pose));
 
     if(client.isNewMessageAvailable())
     {
@@ -255,6 +260,7 @@ int main(int argc, char **argv)
       Eigen::VectorXd vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(trajectory_msg.trajectory.points.back().positions.data(), trajectory_msg.trajectory.points.back().positions.size());
       T_bt = chain_bt->getTransformation(vec);
       tf::poseEigenToTF (T_bt, goal_tf);
+      trg_pose_available = true;
       
       ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " - waitin for execution");
       

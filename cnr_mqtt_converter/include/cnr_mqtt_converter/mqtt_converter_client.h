@@ -1,4 +1,3 @@
-
 /*
  *  Software License Agreement (New BSD License)
  *
@@ -34,87 +33,86 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef cnr_drapebot__DRAPEBOT_MQTT_CLIENT_H
+#define cnr_drapebot__DRAPEBOT_MQTT_CLIENT_H
 
-#ifndef __DRAPEBOT_MQTT_CLIENT__
-#define __DRAPEBOT_MQTT_CLIENT__
-
+#include <ros/ros.h>
 #include <mutex>
-#include <cnr_mqtt_client/cnr_mqtt_client.h>
+#include <ctime>
+#include <chrono>
+#include <fstream>
 
-#define MSG_LENGTH 7 // The length is given by 6 axes robot + linear axis
+#include <cnr_mqtt_client/cnr_mqtt_client.h>
+#include <jsoncpp/json/json.h>
+
+#include <control_msgs/FollowJointTrajectoryActionGoal.h>
+
+#define MAX_PAYLOAD 50
+#define DEFAULT_KEEP_ALIVE 60
 
 
 namespace cnr
 {
-  namespace drapebot
+  namespace drapebot_converter
   {
-    struct drapebot_msg_hw 
-    {
-      double J1;
-      double J2;
-      double J3;
-      double J4;
-      double J5;
-      double J6;
-      double E0;
-      unsigned long int count;
-    }; 
-
-
-    class DrapebotMsgDecoderHw: public cnr::mqtt::MsgDecoder
+    class MsgDecoder: public cnr::mqtt::MsgDecoder
     {
     public:
-      DrapebotMsgDecoderHw(cnr::drapebot::drapebot_msg_hw* mqtt_msg, bool use_json): mqtt_msg_(mqtt_msg), use_json_(use_json), first_message_rec_(false) {};
-      
-      // The method should be reimplemented on the base of the application
+      MsgDecoder(control_msgs::FollowJointTrajectoryGoal* trajectory_msg): trajectory_msg_(trajectory_msg){};
       void on_message(const struct mosquitto_message *msg) override;
-      bool isFirstMsgRec(){return first_message_rec_;};
-      
+
+      control_msgs::FollowJointTrajectoryGoal *trajectory_msg_;
+      bool cooperative_;
+      void setJointParams(const std::vector<std::string>& joint_names);
+
     private:
-      cnr::drapebot::drapebot_msg_hw* mqtt_msg_;
-      bool use_json_;
-      bool first_message_rec_;
-      void vec_to_msg(const std::vector<double>& v, cnr::drapebot::drapebot_msg_hw* msg);
+      control_msgs::FollowJointTrajectoryGoal transform_trajectory(Json::Value traj);
+      bool JsonToMsg(Json::Value traj, control_msgs::FollowJointTrajectoryGoal *msg);
+      std::vector<std::string> joint_names_;
+      int n_joints_;
+
     };
 
-    class DrapebotMsgEncoderHw: public cnr::mqtt::MsgEncoder
+    class MsgEncoder: public cnr::mqtt::MsgEncoder
     {
     public:
-      DrapebotMsgEncoderHw(cnr::drapebot::drapebot_msg_hw* mqtt_msg): mqtt_msg_(mqtt_msg) {};
-      
-      // The method should be reimplemented on the base of the application
+      MsgEncoder() {};
       void on_publish(int mid) override;
+
     private:
-      cnr::drapebot::drapebot_msg_hw* mqtt_msg_;
     };
 
-    class MQTTDrapebotClientHw
+    class MQTTClient
     {
     public:
-      MQTTDrapebotClientHw (const char *id, const char *host, int port, int keepalive = 60, bool use_json = false);
-      ~MQTTDrapebotClientHw();
+      MQTTClient (const char *id, const char *host, const int port, const bool use_json = true, int keepalive = 60);
+      ~MQTTClient();
 
       int stop();
-      int loop(int timeout = 4);
-      // int reconnect(unsigned int reconnect_delay, unsigned int reconnect_delay_max, bool reconnect_exponential_backoff);  
+      int loop(int timeout=2000);
+      int reconnect();  
       int subscribe(int *mid, const char *sub, int qos);
       int unsubscribe(int *mid, const char *sub);
       int publish(const void* payload, int& payload_len, const char* topic_name);
-      void publish_with_tracking(const std::string& cmd_topic, drapebot_msg_hw& m);
      
-      bool getLastReceivedMessage(cnr::drapebot::drapebot_msg_hw& last_msg);
+      //bool isFirstMsgRec(){ return msg_decoder_->isFirstMsgRec(); };
+
+      bool getLastReceivedMessage(control_msgs::FollowJointTrajectoryGoal& last_msg, bool& cooperative);
       bool isNewMessageAvailable();
       bool isDataValid();    
-      bool isFirstMsgRec(){return drapebot_msg_hw_decoder_->isFirstMsgRec(); };
+      
+      bool isTrajCooperative();    
+      
+      bool cooperative_;
+      
+      void set_joint_names(std::vector<std::string> jn);
+      void set_config(const std::string& config);
+      std::string get_config();
 
-      int get_msg_count_cmd(){return msg_count_cmd;};
-      void set_msg_count_cmd(const int& count){msg_count_cmd = count;};
-      
-      bool getFirstMessageStatus();
-      
-      
-      cnr::drapebot::drapebot_msg_hw* mqtt_msg_enc_;
-      cnr::drapebot::drapebot_msg_hw* mqtt_msg_dec_;
+      control_msgs::FollowJointTrajectoryGoal* mqtt_traj_msg_dec_;
+
+      int n_joints_;  
+      std::vector<std::string> joint_names_;
 
     private:
       std::mutex mtx_mqtt_;  
@@ -122,17 +120,16 @@ namespace cnr
       unsigned long int msg_count_cmd;
 
       bool first_message_received_;
+      std::string configuration_;
       
-      cnr::drapebot::DrapebotMsgDecoderHw* drapebot_msg_hw_decoder_;
-      cnr::drapebot::DrapebotMsgEncoderHw* drapebot_msg_hw_encoder_;
+      cnr::drapebot_converter::MsgDecoder* msg_decoder_;
+      cnr::drapebot_converter::MsgEncoder* msg_encoder_;
 
 
       cnr::mqtt::MQTTClient* mqtt_client_;
+
     };
   }
 
 }
-
-
-
 #endif
