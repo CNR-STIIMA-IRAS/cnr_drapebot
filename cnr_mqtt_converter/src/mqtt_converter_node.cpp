@@ -186,7 +186,7 @@ int main(int argc, char **argv)
   while(ros::ok())
   {
     ROS_INFO_STREAM_THROTTLE(5.0,"[ " << robot_hw_ns << " ]" << " - looping");
-    client.loop();
+    client.loop(5);
 
     if(trg_pose_available)
       br.sendTransform(tf::StampedTransform(goal_tf, ros::Time::now(), base_link, target_pose));
@@ -277,11 +277,11 @@ int main(int argc, char **argv)
         
         if(as == actionlib::SimpleClientGoalState::ACTIVE) 
           ROS_INFO_STREAM_THROTTLE(1.0,YELLOW<<"executing trajectory. State :  ACTIVE !" );
-        else if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
-        {
-          ROS_INFO_STREAM(GREEN<< "[ " << robot_hw_ns << " ]executing trajectory. State :  SUCCEEDED !" );
-          ROS_INFO_STREAM(GREEN << "[ " << robot_hw_ns << " ]Trajectory executed correctly ! ");
-        }
+        // else if(as == actionlib::SimpleClientGoalState::SUCCEEDED) 
+        // {
+        //   ROS_INFO_STREAM(GREEN<< "[ " << robot_hw_ns << " ]executing trajectory. State :  SUCCEEDED !" );
+        //   ROS_INFO_STREAM(GREEN << "[ " << robot_hw_ns << " ]Trajectory executed correctly ! ");
+        // }
         else if(as == actionlib::SimpleClientGoalState::ABORTED) 
         {
           ROS_INFO_STREAM(YELLOW<< "[ " << robot_hw_ns << " ]executing trajectory. State :  ABORTED !" );
@@ -311,7 +311,7 @@ int main(int argc, char **argv)
           break;
         }
         
-        client.loop();
+        client.loop(5);
         
         if(client.isNewMessageAvailable())
         {
