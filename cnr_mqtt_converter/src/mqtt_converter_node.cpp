@@ -8,7 +8,7 @@
 #include <rosdyn_core/primitives.h>
 #include <tf/transform_broadcaster.h>
 #include <tf_conversions/tf_eigen.h>
-
+#include <thread> 
 
 
 static const char* DEFAULT      = "\033[0m";
@@ -30,6 +30,15 @@ static const char* BOLDMAGENTA  = "\033[1m\033[35m";
 static const char* BOLDCYAN     = "\033[1m\033[36m";
 static const char* BOLDWHITE    = "\033[1m\033[37m";
 
+
+ros::ServiceClient reset_pose_estimation_;
+void reset_pose_call() 
+{
+  ROS_INFO_STREAM(CYAN<<"resetting human estimation pose ");
+  std_srvs::Trigger reset_pose;
+  reset_pose_estimation_.call(reset_pose);
+  ROS_INFO_STREAM(CYAN<<"pose reset !");
+}
 
 
 
@@ -146,7 +155,7 @@ int main(int argc, char **argv)
   ROS_INFO_STREAM("[ " << robot_hw_ns << " ] - " << action_name<<" connected ! ");
   
   ros::ServiceClient configuration_srv = nh.serviceClient<configuration_msgs::StartConfiguration>("/configuration_manager/start_configuration");
-  ros::ServiceClient reset_pose_estimation = nh.serviceClient<std_srvs::Trigger>("/reset_pose_estimation");
+  reset_pose_estimation_ = nh.serviceClient<std_srvs::Trigger>("/reset_pose_estimation");
     
   if (handle_deformation)
   {
@@ -154,7 +163,7 @@ int main(int argc, char **argv)
     configuration_srv.waitForExistence();
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /configuration_manager/start_configuration connected ! ");
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waitin for server /reset_pose_estimation");
-    //reset_pose_estimation.waitForExistence();   // TODO: capire come gestire inizializzazione della stima della posa
+    reset_pose_estimation_.waitForExistence();   // TODO: capire come gestire inizializzazione della stima della posa
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /reset_pose_estimation connected ! ");
 
   }
@@ -196,49 +205,26 @@ int main(int argc, char **argv)
       control_msgs::FollowJointTrajectoryGoal trajectory_msg;
       bool cooperative_traj=false;
       client.getLastReceivedMessage(trajectory_msg,cooperative_traj);
-//       try
-//       {
-//       cooperative_traj=client.isTrajCooperative();
-//       }
-//       catch(const std::exception& e)
-//       {
-//         ROS_ERROR_STREAM("[ "<<robot_hw_ns<<" ] Exception thrown in isTrajCooperative: " <<  e.what() );
-//       }
-      
       
       std_srvs::Trigger reset_pose;
       configuration_msgs::StartConfiguration start;
       if (cooperative_traj)
       {
-        ros::Duration(0.1).sleep();
-        
-        Eigen::VectorXd vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(trajectory_msg.trajectory.points.front().positions.data(), trajectory_msg.trajectory.points.front().positions.size());
-        T_bt = chain_bt->getTransformation(vec);
-        tf::Pose human_tf;
-        tf::poseEigenToTF (T_bt, human_tf);
-        for(int i=0;i<10;i++)
-        {
-//           ROS_INFO_STREAM("publishing tf human");
-//           br.sendTransform(tf::StampedTransform(human_tf, ros::Time::now(), base_link, "human_trg_pose"));
-//           ros::Duration(0.05).sleep();
-        }
         ROS_INFO_STREAM(BOLDYELLOW<<"Deformation active . ");
+        std::thread t(reset_pose_call);
+        ros::Duration(0.1).sleep();
         start.request.start_configuration = "planner_def";
+        start.request.strictness = 1;
+        configuration_srv.call(start);
+        t.join();
       }
       else
       {
         ROS_INFO_STREAM(BOLDWHITE<<"Executing nominal trajectory ");
         start.request.start_configuration = "planner";
+        start.request.strictness = 1;
+        configuration_srv.call(start);
       }
-      start.request.strictness = 1;
-      configuration_srv.call(start);
-      
-//       if (cooperative_traj)
-//       {
-//         ROS_INFO_STREAM(CYAN<<"resetting human estimation pose ");
-//         reset_pose_estimation.call(reset_pose);
-//       }
-      
       
       ROS_INFO_STREAM("trajectory to be executed");
       ROS_INFO_STREAM(trajectory_msg );
