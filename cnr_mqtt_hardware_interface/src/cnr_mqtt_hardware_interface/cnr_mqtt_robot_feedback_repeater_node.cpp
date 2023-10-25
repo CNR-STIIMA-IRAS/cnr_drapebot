@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     std::string feedback_ros_topic;
     if (!nh.getParam("/mqtt_hw/feedback_ros_topic",feedback_ros_topic))
     {
-      feedback_ros_topic = "/abb/joint_states";
+      feedback_ros_topic = "/abb/feedback/joint_states";
       
       ROS_WARN_STREAM("Ros ABB feedback topic " + nh.getNamespace() + "/mqtt_hw/feedback_ros_topic . Using default topic name: " + feedback_ros_topic);
     }

@@ -543,7 +543,7 @@ bool MQTTRobotHW::doInit()
   {
     if (!m_robothw_nh.getParam("feedback_ros_topic",feedback_ros_topic))
     {
-      feedback_ros_topic = "/abb/joint_states";
+      feedback_ros_topic = "/abb/feedback/joint_states";
       ROS_WARN_STREAM("Ros ABB feedback topic " + m_robothw_nh.getNamespace() + "/mqtt_hw/feedback_ros_topic . Using default topic name: " + feedback_ros_topic);
     }
 
