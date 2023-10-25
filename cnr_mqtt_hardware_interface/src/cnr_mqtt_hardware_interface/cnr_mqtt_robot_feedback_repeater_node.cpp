@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     if (!nh.getParam("/mqtt_hw/port",port))
     {
       port = 1883;
-      ROS_WARN_STREAM("port not found under " + nh.getNamespace() + "mqtt_hw/port. Using defalut broker address: "+ std::to_string( port));      
+      ROS_WARN_STREAM("port not found under " + nh.getNamespace() + "mqtt_hw/port. Using defalut port: "+ std::to_string( port));      
     }    
 
     bool use_json;
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     if (!nh.getParam("/mqtt_hw/feedback_mqtt_topic", mqtt_feedback_topic))
     {
       mqtt_feedback_topic = "mqtt_feedback_topic";
-      ROS_WARN_STREAM("mqtt_feedback_topic not found under " + nh.getNamespace() + "mqtt_hw/mqtt_feedback_topic . Using defalut broker address: "+ mqtt_feedback_topic);  
+      ROS_WARN_STREAM("mqtt_feedback_topic not found under " + nh.getNamespace() + "mqtt_hw/mqtt_feedback_topic . Using defalut mqtt feedback topic name: "+ mqtt_feedback_topic);  
     }
 
     ROS_INFO_STREAM("Subscribing to: " << mqtt_feedback_topic);
