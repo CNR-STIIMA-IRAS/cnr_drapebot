@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     }
 
 
-    ros::Publisher jointStatePublisher = nh.advertise<sensor_msgs::JointState>("/abb/joint_state", 1);
+    ros::Publisher jointStatePublisher = nh.advertise<sensor_msgs::JointState>(feedback_ros_topic, 1);
 
     // ---- MQTT params ----
     std::string client_id = "mqtt_robot_feedback_repeater_node";

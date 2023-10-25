@@ -254,7 +254,7 @@ void MQTTRobotHW::EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr&
   if(!first_ros_fb_msg_rec_)
   {
     first_ros_fb_msg_rec_ = true;
-    ROS_FATAL("first feedback ros message received!");
+    //ROS_FATAL("first feedback ros message received!");
   }
 
   m_pos.at(0) = 0.0;
@@ -586,7 +586,7 @@ bool MQTTRobotHW::doInit()
 
       auto first_msg_ptr = ros::topic::waitForMessage<sensor_msgs::JointState>(feedback_ros_topic,m_robothw_nh,ros::Duration(1.0));
 
-      ROS_FATAL_STREAM(  "first msg: " <<  *first_msg_ptr);
+      //ROS_FATAL_STREAM(  "first msg: " <<  *first_msg_ptr);
 
       print_vector(m_logger, "INITIAL FEEDBACK POSITION" , m_pos  , cnr_logger::BLUE().c_str());
 
@@ -599,24 +599,24 @@ bool MQTTRobotHW::doInit()
       m_pos.at(6) = first_msg_ptr->position[5];
 
 
-      ROS_FATAL_STREAM( "FIRST FEEDBACK \n\n\n\n J1: "  << m_pos.at(1));
-      ROS_FATAL_STREAM( " J2: "  << m_pos.at(2));
-      ROS_FATAL_STREAM( " J3: "  << m_pos.at(3));
-      ROS_FATAL_STREAM( " J4: "  << m_pos.at(4));
-      ROS_FATAL_STREAM( " J5: "  << m_pos.at(5));
-      ROS_FATAL_STREAM( " J6: "  << m_pos.at(6));
-      ROS_FATAL_STREAM( " E0: "  << m_pos.at(0) << "\n\n\n");
+      //ROS_FATAL_STREAM( "FIRST FEEDBACK \n\n\n\n J1: "  << m_pos.at(1));
+      //ROS_FATAL_STREAM( " J2: "  << m_pos.at(2));
+      // ROS_FATAL_STREAM( " J3: "  << m_pos.at(3));
+      // ROS_FATAL_STREAM( " J4: "  << m_pos.at(4));
+      // ROS_FATAL_STREAM( " J5: "  << m_pos.at(5));
+      // ROS_FATAL_STREAM( " J6: "  << m_pos.at(6));
+      // ROS_FATAL_STREAM( " E0: "  << m_pos.at(0) << "\n\n\n");
 
       m_cmd_pos = m_pos;
 
 
-      ROS_FATAL_STREAM( "FIRST COMMAND \n\n\n\n J1: "  << m_cmd_pos.at(1));
-      ROS_FATAL_STREAM( " J2: "  << m_cmd_pos.at(2));
-      ROS_FATAL_STREAM( " J3: "  << m_cmd_pos.at(3));
-      ROS_FATAL_STREAM( " J4: "  << m_cmd_pos.at(4));
-      ROS_FATAL_STREAM( " J5: "  << m_cmd_pos.at(5));
-      ROS_FATAL_STREAM( " J6: "  << m_cmd_pos.at(6));
-      ROS_FATAL_STREAM( " E0: "  << m_cmd_pos.at(0) << "\n\n\n");
+      // ROS_FATAL_STREAM( "FIRST COMMAND \n\n\n\n J1: "  << m_cmd_pos.at(1));
+      // ROS_FATAL_STREAM( " J2: "  << m_cmd_pos.at(2));
+      // ROS_FATAL_STREAM( " J3: "  << m_cmd_pos.at(3));
+      // ROS_FATAL_STREAM( " J4: "  << m_cmd_pos.at(4));
+      // ROS_FATAL_STREAM( " J5: "  << m_cmd_pos.at(5));
+      // ROS_FATAL_STREAM( " J6: "  << m_cmd_pos.at(6));
+      // ROS_FATAL_STREAM( " E0: "  << m_cmd_pos.at(0) << "\n\n\n");
 
 
     }
@@ -649,16 +649,14 @@ bool MQTTRobotHW::doInit()
   
 
 
-      m_cmd_pos = m_pos;
-      ROS_FATAL_STREAM( " COMMAND at the end \n\n\n\n J1: "  << m_cmd_pos.at(1));
-      ROS_FATAL_STREAM( " J2: "  << m_cmd_pos.at(2));
-      ROS_FATAL_STREAM( " J3: "  << m_cmd_pos.at(3));
-      ROS_FATAL_STREAM( " J4: "  << m_cmd_pos.at(4));
-      ROS_FATAL_STREAM( " J5: "  << m_cmd_pos.at(5));
-      ROS_FATAL_STREAM( " J6: "  << m_cmd_pos.at(6));
-      ROS_FATAL_STREAM( " E0: "  << m_cmd_pos.at(0) << "\n\n\n");
-
-
+  m_cmd_pos = m_pos;
+  // ROS_FATAL_STREAM( " COMMAND at the end \n\n\n\n J1: "  << m_cmd_pos.at(1));
+  // ROS_FATAL_STREAM( " J2: "  << m_cmd_pos.at(2));
+  // ROS_FATAL_STREAM( " J3: "  << m_cmd_pos.at(3));
+  // ROS_FATAL_STREAM( " J4: "  << m_cmd_pos.at(4));
+  // ROS_FATAL_STREAM( " J5: "  << m_cmd_pos.at(5));
+  // ROS_FATAL_STREAM( " J6: "  << m_cmd_pos.at(6));
+  // ROS_FATAL_STREAM( " E0: "  << m_cmd_pos.at(0) << "\n\n\n");
 
   CNR_RETURN_TRUE(m_logger);
 }
