@@ -6,7 +6,7 @@
 
 int main(int argc, char **argv)
 {
-    ros::init(argc,argv,"test_mqtt_publisher");
+    ros::init(argc,argv,"mqtt_to_ros_abb_feedback_repeater");
     ros::NodeHandle nh;
     ros::Rate r(250); // 250 hz
     
