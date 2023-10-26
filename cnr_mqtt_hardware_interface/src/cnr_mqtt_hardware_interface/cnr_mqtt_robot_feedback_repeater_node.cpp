@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 
     while(ros::ok())
     {
-      if (mqtt_drapebot_client.loop() != 0 )
+      if (mqtt_drapebot_client.loop(4) != 0 )
       {
         ROS_ERROR_STREAM("Error on Mosquitto loop function");
         return -1;
@@ -115,8 +115,7 @@ int main(int argc, char **argv)
 
         jointStatePublisher.publish(jointState);        
       }
-      
-      r.sleep();
+    
     }
 
     return 0;
