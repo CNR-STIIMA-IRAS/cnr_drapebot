@@ -238,15 +238,20 @@ void MQTTRobotHW::wrenchCb(const geometry_msgs::WrenchStamped::ConstPtr &msg)
 
 void MQTTRobotHW::trajCb(const sensor_msgs::JointState::ConstPtr &msg)
 {  
-  m_nom_traj.at(0) = msg->position[0];
-  m_nom_traj.at(1) = msg->position[1];
-  m_nom_traj.at(2) = msg->position[2];
-  m_nom_traj.at(3) = msg->position[3];
-  m_nom_traj.at(4) = msg->position[4];
-  m_nom_traj.at(5) = msg->position[5];
-  m_nom_traj.at(6) = msg->position[6];
+  if ( msg->position.size() != 0 )
+  {
+    m_nom_traj.at(0) = msg->position[0];
+    m_nom_traj.at(1) = msg->position[1];
+    m_nom_traj.at(2) = msg->position[2];
+    m_nom_traj.at(3) = msg->position[3];
+    m_nom_traj.at(4) = msg->position[4];
+    m_nom_traj.at(5) = msg->position[5];
+    m_nom_traj.at(6) = msg->position[6];
+  }
+  else
+    CNR_WARN(m_logger,"received a an empty trajectory.");
 
-  CNR_TRACE_THROTTLE(m_logger,10,"received a wrench");
+  CNR_TRACE_THROTTLE(m_logger,10,"received a trajectory.");
 }
 
 void MQTTRobotHW::EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
@@ -254,18 +259,22 @@ void MQTTRobotHW::EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr&
   if(!first_ros_fb_msg_rec_)
   {
     first_ros_fb_msg_rec_ = true;
-    //ROS_FATAL("first feedback ros message received!");
   }
 
-  m_pos.at(0) = 0.0;
-  m_pos.at(1) = msg->position[0];
-  m_pos.at(2) = msg->position[1];
-  m_pos.at(3) = msg->position[2];
-  m_pos.at(4) = msg->position[3];
-  m_pos.at(5) = msg->position[4];
-  m_pos.at(6) = msg->position[5];
+  if ( msg->position.size() != 0 )
+  {
+    m_pos.at(0) = 0.0;
+    m_pos.at(1) = msg->position[0];
+    m_pos.at(2) = msg->position[1];
+    m_pos.at(3) = msg->position[2];
+    m_pos.at(4) = msg->position[3];
+    m_pos.at(5) = msg->position[4];
+    m_pos.at(6) = msg->position[5];
+  }
+  else
+    CNR_WARN(m_logger,"received a an empty feedback message.");
 
-  CNR_TRACE_THROTTLE(m_logger,10,"received a wrench");
+  CNR_TRACE_THROTTLE(m_logger,10,"received a feedback.");
 }
 
 bool MQTTRobotHW::doInit()
