@@ -59,17 +59,6 @@ void mqtt_to_vector(const cnr::drapebot::MQTTDrapebotClientHw* client,std::vecto
     ret.at(0) = client->mqtt_msg_dec_->E0;
 }
 
-// void ros_msg_to_vector(const sensor_msgs::JointState msg, std::vector<double> & ret)
-// {    
-//   ret.at(1) = client->mqtt_msg_dec_->J1;
-//   ret.at(2) = client->mqtt_msg_dec_->J2;
-//   ret.at(3) = client->mqtt_msg_dec_->J3;
-//   ret.at(4) = client->mqtt_msg_dec_->J4;
-//   ret.at(5) = client->mqtt_msg_dec_->J5;
-//   ret.at(6) = client->mqtt_msg_dec_->J6;
-//   ret.at(0) = client->mqtt_msg_dec_->E0;
-// }
-
 void mqtt_msg_to_vector(const cnr::drapebot::drapebot_msg_hw msg,std::vector<double>& ret)
 {
   if(ret.size()!=7)
@@ -181,8 +170,6 @@ bool check_vector_distances(cnr_logger::TraceLogger& logger, std::vector<double>
   
 }
 
-
-
 namespace cnr_hardware_interface
 {
 
@@ -232,7 +219,7 @@ void MQTTRobotHW::wrenchCb(const geometry_msgs::WrenchStamped::ConstPtr &msg)
   m_ft_sensor.at(4)=msg->wrench.torque.y;
   m_ft_sensor.at(5)=msg->wrench.torque.z;
 
-  CNR_TRACE_THROTTLE(m_logger,10,"received a wrench");
+  CNR_TRACE_THROTTLE(m_logger,10,"Received a wrench");
 }
 
 
@@ -249,7 +236,7 @@ void MQTTRobotHW::trajCb(const sensor_msgs::JointState::ConstPtr &msg)
     m_nom_traj.at(6) = msg->position[6];
   }
   else
-    CNR_WARN(m_logger,"received a an empty trajectory.");
+    CNR_WARN(m_logger,"Received a an empty trajectory.");
 
   CNR_TRACE_THROTTLE(m_logger,10,"received a trajectory.");
 }
@@ -257,9 +244,7 @@ void MQTTRobotHW::trajCb(const sensor_msgs::JointState::ConstPtr &msg)
 void MQTTRobotHW::EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
   if(!first_ros_fb_msg_rec_)
-  {
     first_ros_fb_msg_rec_ = true;
-  }
 
   if ( msg->position.size() != 0 )
   {
@@ -272,7 +257,7 @@ void MQTTRobotHW::EGMJointStateCallback(const sensor_msgs::JointState::ConstPtr&
     m_pos.at(6) = msg->position[5];
   }
   else
-    CNR_WARN(m_logger,"received a an empty feedback message.");
+    CNR_WARN(m_logger,"Received a an empty feedback message.");
 
   CNR_TRACE_THROTTLE(m_logger,10,"received a feedback.");
 }
@@ -338,7 +323,6 @@ bool MQTTRobotHW::doInit()
   for(size_t i=0;i<resourceNumber();i++)
   {
     std::string joint_name = resourceNames().at(i);
-    //auto i = &joint_name - &m_resource_names[0];
 
     hardware_interface::JointStateHandle state_handle(joint_name, &(m_pos.at(i)), &(m_vel.at(i)), &(m_eff.at(i)));
 
@@ -595,8 +579,6 @@ bool MQTTRobotHW::doInit()
 
       auto first_msg_ptr = ros::topic::waitForMessage<sensor_msgs::JointState>(feedback_ros_topic,m_robothw_nh,ros::Duration(1.0));
 
-      //ROS_FATAL_STREAM(  "first msg: " <<  *first_msg_ptr);
-
       print_vector(m_logger, "INITIAL FEEDBACK POSITION" , m_pos  , cnr_logger::BLUE().c_str());
 
       m_pos.at(0) = 0.0;
@@ -607,26 +589,7 @@ bool MQTTRobotHW::doInit()
       m_pos.at(5) = first_msg_ptr->position[4];
       m_pos.at(6) = first_msg_ptr->position[5];
 
-
-      //ROS_FATAL_STREAM( "FIRST FEEDBACK \n\n\n\n J1: "  << m_pos.at(1));
-      //ROS_FATAL_STREAM( " J2: "  << m_pos.at(2));
-      // ROS_FATAL_STREAM( " J3: "  << m_pos.at(3));
-      // ROS_FATAL_STREAM( " J4: "  << m_pos.at(4));
-      // ROS_FATAL_STREAM( " J5: "  << m_pos.at(5));
-      // ROS_FATAL_STREAM( " J6: "  << m_pos.at(6));
-      // ROS_FATAL_STREAM( " E0: "  << m_pos.at(0) << "\n\n\n");
-
       m_cmd_pos = m_pos;
-
-
-      // ROS_FATAL_STREAM( "FIRST COMMAND \n\n\n\n J1: "  << m_cmd_pos.at(1));
-      // ROS_FATAL_STREAM( " J2: "  << m_cmd_pos.at(2));
-      // ROS_FATAL_STREAM( " J3: "  << m_cmd_pos.at(3));
-      // ROS_FATAL_STREAM( " J4: "  << m_cmd_pos.at(4));
-      // ROS_FATAL_STREAM( " J5: "  << m_cmd_pos.at(5));
-      // ROS_FATAL_STREAM( " J6: "  << m_cmd_pos.at(6));
-      // ROS_FATAL_STREAM( " E0: "  << m_cmd_pos.at(0) << "\n\n\n");
-
 
     }
 
@@ -656,16 +619,7 @@ bool MQTTRobotHW::doInit()
   old_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("old_pos",1);
   delta_pub_ = m_robothw_nh.advertise<sensor_msgs::JointState>("delta_pos",1);
   
-
-
   m_cmd_pos = m_pos;
-  // ROS_FATAL_STREAM( " COMMAND at the end \n\n\n\n J1: "  << m_cmd_pos.at(1));
-  // ROS_FATAL_STREAM( " J2: "  << m_cmd_pos.at(2));
-  // ROS_FATAL_STREAM( " J3: "  << m_cmd_pos.at(3));
-  // ROS_FATAL_STREAM( " J4: "  << m_cmd_pos.at(4));
-  // ROS_FATAL_STREAM( " J5: "  << m_cmd_pos.at(5));
-  // ROS_FATAL_STREAM( " J6: "  << m_cmd_pos.at(6));
-  // ROS_FATAL_STREAM( " E0: "  << m_cmd_pos.at(0) << "\n\n\n");
 
   CNR_RETURN_TRUE(m_logger);
 }
