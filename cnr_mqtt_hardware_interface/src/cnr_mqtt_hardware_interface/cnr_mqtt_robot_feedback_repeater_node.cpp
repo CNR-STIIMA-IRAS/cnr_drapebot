@@ -73,6 +73,12 @@ int main(int argc, char **argv)
       ROS_WARN_STREAM("joint_names: " << nh.getNamespace() );
     }
 
+    if (joint_names.size()==0)
+    {
+      ROS_FATAL_STREAM("Empty joint_names, return -1." );
+      return -1;
+    }
+
     sensor_msgs::JointState jointState;
    
     for( std::string& name : joint_names )
@@ -112,5 +118,7 @@ int main(int argc, char **argv)
       
       r.sleep();
     }
+
+    return 0;
 
 }
