@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-
-  <node pkg="cnr_mqtt" type="mqtt_converter" name="mqtt_traj_converter" output="screen"/>
-  <rosparam command="load" file="$(find cnr_mqtt)/config/conf.yaml" />
-
-</launch>
-
-

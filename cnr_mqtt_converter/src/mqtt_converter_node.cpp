@@ -173,11 +173,24 @@ int main(int argc, char **argv)
 //   TO publish goal pose
   std::string base_link, tool_link, target_pose;
   if(!nh.getParam("base_link",base_link))
-    ROS_ERROR_STREAM("base link not found on namespace: "<<nh.getNamespace()<<". retunr!: ");
+  {
+    ROS_ERROR_STREAM("base link not found on namespace: "<< nh.getNamespace() << "base_link. Return!");
+    return -1;
+  }
+    
+
   if(!nh.getParam("tool_link",tool_link))
-    ROS_WARN_STREAM("tool_link not found on namespace: " <<nh.getNamespace()<<". retunr!: ");
+  {
+    ROS_WARN_STREAM("tool_link not found on namespace: " << nh.getNamespace() << "tool_link . Return!");
+    return -1;
+  }
+      
   if(!nh.getParam("target_pose",target_pose))
-    ROS_WARN_STREAM("target_pose not found on namespace: "<<nh.getNamespace()<<". retunr!: ");
+  {
+    ROS_WARN_STREAM("target_pose not found on namespace: "<< nh.getNamespace()<<" target_pose. Return!");
+    return -1;
+  }
+    
   
   urdf::Model urdf_model;
   if (!urdf_model.initParam("robot_description"))
