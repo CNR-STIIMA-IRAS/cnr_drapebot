@@ -32,12 +32,13 @@ static const char* BOLDWHITE    = "\033[1m\033[37m";
 
 
 ros::ServiceClient reset_pose_estimation_;
+
 void reset_pose_call() 
 {
-  ROS_INFO_STREAM(CYAN<<"resetting human estimation pose ");
+  ROS_INFO_STREAM(BOLDCYAN << "Resetting human estimation pose... ");
   std_srvs::Trigger reset_pose;
   reset_pose_estimation_.call(reset_pose);
-  ROS_INFO_STREAM(CYAN<<"pose reset !");
+  ROS_INFO_STREAM(BOLDCYAN << "Pose reset!");
 }
 
 
@@ -162,7 +163,7 @@ int main(int argc, char **argv)
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waitin for server /configuration_manager/start_configuration");
     configuration_srv.waitForExistence();
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /configuration_manager/start_configuration connected ! ");
-    ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waitin for server /reset_pose_estimation");
+    ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waiting for server /reset_pose_estimation");
     reset_pose_estimation_.waitForExistence();   // TODO: capire come gestire inizializzazione della stima della posa
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /reset_pose_estimation connected ! ");
 
@@ -221,9 +222,10 @@ int main(int argc, char **argv)
       
       std_srvs::Trigger reset_pose;
       configuration_msgs::StartConfiguration start;
+      
       if (cooperative_traj)
       {
-        ROS_INFO_STREAM(BOLDYELLOW<<"Deformation active . ");
+        ROS_INFO_STREAM(BOLDYELLOW << "Deformation active: " << cooperative_traj);
         std::thread t(reset_pose_call);
         ros::Duration(0.1).sleep();
         start.request.start_configuration = "planner_def";
