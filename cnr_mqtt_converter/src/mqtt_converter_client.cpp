@@ -104,15 +104,11 @@ namespace  cnr
       }
       
       bool coop = traj["collaborative"].asBool();
-      
-      ROS_INFO_STREAM(CYAN<<"coop : "<<coop);
-      
+            
       try
       {
-      ROS_INFO_STREAM(GREEN<<"cooperative : "<<cooperative_);
         cooperative_ = coop;
-      ROS_INFO_STREAM(GREEN<<"cooperative : "<<cooperative_);
-        
+        ROS_INFO_STREAM(GREEN<<"cooperative : "<<cooperative_);
       }
       catch(const std::exception& e)
       {

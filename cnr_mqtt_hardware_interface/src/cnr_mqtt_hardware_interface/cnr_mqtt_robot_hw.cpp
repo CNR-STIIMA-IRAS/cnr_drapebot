@@ -161,8 +161,8 @@ bool check_vector_distances(cnr_logger::TraceLogger& logger, std::vector<double>
   {
     if(std::fabs(v1.at(i) - v2.at(i)) > 0.1 )
     {
-      CNR_ERROR(logger,"command and feedback are very different");
-      CNR_ERROR(logger,"joint " << i << " -- command: "<< v1.at(i) << ", feedback: "<<v2.at(i));
+      CNR_WARN_THROTTLE(logger,2.0,"command and feedback are very different");
+      CNR_WARN_THROTTLE(logger,2.0,"joint " << i << " -- command: "<< v1.at(i) << ", feedback: "<<v2.at(i));
       return false;
     }
   }
@@ -385,7 +385,7 @@ bool MQTTRobotHW::doInit()
   if (!m_robothw_nh.getParam("nominal_trajectory_topic",pose_target))
   {
     pose_target = "/joint_pos_target";
-    CNR_WARN(m_logger,"default noimnal trajectory topic : joint_pos_target");
+    CNR_WARN(m_logger,"default noimnal trajectory topic: joint_pos_target");
   }
   m_traj_sub = m_robothw_nh.subscribe(pose_target,1,&MQTTRobotHW::trajCb,this);
   
@@ -416,19 +416,19 @@ bool MQTTRobotHW::doInit()
   if (!m_robothw_nh.getParam("max_missing_cycles",m_maximum_missing_cycle))
   {
     m_maximum_missing_cycle = 5;
-    CNR_WARN(m_logger,"param: "<<m_robothw_nh.getNamespace()<<"/max_missing_cycles not found . default: m_maximum_missing_cycle = "<< m_maximum_missing_cycle );
+    CNR_WARN(m_logger,"param: "<<m_robothw_nh.getNamespace()<<"/max_missing_cycles not found. Default: m_maximum_missing_cycle = "<< m_maximum_missing_cycle );
   }
   
   if (!m_robothw_nh.getParam("goal_tolerance",goal_toll_))
   {
     goal_toll_={0.001,0.01,0.01,0.01,0.01,0.01,0.01};
-    CNR_WARN(m_logger,"using defalut host: localhost");
+    CNR_WARN(m_logger,"using defalut goal tolerance: 0.001,0.01,0.01,0.01,0.01,0.01,0.01");
   }
   
-  CNR_INFO(m_logger, cnr_logger::CYAN()<<"goal tolerance: ");
-  for (auto p : goal_toll_)
-    CNR_INFO(m_logger, cnr_logger::CYAN() << p);
-
+  CNR_INFO(m_logger, cnr_logger::CYAN()<<"goal tolerance: " );
+  for (size_t i=0; i<goal_toll_.size(); i++)
+    CNR_INFO(m_logger, cnr_logger::CYAN() << "joint "<< i << " tolerance: "<< goal_toll_.at(i));
+    
   
 //   ---- MQTT params ----
   CNR_TRACE(m_logger," MQTT PARAMS");
@@ -828,10 +828,8 @@ bool MQTTRobotHW::doRead(const ros::Time& /*time*/, const ros::Duration& /*perio
         CNR_WARN_THROTTLE(m_logger,2.0,"No new MQTT feedback message available OR first message not received yet... not good, topic: "<< m_mqtt_feedback_topic);
     }
 
-    if(!check_vector_distances(m_logger, m_cmd_pos, m_pos))
-    {
-      CNR_INFO(m_logger,"restart this terminal ! otherwise the robot will go back to the old position before jogging ");
-    }         
+    check_vector_distances(m_logger, m_cmd_pos, m_pos);
+          
   }
   else
   {
