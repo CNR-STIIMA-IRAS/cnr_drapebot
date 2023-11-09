@@ -160,7 +160,7 @@ int main(int argc, char **argv)
     
   if (handle_deformation)
   {
-    ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waitin for server /configuration_manager/start_configuration");
+    ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waiting for server /configuration_manager/start_configuration");
     configuration_srv.waitForExistence();
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " /configuration_manager/start_configuration connected ! ");
     ROS_INFO_STREAM("[ " << robot_hw_ns << " ]" << " waiting for server /reset_pose_estimation");
@@ -205,6 +205,17 @@ int main(int argc, char **argv)
 //   end
 
   bool trg_pose_available = false;
+  
+  configuration_msgs::StartConfiguration start;
+  
+  start.request.start_configuration = "mqtt_watch";
+  start.request.strictness = 1;
+  configuration_srv.call(start);
+  if (start.response.ok == true) 
+    ROS_INFO_STREAM(BOLDGREEN << "Starting controller: mqtt_watch ");
+  else
+    ROS_ERROR_STREAM(BOLDRED << "Can't activate controller: mqtt_watch ");
+
 
   while(ros::ok())
   {
@@ -221,7 +232,7 @@ int main(int argc, char **argv)
       client.getLastReceivedMessage(trajectory_msg,cooperative_traj);
       
       std_srvs::Trigger reset_pose;
-      configuration_msgs::StartConfiguration start;
+      //configuration_msgs::StartConfiguration start;
       
       if (cooperative_traj)
       {
@@ -354,16 +365,16 @@ int main(int argc, char **argv)
         ROS_ERROR_STREAM("[ " << robot_hw_ns << " ] Some error in trajectory execution. Return!");
         return -1;
       }
+      
+      start.request.start_configuration = "mqtt_watch";
+      start.request.strictness = 1;
+      configuration_srv.call(start);
+      if (start.response.ok == true) 
+        ROS_INFO_STREAM(BOLDGREEN << "Activated controller: mqtt_watch ");
+      else
+        ROS_ERROR_STREAM(BOLDRED << "Can't activate controller: mqtt_watch ");
     }
-    
-//           start.request.start_configuration = "mqtt_watch";
-//           start.request.strictness = 1;
-//           configuration_srv.call(start);
-//           if (start.response.ok == true) 
-//             ROS_INFO_STREAM(BOLDGREEN << "Activated controller: mqtt_watch ");
-//           else
-//             ROS_ERROR_STREAM(BOLDRED << "Can't activate controller: mqtt_watch ");
-    
+        
     r.sleep();    
     
   }
