@@ -330,7 +330,7 @@ int main(int argc, char **argv)
         }
         else if(as == actionlib::SimpleClientGoalState::REJECTED)
         {
-          ROS_INFO_STREAM(WHITE<< "[ " << robot_hw_ns << " ] Executing trajectory. State :  REJECTED!" );
+          ROS_INFO_STREAM(CYAN<< "[ " << robot_hw_ns << " ] Executing trajectory. State :  REJECTED!" );
           break;
         }
         else if(as == actionlib::SimpleClientGoalState::PREEMPTED)
@@ -365,6 +365,8 @@ int main(int argc, char **argv)
         ROS_ERROR_STREAM("[ " << robot_hw_ns << " ] Some error in trajectory execution. Return!");
         return -1;
       }
+
+      ROS_INFO_STREAM(BOLDGREEN << "Trajectory execution: SUCCEEDED!");
       
       start.request.start_configuration = "mqtt_watch";
       start.request.strictness = 1;
